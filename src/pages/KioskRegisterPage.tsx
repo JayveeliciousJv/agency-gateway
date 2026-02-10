@@ -10,6 +10,7 @@ import { Shield } from 'lucide-react';
 const KioskRegisterPage = () => {
   const profile = useAppStore((s) => s.profile);
   const services = useAppStore((s) => s.services);
+  const purposes = useAppStore((s) => s.purposes);
   const addVisitor = useAppStore((s) => s.addVisitor);
   const navigate = useNavigate();
 
@@ -91,11 +92,9 @@ const KioskRegisterPage = () => {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Transaction">Transaction</SelectItem>
-                  <SelectItem value="Inquiry">Inquiry</SelectItem>
-                  <SelectItem value="Follow-up">Follow-up</SelectItem>
-                  <SelectItem value="Complaint">Complaint</SelectItem>
-                  <SelectItem value="Others">Others</SelectItem>
+                  {purposes.map((p) => (
+                    <SelectItem key={p} value={p}>{p}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
