@@ -132,6 +132,7 @@ function generateMockSurveys(visitors: VisitorLog[]): SurveyResponse[] {
 interface AppState {
   profile: AgencyProfile;
   services: string[];
+  purposes: string[];
   visitors: VisitorLog[];
   surveys: SurveyResponse[];
   auditLogs: AuditEntry[];
@@ -143,15 +144,21 @@ interface AppState {
   addAuditLog: (entry: Omit<AuditEntry, 'id' | 'timestamp'>) => void;
   login: (username: string, password: string) => boolean;
   logout: () => void;
+  addPurpose: (p: string) => void;
+  updatePurpose: (oldP: string, newP: string) => void;
+  deletePurpose: (p: string) => void;
 }
 
 export const useAppStore = create<AppState>((set, get) => {
   const visitors = generateMockVisitors();
   const surveys = generateMockSurveys(visitors);
 
+  const defaultPurposes = ['Transaction', 'Inquiry', 'Follow-up', 'Complaint', 'Others'];
+
   return {
     profile: defaultProfile,
     services: defaultServices,
+    purposes: defaultPurposes,
     visitors,
     surveys,
     auditLogs: [],
@@ -170,6 +177,9 @@ export const useAppStore = create<AppState>((set, get) => {
           ...s.auditLogs,
         ],
       })),
+    addPurpose: (p) => set((s) => ({ purposes: [...s.purposes, p] })),
+    updatePurpose: (oldP, newP) => set((s) => ({ purposes: s.purposes.map((x) => (x === oldP ? newP : x)) })),
+    deletePurpose: (p) => set((s) => ({ purposes: s.purposes.filter((x) => x !== p) })),
     login: (username, password) => {
       if (username === 'admin' && password === 'admin123') {
         set({
