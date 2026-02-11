@@ -18,55 +18,52 @@ const criteria = [
   { key: 'outcome', label: 'Outcome' },
 ];
 
+/**
+ * RatingStars — interactive 5-star rating component.
+ *
+ * Behaviour:
+ *  • Hover fills stars 1..N temporarily (preview only).
+ *  • Click commits the rating permanently.
+ *  • After a click, hover still previews but reverts on mouse-leave.
+ *  • Smooth CSS transitions on color & scale.
+ */
 const RatingStars = ({ value, onChange }: { value: number; onChange: (v: number) => void }) => {
-  const [isDragging, setIsDragging] = useState(false);
+  // hoverValue tracks the star the cursor is over (0 = not hovering)
   const [hoverValue, setHoverValue] = useState(0);
 
-  const getStarFromEvent = (e: React.PointerEvent | PointerEvent, container: HTMLElement) => {
-    const rect = container.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const starWidth = rect.width / 5;
-    return Math.max(1, Math.min(5, Math.ceil(x / starWidth)));
-  };
-
-  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setIsDragging(true);
-    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
-    const star = getStarFromEvent(e, e.currentTarget);
-    setHoverValue(star);
-    onChange(star);
-  };
-
-  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (!isDragging) return;
-    const star = getStarFromEvent(e, e.currentTarget);
-    setHoverValue(star);
-    onChange(star);
-  };
-
-  const handlePointerUp = () => {
-    setIsDragging(false);
-    setHoverValue(0);
-  };
-
-  const displayValue = isDragging ? hoverValue : value;
+  // Show hover preview when active, otherwise the committed value
+  const displayValue = hoverValue || value;
 
   return (
     <div
-      className="flex gap-1 touch-none select-none cursor-pointer"
-      onPointerDown={handlePointerDown}
-      onPointerMove={handlePointerMove}
-      onPointerUp={handlePointerUp}
-      onPointerLeave={handlePointerUp}
+      className="flex gap-1.5 select-none"
+      // Reset hover preview when the cursor leaves the entire row
+      onMouseLeave={() => setHoverValue(0)}
     >
-      {[1, 2, 3, 4, 5].map((star) => (
-        <div key={star} className="p-0.5 transition-transform hover:scale-110">
-          <Star
-            className={`w-7 h-7 ${star <= displayValue ? 'fill-warning text-warning' : 'text-border'}`}
-          />
-        </div>
-      ))}
+      {[1, 2, 3, 4, 5].map((star) => {
+        const isFilled = star <= displayValue;
+
+        return (
+          <button
+            key={star}
+            type="button"
+            // Preview: fill stars 1..star on hover
+            onMouseEnter={() => setHoverValue(star)}
+            // Commit: permanently save rating on click
+            onClick={() => onChange(star)}
+            className="p-0.5 cursor-pointer transition-transform duration-200 ease-out hover:scale-125 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm"
+            aria-label={`Rate ${star} out of 5`}
+          >
+            <Star
+              className={`w-7 h-7 transition-colors duration-200 ease-out ${
+                isFilled
+                  ? 'fill-warning text-warning'
+                  : 'fill-transparent text-border'
+              }`}
+            />
+          </button>
+        );
+      })}
     </div>
   );
 };
