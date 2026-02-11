@@ -18,22 +18,58 @@ const criteria = [
   { key: 'outcome', label: 'Outcome' },
 ];
 
-const RatingStars = ({ value, onChange }: { value: number; onChange: (v: number) => void }) => (
-  <div className="flex gap-1">
-    {[1, 2, 3, 4, 5].map((star) => (
-      <button
-        key={star}
-        type="button"
-        onClick={() => onChange(star)}
-        className="p-0.5 transition-transform hover:scale-110"
-      >
-        <Star
-          className={`w-7 h-7 ${star <= value ? 'fill-warning text-warning' : 'text-border'}`}
-        />
-      </button>
-    ))}
-  </div>
-);
+const RatingStars = ({ value, onChange }: { value: number; onChange: (v: number) => void }) => {
+  const [isDragging, setIsDragging] = useState(false);
+  const [hoverValue, setHoverValue] = useState(0);
+
+  const getStarFromEvent = (e: React.PointerEvent | PointerEvent, container: HTMLElement) => {
+    const rect = container.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const starWidth = rect.width / 5;
+    return Math.max(1, Math.min(5, Math.ceil(x / starWidth)));
+  };
+
+  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragging(true);
+    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+    const star = getStarFromEvent(e, e.currentTarget);
+    setHoverValue(star);
+    onChange(star);
+  };
+
+  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!isDragging) return;
+    const star = getStarFromEvent(e, e.currentTarget);
+    setHoverValue(star);
+    onChange(star);
+  };
+
+  const handlePointerUp = () => {
+    setIsDragging(false);
+    setHoverValue(0);
+  };
+
+  const displayValue = isDragging ? hoverValue : value;
+
+  return (
+    <div
+      className="flex gap-1 touch-none select-none cursor-pointer"
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
+      onPointerLeave={handlePointerUp}
+    >
+      {[1, 2, 3, 4, 5].map((star) => (
+        <div key={star} className="p-0.5 transition-transform hover:scale-110">
+          <Star
+            className={`w-7 h-7 ${star <= displayValue ? 'fill-warning text-warning' : 'text-border'}`}
+          />
+        </div>
+      ))}
+    </div>
+  );
+};
 
 const KioskSurveyPage = () => {
   const profile = useAppStore((s) => s.profile);
