@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAppStore } from '@/lib/store';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Shield } from 'lucide-react';
+import { Shield, ArrowLeft } from 'lucide-react';
 
 const KioskConsentPage = () => {
   const [agreed, setAgreed] = useState(false);
@@ -11,7 +11,16 @@ const KioskConsentPage = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-background p-4">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-background p-4 relative">
+      <Button
+        variant="ghost"
+        size="icon"
+        className="absolute top-4 left-4"
+        onClick={() => navigate('/')}
+        aria-label="Back to home"
+      >
+        <ArrowLeft className="w-5 h-5" />
+      </Button>
       <div className="w-full max-w-2xl animate-fade-in">
         <div className="text-center mb-6">
           <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl gov-header-gradient mb-3">
