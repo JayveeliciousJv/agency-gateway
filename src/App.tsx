@@ -8,8 +8,10 @@ import NotFound from "./pages/NotFound";
 import LoginPage from "./pages/LoginPage";
 import KioskConsentPage from "./pages/KioskConsentPage";
 import KioskRegisterPage from "./pages/KioskRegisterPage";
-import KioskSurveyPage from "./pages/KioskSurveyPage";
 import KioskThankYouPage from "./pages/KioskThankYouPage";
+import SurveyConsentPage from "./pages/SurveyConsentPage";
+import KioskSurveyPage from "./pages/KioskSurveyPage";
+import SurveyThankYouPage from "./pages/SurveyThankYouPage";
 import AdminLayout from "./components/AdminLayout";
 import DashboardPage from "./pages/DashboardPage";
 import VisitorLogsPage from "./pages/VisitorLogsPage";
@@ -29,10 +31,15 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/login" element={<LoginPage />} />
+          {/* Visitor Logbook flow */}
           <Route path="/kiosk" element={<KioskConsentPage />} />
           <Route path="/kiosk/register" element={<KioskRegisterPage />} />
-          <Route path="/kiosk/survey" element={<KioskSurveyPage />} />
           <Route path="/kiosk/thankyou" element={<KioskThankYouPage />} />
+          {/* Satisfaction Survey flow */}
+          <Route path="/survey" element={<SurveyConsentPage />} />
+          <Route path="/survey/form" element={<KioskSurveyPage />} />
+          <Route path="/survey/thankyou" element={<SurveyThankYouPage />} />
+          {/* Admin */}
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<DashboardPage />} />
             <Route path="visitors" element={<VisitorLogsPage />} />
