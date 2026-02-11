@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useAppStore } from '@/lib/store';
 import { Button } from '@/components/ui/button';
-import { Shield, ClipboardList, UserCheck } from 'lucide-react';
+import { Shield, ClipboardList, UserCheck, Star } from 'lucide-react';
 
 const Index = () => {
   const profile = useAppStore((s) => s.profile);
@@ -29,7 +29,16 @@ const Index = () => {
             onClick={() => navigate('/kiosk')}
           >
             <ClipboardList className="w-5 h-5" />
-            Visitor Kiosk
+            Visitor Logbook
+          </Button>
+          <Button
+            size="lg"
+            variant="outline"
+            className="w-full gap-2"
+            onClick={() => navigate('/survey')}
+          >
+            <Star className="w-5 h-5" />
+            Satisfaction Survey
           </Button>
           <Button
             size="lg"

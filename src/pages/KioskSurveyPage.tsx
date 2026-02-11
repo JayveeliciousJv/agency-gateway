@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useAppStore } from '@/lib/store';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -40,6 +41,8 @@ const KioskSurveyPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { visitorId = '', service = '' } = (location.state as any) || {};
+  const services = useAppStore((s) => s.services);
+  const [selectedService, setSelectedService] = useState(service);
 
   const [ratings, setRatings] = useState<Record<string, number>>(
     Object.fromEntries(criteria.map((c) => [c.key, 0]))
@@ -47,7 +50,7 @@ const KioskSurveyPage = () => {
   const [overall, setOverall] = useState(0);
   const [comment, setComment] = useState('');
 
-  const allRated = Object.values(ratings).every((v) => v > 0) && overall > 0;
+  const allRated = Object.values(ratings).every((v) => v > 0) && overall > 0 && !!selectedService;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,13 +59,13 @@ const KioskSurveyPage = () => {
     addSurvey({
       id: `s${Date.now()}`,
       visitorId,
-      service,
+      service: selectedService,
       ...ratings as any,
       overallSatisfaction: overall,
       comment,
       date: new Date().toISOString().split('T')[0],
     });
-    navigate('/kiosk/thankyou');
+    navigate('/survey/thankyou');
   };
 
   return (
@@ -74,12 +77,26 @@ const KioskSurveyPage = () => {
           </div>
           <h1 className="text-xl font-bold text-foreground">Satisfaction Survey</h1>
           <p className="text-sm text-muted-foreground">
-            QMS Client Feedback — {service || profile.officeName}
+            QMS Client Feedback — {selectedService || profile.officeName}
           </p>
         </div>
 
         <div className="bg-card rounded-xl p-6 kiosk-card-shadow border border-border">
           <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="service">Service Availed *</Label>
+              <Select value={selectedService} onValueChange={setSelectedService}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select the service you availed" />
+                </SelectTrigger>
+                <SelectContent>
+                  {services.map((s) => (
+                    <SelectItem key={s} value={s}>{s}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
             <p className="text-sm text-muted-foreground mb-2">
               Please rate your experience (1 = Poor, 5 = Excellent)
             </p>

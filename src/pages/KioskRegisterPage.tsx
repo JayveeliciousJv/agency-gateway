@@ -34,7 +34,7 @@ const KioskRegisterPage = () => {
       time: now.toTimeString().slice(0, 5),
     };
     addVisitor(visitor);
-    navigate('/kiosk/survey', { state: { visitorId: visitor.id, service: visitor.service } });
+    navigate('/kiosk/thankyou');
   };
 
   return (
