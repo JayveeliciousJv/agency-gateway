@@ -9,6 +9,8 @@ import {
   LogOut,
   Users,
   History,
+  ListChecks,
+  FileText,
 } from 'lucide-react';
 
 const navItems = [
@@ -17,6 +19,8 @@ const navItems = [
   { to: '/admin/surveys', icon: BarChart3, label: 'Survey Results' },
   { to: '/admin/users', icon: Users, label: 'Users', role: 'super_admin' as const },
   { to: '/admin/audit', icon: History, label: 'Audit Logs' },
+  { to: '/admin/purposes', icon: ListChecks, label: 'Purposes of Visit', role: 'super_admin' as const },
+  { to: '/admin/privacy', icon: FileText, label: 'Privacy Prompts', role: 'super_admin' as const },
   { to: '/admin/settings', icon: Settings, label: 'Agency Settings', role: 'super_admin' as const },
 ];
 

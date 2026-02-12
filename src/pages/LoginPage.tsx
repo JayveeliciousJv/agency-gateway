@@ -17,7 +17,7 @@ const LoginPage = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (login(username, password)) {
-      navigate('/admin');
+      navigate('/');
     } else {
       setError('Invalid username or password.');
     }
