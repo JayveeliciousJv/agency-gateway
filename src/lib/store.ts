@@ -14,6 +14,8 @@ export interface AgencyProfile {
   reportSignatory: string;
   reportSignatoryPosition: string;
   systemTitle: string;
+  visitorPrivacyPrompt: string;
+  surveyPrivacyPrompt: string;
 }
 
 export interface VisitorLog {
@@ -60,6 +62,30 @@ export interface User {
   fullName: string;
 }
 
+const defaultVisitorPrivacy = `By signing this logbook, I voluntarily provide my personal information to {officeName} for the purpose of recording office visits and improving public service delivery.
+
+**Information Collected:** Name, contact details, purpose of visit, service availed, and satisfaction feedback.
+
+**Purpose:** The data will be used solely for visitor tracking, service performance evaluation, and compliance with Quality Management System (QMS) requirements.
+
+**Retention:** Records will be retained in accordance with the office's records disposition schedule and applicable government regulations.
+
+**Rights:** You have the right to access, correct, and request deletion of your personal data, subject to applicable laws. For concerns, contact our Data Protection Officer at {email}.
+
+**Security:** All data is protected with appropriate organizational, physical, and technical security measures.
+
+I understand and agree to the collection, processing, and storage of my personal information as described above.`;
+
+const defaultSurveyPrivacy = `By participating in this satisfaction survey, I voluntarily provide my feedback to {officeName} for the purpose of improving public service delivery.
+
+**Information Collected:** Service availed, satisfaction ratings, and optional comments.
+
+**Purpose:** The data will be used solely for service performance evaluation and compliance with Quality Management System (QMS) requirements.
+
+**Anonymity:** Survey responses are anonymous and cannot be traced back to individual respondents.
+
+**Security:** All data is protected with appropriate organizational, physical, and technical security measures.`;
+
 const defaultProfile: AgencyProfile = {
   agencyName: 'Republic of the Philippines',
   officeName: 'City Government Office',
@@ -74,6 +100,8 @@ const defaultProfile: AgencyProfile = {
   reportSignatory: 'Maria Santos',
   reportSignatoryPosition: 'City Administrator',
   systemTitle: 'Office Visitor Logbook System',
+  visitorPrivacyPrompt: defaultVisitorPrivacy,
+  surveyPrivacyPrompt: defaultSurveyPrivacy,
 };
 
 const defaultServices = [

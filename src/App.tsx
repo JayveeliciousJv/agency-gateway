@@ -19,6 +19,8 @@ import SurveyResultsPage from "./pages/SurveyResultsPage";
 import UsersPage from "./pages/UsersPage";
 import AuditLogsPage from "./pages/AuditLogsPage";
 import AgencySettingsPage from "./pages/AgencySettingsPage";
+import PurposesSettingsPage from "./pages/PurposesSettingsPage";
+import PrivacySettingsPage from "./pages/PrivacySettingsPage";
 
 const queryClient = new QueryClient();
 
@@ -47,6 +49,8 @@ const App = () => (
             <Route path="users" element={<UsersPage />} />
             <Route path="audit" element={<AuditLogsPage />} />
             <Route path="settings" element={<AgencySettingsPage />} />
+            <Route path="purposes" element={<PurposesSettingsPage />} />
+            <Route path="privacy" element={<PrivacySettingsPage />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
