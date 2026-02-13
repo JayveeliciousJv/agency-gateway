@@ -1,17 +1,20 @@
 import { useNavigate } from 'react-router-dom';
 import { useAppStore } from '@/lib/store';
 import { Button } from '@/components/ui/button';
-import { Shield, ClipboardList, UserCheck, Star } from 'lucide-react';
+import { ClipboardList, UserCheck, Star } from 'lucide-react';
+import defaultLogo from '@/assets/default-logo.png';
 
 const Index = () => {
   const profile = useAppStore((s) => s.profile);
   const navigate = useNavigate();
 
+  const logoSrc = profile.logoPath || defaultLogo;
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-background p-4">
       <div className="w-full max-w-md text-center animate-fade-in">
-        <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl gov-header-gradient mb-6">
-          <Shield className="w-10 h-10 text-primary-foreground" />
+        <div className="inline-flex items-center justify-center w-24 h-24 rounded-2xl mb-6 overflow-hidden">
+          <img src={logoSrc} alt="Agency Logo" className="w-full h-full object-contain" />
         </div>
 
         <p className="text-sm text-muted-foreground uppercase tracking-wide font-medium">
