@@ -22,7 +22,7 @@ const KioskThankYouPage = () => {
         <p className="text-sm text-muted-foreground mb-8">
           {profile.officeName} — {profile.footerText}
         </p>
-        <Button onClick={() => navigate('/kiosk')} size="lg">
+        <Button onClick={() => navigate('/')} size="lg">
           Return to Home
         </Button>
       </div>
