@@ -177,6 +177,8 @@ interface AppState {
   deletePurpose: (p: string) => void;
   users: User[];
   addUser: (u: User) => void;
+  userPasswords: Record<string, string>;
+  resetPassword: (username: string, newPassword: string) => void;
 }
 
 export const useAppStore = create<AppState>((set, get) => {
@@ -190,11 +192,17 @@ export const useAppStore = create<AppState>((set, get) => {
     { id: 'u2', username: 'staff', role: 'semi_admin', fullName: 'Staff User' },
   ];
 
+  const defaultPasswords: Record<string, string> = {
+    admin: 'admin123',
+    staff: 'staff123',
+  };
+
   return {
     profile: defaultProfile,
     services: defaultServices,
     purposes: defaultPurposes,
     users: defaultUsers,
+    userPasswords: defaultPasswords,
     visitors,
     surveys,
     auditLogs: [],
@@ -216,21 +224,18 @@ export const useAppStore = create<AppState>((set, get) => {
     addPurpose: (p) => set((s) => ({ purposes: [...s.purposes, p] })),
     updatePurpose: (oldP, newP) => set((s) => ({ purposes: s.purposes.map((x) => (x === oldP ? newP : x)) })),
     deletePurpose: (p) => set((s) => ({ purposes: s.purposes.filter((x) => x !== p) })),
-    addUser: (u) => set((s) => ({ users: [...s.users, u] })),
+    addUser: (u) => set((s) => ({
+      users: [...s.users, u],
+      userPasswords: { ...s.userPasswords, [u.username]: `${u.username}123` },
+    })),
+    resetPassword: (username, newPassword) => set((s) => ({
+      userPasswords: { ...s.userPasswords, [username]: newPassword },
+    })),
     login: (username, password) => {
-      const users = get().users;
-      if (username === 'admin' && password === 'admin123') {
-        const user = users.find((u) => u.username === 'admin');
-        if (user) { set({ currentUser: user, isAuthenticated: true }); return true; }
-      }
-      if (username === 'staff' && password === 'staff123') {
-        const user = users.find((u) => u.username === 'staff');
-        if (user) { set({ currentUser: user, isAuthenticated: true }); return true; }
-      }
-      // Check dynamically added users (default password: their username + "123")
-      const dynamicUser = users.find((u) => u.username === username);
-      if (dynamicUser && password === `${username}123`) {
-        set({ currentUser: dynamicUser, isAuthenticated: true });
+      const { users, userPasswords } = get();
+      const user = users.find((u) => u.username === username);
+      if (user && userPasswords[username] === password) {
+        set({ currentUser: user, isAuthenticated: true });
         return true;
       }
       return false;
