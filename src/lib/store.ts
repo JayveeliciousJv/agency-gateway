@@ -175,6 +175,8 @@ interface AppState {
   addPurpose: (p: string) => void;
   updatePurpose: (oldP: string, newP: string) => void;
   deletePurpose: (p: string) => void;
+  users: User[];
+  addUser: (u: User) => void;
 }
 
 export const useAppStore = create<AppState>((set, get) => {
@@ -183,10 +185,16 @@ export const useAppStore = create<AppState>((set, get) => {
 
   const defaultPurposes = ['Transaction', 'Inquiry', 'Follow-up', 'Complaint', 'Others'];
 
+  const defaultUsers: User[] = [
+    { id: 'u1', username: 'admin', role: 'super_admin', fullName: 'System Administrator' },
+    { id: 'u2', username: 'staff', role: 'semi_admin', fullName: 'Staff User' },
+  ];
+
   return {
     profile: defaultProfile,
     services: defaultServices,
     purposes: defaultPurposes,
+    users: defaultUsers,
     visitors,
     surveys,
     auditLogs: [],
@@ -208,19 +216,21 @@ export const useAppStore = create<AppState>((set, get) => {
     addPurpose: (p) => set((s) => ({ purposes: [...s.purposes, p] })),
     updatePurpose: (oldP, newP) => set((s) => ({ purposes: s.purposes.map((x) => (x === oldP ? newP : x)) })),
     deletePurpose: (p) => set((s) => ({ purposes: s.purposes.filter((x) => x !== p) })),
+    addUser: (u) => set((s) => ({ users: [...s.users, u] })),
     login: (username, password) => {
+      const users = get().users;
       if (username === 'admin' && password === 'admin123') {
-        set({
-          currentUser: { id: 'u1', username: 'admin', role: 'super_admin', fullName: 'System Administrator' },
-          isAuthenticated: true,
-        });
-        return true;
+        const user = users.find((u) => u.username === 'admin');
+        if (user) { set({ currentUser: user, isAuthenticated: true }); return true; }
       }
       if (username === 'staff' && password === 'staff123') {
-        set({
-          currentUser: { id: 'u2', username: 'staff', role: 'semi_admin', fullName: 'Staff User' },
-          isAuthenticated: true,
-        });
+        const user = users.find((u) => u.username === 'staff');
+        if (user) { set({ currentUser: user, isAuthenticated: true }); return true; }
+      }
+      // Check dynamically added users (default password: their username + "123")
+      const dynamicUser = users.find((u) => u.username === username);
+      if (dynamicUser && password === `${username}123`) {
+        set({ currentUser: dynamicUser, isAuthenticated: true });
         return true;
       }
       return false;
