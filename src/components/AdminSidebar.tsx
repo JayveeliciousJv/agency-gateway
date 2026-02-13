@@ -21,7 +21,7 @@ const navItems = [
   { to: '/admin/audit', icon: History, label: 'Audit Logs', role: 'super_admin' as const },
   { to: '/admin/purposes', icon: ListChecks, label: 'Purposes of Visit' },
   { to: '/admin/privacy', icon: FileText, label: 'Privacy Prompts', role: 'super_admin' as const },
-  { to: '/admin/settings', icon: Settings, label: 'Agency Settings' },
+  { to: '/admin/settings', icon: Settings, label: 'Agency Settings', role: 'super_admin' as const },
 ];
 
 const AdminSidebar = () => {
