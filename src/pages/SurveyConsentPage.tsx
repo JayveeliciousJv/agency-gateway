@@ -50,7 +50,7 @@ const SurveyConsentPage = () => {
           <div className="flex items-start space-x-3 mb-6">
             <Checkbox id="consent" checked={agreed} onCheckedChange={(checked) => setAgreed(checked === true)} />
             <label htmlFor="consent" className="text-sm cursor-pointer leading-relaxed">
-              I have read, understood, and agree to the collection and processing of my feedback in accordance with RA 10173.
+              {profile.surveyConsentLabel}
             </label>
           </div>
 

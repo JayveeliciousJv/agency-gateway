@@ -15,9 +15,16 @@ const PrivacySettingsPage = () => {
 
   const [visitorPrompt, setVisitorPrompt] = useState(profile.visitorPrivacyPrompt);
   const [surveyPrompt, setSurveyPrompt] = useState(profile.surveyPrivacyPrompt);
+  const [visitorConsentLabel, setVisitorConsentLabel] = useState(profile.visitorConsentLabel);
+  const [surveyConsentLabel, setSurveyConsentLabel] = useState(profile.surveyConsentLabel);
 
   const handleSave = () => {
-    setProfile({ visitorPrivacyPrompt: visitorPrompt, surveyPrivacyPrompt: surveyPrompt });
+    setProfile({
+      visitorPrivacyPrompt: visitorPrompt,
+      surveyPrivacyPrompt: surveyPrompt,
+      visitorConsentLabel,
+      surveyConsentLabel,
+    });
     addAuditLog({
       userId: currentUser?.id || '',
       userName: currentUser?.fullName || '',
@@ -56,6 +63,19 @@ const PrivacySettingsPage = () => {
 
       <Card className="p-6">
         <div className="space-y-2 mb-4">
+          <Label className="text-base font-semibold">Visitor Consent — Checkbox Label</Label>
+          <p className="text-xs text-muted-foreground">The text beside the checkbox that visitors must agree to before proceeding</p>
+        </div>
+        <Textarea
+          value={visitorConsentLabel}
+          onChange={(e) => setVisitorConsentLabel(e.target.value)}
+          rows={3}
+          className="font-mono text-sm"
+        />
+      </Card>
+
+      <Card className="p-6">
+        <div className="space-y-2 mb-4">
           <Label className="text-base font-semibold">Satisfaction Survey — Data Privacy Consent</Label>
           <p className="text-xs text-muted-foreground">Shown before survey participation</p>
         </div>
@@ -63,6 +83,19 @@ const PrivacySettingsPage = () => {
           value={surveyPrompt}
           onChange={(e) => setSurveyPrompt(e.target.value)}
           rows={10}
+          className="font-mono text-sm"
+        />
+      </Card>
+
+      <Card className="p-6">
+        <div className="space-y-2 mb-4">
+          <Label className="text-base font-semibold">Survey Consent — Checkbox Label</Label>
+          <p className="text-xs text-muted-foreground">The text beside the checkbox that survey respondents must agree to</p>
+        </div>
+        <Textarea
+          value={surveyConsentLabel}
+          onChange={(e) => setSurveyConsentLabel(e.target.value)}
+          rows={3}
           className="font-mono text-sm"
         />
       </Card>
