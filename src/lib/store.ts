@@ -16,6 +16,8 @@ export interface AgencyProfile {
   systemTitle: string;
   visitorPrivacyPrompt: string;
   surveyPrivacyPrompt: string;
+  visitorConsentLabel: string;
+  surveyConsentLabel: string;
 }
 
 export interface VisitorLog {
@@ -102,6 +104,8 @@ const defaultProfile: AgencyProfile = {
   systemTitle: 'Office Visitor Logbook System',
   visitorPrivacyPrompt: defaultVisitorPrivacy,
   surveyPrivacyPrompt: defaultSurveyPrivacy,
+  visitorConsentLabel: 'I have read, understood, and agree to the collection and processing of my personal data in accordance with RA 10173.',
+  surveyConsentLabel: 'I have read, understood, and agree to the collection and processing of my feedback in accordance with RA 10173.',
 };
 
 const defaultServices = [
@@ -175,6 +179,9 @@ interface AppState {
   addPurpose: (p: string) => void;
   updatePurpose: (oldP: string, newP: string) => void;
   deletePurpose: (p: string) => void;
+  addService: (s: string) => void;
+  updateService: (oldS: string, newS: string) => void;
+  deleteService: (s: string) => void;
   users: User[];
   addUser: (u: User) => void;
   userPasswords: Record<string, string>;
@@ -224,6 +231,9 @@ export const useAppStore = create<AppState>((set, get) => {
     addPurpose: (p) => set((s) => ({ purposes: [...s.purposes, p] })),
     updatePurpose: (oldP, newP) => set((s) => ({ purposes: s.purposes.map((x) => (x === oldP ? newP : x)) })),
     deletePurpose: (p) => set((s) => ({ purposes: s.purposes.filter((x) => x !== p) })),
+    addService: (sv) => set((s) => ({ services: [...s.services, sv] })),
+    updateService: (oldS, newS) => set((s) => ({ services: s.services.map((x) => (x === oldS ? newS : x)) })),
+    deleteService: (sv) => set((s) => ({ services: s.services.filter((x) => x !== sv) })),
     addUser: (u) => set((s) => ({
       users: [...s.users, u],
       userPasswords: { ...s.userPasswords, [u.username]: `${u.username}123` },
