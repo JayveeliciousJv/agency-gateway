@@ -11,6 +11,7 @@ import {
   History,
   ListChecks,
   FileText,
+  FileBarChart,
 } from 'lucide-react';
 
 const navItems = [
@@ -20,6 +21,7 @@ const navItems = [
   { to: '/admin/users', icon: Users, label: 'Users', role: 'super_admin' as const },
   { to: '/admin/audit', icon: History, label: 'Audit Logs', role: 'super_admin' as const },
   { to: '/admin/purposes', icon: ListChecks, label: 'Purposes & Services' },
+  { to: '/admin/reports', icon: FileBarChart, label: 'Reports' },
   { to: '/admin/privacy', icon: FileText, label: 'Privacy Prompts', role: 'super_admin' as const },
   { to: '/admin/settings', icon: Settings, label: 'Agency Settings', role: 'super_admin' as const },
 ];
