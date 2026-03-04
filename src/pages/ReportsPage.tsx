@@ -124,9 +124,9 @@ const ReportsPage = () => {
     if (type === 'visitors') {
       autoTable(doc, {
         startY: 42,
-        head: [['#', 'Name', 'Service', 'Purpose', 'Contact', 'Date', 'Time']],
-        body: filteredVisitors.map((v, i) => [i + 1, v.name, v.service, v.purpose, v.contactNumber, v.date, v.time]),
-        styles: { fontSize: 8 },
+        head: [['#', 'Name', 'Sex', 'Sector', 'Service', 'Purpose', 'Contact', 'Date', 'Time']],
+        body: filteredVisitors.map((v, i) => [i + 1, v.name, v.sex, v.sectorClassification, v.service, v.purpose, v.contactNumber, v.date, v.time]),
+        styles: { fontSize: 7 },
         headStyles: { fillColor: [30, 58, 95] },
       });
     } else if (type === 'surveys') {
@@ -184,7 +184,7 @@ const ReportsPage = () => {
 
     if (type === 'visitors' || type === 'summary') {
       const visitorRows = filteredVisitors.map((v, i) => ({
-        '#': i + 1, Name: v.name, Service: v.service, Purpose: v.purpose,
+        '#': i + 1, Name: v.name, Sex: v.sex, Sector: v.sectorClassification, Service: v.service, Purpose: v.purpose,
         Contact: v.contactNumber, Email: v.email, Date: v.date, Time: v.time,
       }));
       const ws = XLSX.utils.json_to_sheet(visitorRows);
@@ -299,6 +299,8 @@ const ReportsPage = () => {
                   <TableRow>
                     <TableHead>#</TableHead>
                     <TableHead>Name</TableHead>
+                    <TableHead>Sex</TableHead>
+                    <TableHead>Sector</TableHead>
                     <TableHead>Service</TableHead>
                     <TableHead>Purpose</TableHead>
                     <TableHead>Contact</TableHead>
@@ -311,6 +313,8 @@ const ReportsPage = () => {
                     <TableRow key={v.id}>
                       <TableCell>{i + 1}</TableCell>
                       <TableCell className="font-medium">{v.name}</TableCell>
+                      <TableCell>{v.sex}</TableCell>
+                      <TableCell>{v.sectorClassification}</TableCell>
                       <TableCell>{v.service}</TableCell>
                       <TableCell>{v.purpose}</TableCell>
                       <TableCell>{v.contactNumber}</TableCell>

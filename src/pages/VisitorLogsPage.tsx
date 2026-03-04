@@ -38,6 +38,8 @@ const VisitorLogsPage = () => {
           <TableHeader>
             <TableRow>
               <TableHead>Name</TableHead>
+              <TableHead>Sex</TableHead>
+              <TableHead>Sector</TableHead>
               <TableHead>Service</TableHead>
               <TableHead>Purpose</TableHead>
               <TableHead>Contact</TableHead>
@@ -49,6 +51,8 @@ const VisitorLogsPage = () => {
             {filtered.slice(0, 30).map((v) => (
               <TableRow key={v.id}>
                 <TableCell className="font-medium">{v.name}</TableCell>
+                <TableCell>{v.sex}</TableCell>
+                <TableCell>{v.sectorClassification}</TableCell>
                 <TableCell>{v.service}</TableCell>
                 <TableCell>{v.purpose}</TableCell>
                 <TableCell className="text-sm">{v.contactNumber}</TableCell>
