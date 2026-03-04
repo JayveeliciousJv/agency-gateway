@@ -5,7 +5,22 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Shield } from 'lucide-react';
+
+const SECTOR_OPTIONS = [
+  'Student',
+  'Employed/Working',
+  'Women',
+  'Person with Disability (PWD)',
+  'Senior Citizen',
+  'Youth',
+  'Government Employee',
+  'Private Sector',
+  'Indigenous Peoples (IP)',
+  'Solo Parent',
+  'Others',
+];
 
 const KioskRegisterPage = () => {
   const profile = useAppStore((s) => s.profile);
@@ -18,18 +33,32 @@ const KioskRegisterPage = () => {
     name: '',
     contactNumber: '',
     email: '',
+    sex: '' as 'Male' | 'Female' | 'Prefer not to say' | '',
+    sectorClassification: '',
+    sectorOtherSpecify: '',
     purpose: 'Transaction',
     service: '',
   });
 
+  const isValid = form.name && form.sex && form.sectorClassification && form.service &&
+    (form.sectorClassification !== 'Others' || form.sectorOtherSpecify.trim());
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.name || !form.service) return;
+    if (!isValid) return;
 
     const now = new Date();
     const visitor = {
       id: `v${Date.now()}`,
-      ...form,
+      name: form.name,
+      sex: form.sex as 'Male' | 'Female' | 'Prefer not to say',
+      sectorClassification: form.sectorClassification === 'Others'
+        ? `Others - ${form.sectorOtherSpecify.trim()}`
+        : form.sectorClassification,
+      purpose: form.purpose,
+      service: form.service,
+      contactNumber: form.contactNumber,
+      email: form.email,
       date: now.toISOString().split('T')[0],
       time: now.toTimeString().slice(0, 5),
     };
@@ -61,6 +90,45 @@ const KioskRegisterPage = () => {
                 placeholder="Juan Dela Cruz"
                 required
               />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Sex *</Label>
+              <RadioGroup
+                value={form.sex}
+                onValueChange={(v) => setForm({ ...form, sex: v as typeof form.sex })}
+                className="flex gap-4"
+              >
+                {(['Male', 'Female', 'Prefer not to say'] as const).map((opt) => (
+                  <div key={opt} className="flex items-center space-x-2">
+                    <RadioGroupItem value={opt} id={`sex-${opt}`} />
+                    <Label htmlFor={`sex-${opt}`} className="font-normal cursor-pointer">{opt}</Label>
+                  </div>
+                ))}
+              </RadioGroup>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="sector">Sector Classification *</Label>
+              <Select value={form.sectorClassification} onValueChange={(v) => setForm({ ...form, sectorClassification: v, sectorOtherSpecify: v !== 'Others' ? '' : form.sectorOtherSpecify })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select sector" />
+                </SelectTrigger>
+                <SelectContent>
+                  {SECTOR_OPTIONS.map((s) => (
+                    <SelectItem key={s} value={s}>{s}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {form.sectorClassification === 'Others' && (
+                <Input
+                  placeholder="Please specify..."
+                  value={form.sectorOtherSpecify}
+                  onChange={(e) => setForm({ ...form, sectorOtherSpecify: e.target.value })}
+                  className="mt-2"
+                  required
+                />
+              )}
             </div>
 
             <div className="grid grid-cols-2 gap-4">
@@ -117,7 +185,7 @@ const KioskRegisterPage = () => {
               <Button type="button" variant="outline" className="flex-1" onClick={() => navigate('/kiosk')}>
                 Back
               </Button>
-              <Button type="submit" className="flex-1" disabled={!form.name || !form.service}>
+              <Button type="submit" className="flex-1" disabled={!isValid}>
                 Submit & Continue
               </Button>
             </div>

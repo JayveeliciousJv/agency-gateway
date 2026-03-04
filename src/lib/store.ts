@@ -23,6 +23,9 @@ export interface AgencyProfile {
 export interface VisitorLog {
   id: string;
   name: string;
+  sex: 'Male' | 'Female' | 'Prefer not to say';
+  sectorClassification: string;
+  sectorOtherSpecify?: string;
   purpose: string;
   service: string;
   contactNumber: string;
@@ -128,9 +131,13 @@ function generateMockVisitors(): VisitorLog[] {
     const d = new Date();
     d.setDate(d.getDate() - Math.floor(Math.random() * 30));
     d.setHours(8 + Math.floor(Math.random() * 8), Math.floor(Math.random() * 60));
+    const sexOptions: Array<'Male' | 'Female' | 'Prefer not to say'> = ['Male', 'Female', 'Prefer not to say'];
+    const sectorOptions = ['Student', 'Employed/Working', 'Government Employee', 'Private Sector', 'Senior Citizen', 'Youth', 'Women', 'PWD', 'Solo Parent'];
     logs.push({
       id: `v${i}`,
       name: names[i % names.length],
+      sex: sexOptions[Math.floor(Math.random() * sexOptions.length)],
+      sectorClassification: sectorOptions[Math.floor(Math.random() * sectorOptions.length)],
       purpose: 'Transaction',
       service: defaultServices[Math.floor(Math.random() * defaultServices.length)],
       contactNumber: `09${Math.floor(100000000 + Math.random() * 900000000)}`,
