@@ -33,6 +33,7 @@ export interface VisitorLog {
   letterFrom?: string;
   letterProject?: string;
   letterProjectOther?: string;
+  letterStatus?: 'Received' | 'Processed' | 'Pending' | 'Forwarded' | 'Archived';
   contactNumber: string;
   email: string;
   date: string;
@@ -132,19 +133,33 @@ const defaultServices = [
 function generateMockVisitors(): VisitorLog[] {
   const names = ['Ana Reyes', 'Jose Garcia', 'Maria Santos', 'Pedro Cruz', 'Rosa Mendoza', 'Carlos Rivera', 'Elena Torres', 'Miguel Bautista', 'Sofia Ramos', 'Luis Flores', 'Isabel Navarro', 'Roberto Aquino'];
   const logs: VisitorLog[] = [];
+  const letterProjects = ['DigiGov', 'ILCDB', 'PNPKI', 'Cybersecurity', 'FreeWifi4All', 'Other'];
+  const letterStatuses: Array<'Received' | 'Processed' | 'Pending' | 'Forwarded' | 'Archived'> = ['Received', 'Processed', 'Pending', 'Forwarded', 'Archived'];
+  const letterSubjects = ['Request for Technical Assistance', 'Invitation to Workshop', 'Compliance Report Submission', 'Project Status Update', 'Budget Allocation Request', 'Personnel Deployment'];
+  const letterFromAgencies = ['DICT Region IV', 'DILG Central Office', 'DOF Bureau of Treasury', 'DBM Regional Office', 'DOST-ASTI', 'NPC', 'DENR Provincial Office', 'DepEd Division Office'];
+
   for (let i = 0; i < 48; i++) {
     const d = new Date();
     d.setDate(d.getDate() - Math.floor(Math.random() * 30));
     d.setHours(8 + Math.floor(Math.random() * 8), Math.floor(Math.random() * 60));
     const sexOptions: Array<'Male' | 'Female' | 'Prefer not to say'> = ['Male', 'Female', 'Prefer not to say'];
     const sectorOptions = ['Student', 'Employed/Working', 'Government Employee', 'Private Sector', 'Senior Citizen', 'Youth', 'Women', 'PWD', 'Solo Parent'];
+    const isIncomingLetter = i % 6 === 0; // ~8 incoming letter entries
+    const project = letterProjects[Math.floor(Math.random() * letterProjects.length)];
     logs.push({
       id: `v${i}`,
       name: names[i % names.length],
       sex: sexOptions[Math.floor(Math.random() * sexOptions.length)],
       sectorClassification: sectorOptions[Math.floor(Math.random() * sectorOptions.length)],
-      purpose: 'Transaction',
-      service: defaultServices[Math.floor(Math.random() * defaultServices.length)],
+      purpose: isIncomingLetter ? 'Incoming Letter' : 'Transaction',
+      service: isIncomingLetter ? 'Incoming Letter' : defaultServices[Math.floor(Math.random() * defaultServices.length)],
+      ...(isIncomingLetter ? {
+        letterSubject: letterSubjects[Math.floor(Math.random() * letterSubjects.length)],
+        letterFrom: letterFromAgencies[Math.floor(Math.random() * letterFromAgencies.length)],
+        letterProject: project,
+        letterProjectOther: project === 'Other' ? 'Special Project X' : undefined,
+        letterStatus: letterStatuses[Math.floor(Math.random() * letterStatuses.length)],
+      } : {}),
       contactNumber: `09${Math.floor(100000000 + Math.random() * 900000000)}`,
       email: `visitor${i}@email.com`,
       date: d.toISOString().split('T')[0],

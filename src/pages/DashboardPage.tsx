@@ -11,7 +11,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import {
   Users, ClipboardList, Star, TrendingUp, Clock, AlertTriangle, ArrowUpDown,
-  RotateCcw, CalendarIcon, Filter, X, ChevronDown, LayoutDashboard, Inbox,
+  RotateCcw, CalendarIcon, Filter, X, ChevronDown, LayoutDashboard, Inbox, Mail,
 } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -531,6 +531,81 @@ const DashboardPage = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* ── Incoming Letters Widget ── */}
+      {(() => {
+        const letters = filteredVisitors.filter(v => v.purpose === 'Incoming Letter');
+        const statusCounts: Record<string, number> = {};
+        letters.forEach(v => { statusCounts[v.letterStatus || 'Unknown'] = (statusCounts[v.letterStatus || 'Unknown'] || 0) + 1; });
+        const projectCounts: Record<string, number> = {};
+        letters.forEach(v => { const p = v.letterProject === 'Other' ? 'Other' : (v.letterProject || 'N/A'); projectCounts[p] = (projectCounts[p] || 0) + 1; });
+        
+        return (
+          <Card className="mb-6">
+            <CardHeader className="pb-2 flex-row items-center justify-between space-y-0">
+              <div className="flex items-center gap-2">
+                <div className="p-1.5 rounded-md bg-accent/10">
+                  <Mail className="w-4 h-4 text-accent-foreground" />
+                </div>
+                <CardTitle className="text-sm font-semibold">Incoming Letters</CardTitle>
+                <Badge variant="secondary" className="text-xs">{letters.length}</Badge>
+              </div>
+              <Button size="sm" variant="ghost" className="h-7 text-xs gap-1" onClick={() => navigate('/admin/reports')}>
+                View Full Report →
+              </Button>
+            </CardHeader>
+            <CardContent>
+              {letters.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {/* Status breakdown */}
+                  <div className="space-y-2">
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">By Status</p>
+                    {Object.entries(statusCounts).map(([status, count]) => (
+                      <div key={status} className="flex items-center justify-between">
+                        <Badge
+                          variant="secondary"
+                          className={cn("text-xs", {
+                            'bg-success/10 text-success': status === 'Processed',
+                            'bg-warning/10 text-warning': status === 'Pending',
+                            'bg-info/10 text-info': status === 'Received',
+                            'bg-primary/10 text-primary': status === 'Forwarded',
+                            'bg-muted text-muted-foreground': status === 'Archived',
+                          })}
+                        >
+                          {status}
+                        </Badge>
+                        <span className="text-sm font-semibold">{count}</span>
+                      </div>
+                    ))}
+                  </div>
+                  {/* Project breakdown */}
+                  <div className="space-y-2">
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">By Project</p>
+                    {Object.entries(projectCounts).sort((a, b) => b[1] - a[1]).map(([project, count]) => (
+                      <div key={project} className="flex items-center justify-between">
+                        <span className="text-xs text-foreground">{project}</span>
+                        <span className="text-sm font-semibold">{count}</span>
+                      </div>
+                    ))}
+                  </div>
+                  {/* Recent letters */}
+                  <div className="space-y-2">
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Recent</p>
+                    {letters.slice(0, 3).map((l) => (
+                      <div key={l.id} className="text-xs space-y-0.5 p-2 rounded-md bg-muted/30">
+                        <p className="font-medium truncate">{l.letterSubject}</p>
+                        <p className="text-muted-foreground">From: {l.letterFrom} · {l.date}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground text-center py-4">No incoming letters in selected period</p>
+              )}
+            </CardContent>
+          </Card>
+        );
+      })()}
 
       {/* ── Recent Visitors Table ── */}
       <Card>

@@ -12,7 +12,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import {
   FileDown, FileSpreadsheet, RotateCcw, CalendarIcon, Filter, X, ChevronDown,
-  Users, ClipboardList, Star, TrendingUp, FileBarChart, Inbox,
+  Users, ClipboardList, Star, TrendingUp, FileBarChart, Inbox, Mail,
 } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -148,6 +148,14 @@ const ReportsPage = () => {
     return chips;
   }, [appliedFilters]);
 
+  // Incoming Letters filters
+  const [letterFilterFrom, setLetterFilterFrom] = useState('all');
+  const [letterFilterProject, setLetterFilterProject] = useState('all');
+  const [letterFilterStatus, setLetterFilterStatus] = useState('all');
+
+  const LETTER_PROJECTS = ['DigiGov', 'ILCDB', 'PNPKI', 'Cybersecurity', 'FreeWifi4All', 'Other'];
+  const LETTER_STATUSES = ['Received', 'Processed', 'Pending', 'Forwarded', 'Archived'];
+
   // Filtered data based on applied filters
   const filteredVisitors = useMemo(() => {
     return visitors.filter((v) => {
@@ -160,6 +168,20 @@ const ReportsPage = () => {
       return true;
     });
   }, [visitors, appliedFilters]);
+
+  // Incoming letters (filtered separately)
+  const filteredLetters = useMemo(() => {
+    return visitors.filter((v) => {
+      if (v.purpose !== 'Incoming Letter') return false;
+      const d = new Date(v.date);
+      if (appliedFilters.dateFrom && d < appliedFilters.dateFrom) return false;
+      if (appliedFilters.dateTo && d > appliedFilters.dateTo) return false;
+      if (letterFilterFrom !== 'all' && v.letterFrom !== letterFilterFrom) return false;
+      if (letterFilterProject !== 'all' && v.letterProject !== letterFilterProject) return false;
+      if (letterFilterStatus !== 'all' && v.letterStatus !== letterFilterStatus) return false;
+      return true;
+    });
+  }, [visitors, appliedFilters, letterFilterFrom, letterFilterProject, letterFilterStatus]);
 
   const filteredSurveys = useMemo(() => {
     return surveys.filter((s) => {
@@ -226,11 +248,11 @@ const ReportsPage = () => {
   };
 
   // ── Export PDF ──
-  const exportPDF = async (type: 'visitors' | 'surveys' | 'summary') => {
+  const exportPDF = async (type: 'visitors' | 'surveys' | 'summary' | 'letters') => {
     const { default: jsPDF } = await import('jspdf');
     const { default: autoTable } = await import('jspdf-autotable');
 
-    const doc = new jsPDF({ orientation: type === 'surveys' ? 'landscape' : 'portrait' });
+    const doc = new jsPDF({ orientation: type === 'surveys' || type === 'letters' ? 'landscape' : 'portrait' });
     const pageWidth = doc.internal.pageSize.getWidth();
 
     doc.setFontSize(14);
@@ -238,7 +260,8 @@ const ReportsPage = () => {
     doc.setFontSize(10);
     doc.text(profile.agencyName, pageWidth / 2, 21, { align: 'center' });
     doc.setFontSize(9);
-    doc.text(`Report: ${type === 'visitors' ? 'Visitor Logs' : type === 'surveys' ? 'Survey Results' : 'Summary Analytics'}`, pageWidth / 2, 27, { align: 'center' });
+    const titleMap: Record<string, string> = { visitors: 'Visitor Logs', surveys: 'Survey Results', summary: 'Summary Analytics', letters: 'Incoming Letters' };
+    doc.text(`Report: ${titleMap[type]}`, pageWidth / 2, 27, { align: 'center' });
     doc.text(`Filter: ${filterLabel()}`, pageWidth / 2, 32, { align: 'center' });
     doc.text(`Generated: ${new Date().toLocaleString('en-PH')}`, pageWidth / 2, 37, { align: 'center' });
 
@@ -247,6 +270,18 @@ const ReportsPage = () => {
         startY: 42,
         head: [['#', 'Name', 'Sex', 'Sector', 'Service', 'Purpose', 'Contact', 'Date', 'Time']],
         body: filteredVisitors.map((v, i) => [i + 1, v.name, v.sex, v.sectorClassification, v.service, v.purpose, v.contactNumber, v.date, v.time]),
+        styles: { fontSize: 7 },
+        headStyles: { fillColor: [30, 58, 95] },
+      });
+    } else if (type === 'letters') {
+      autoTable(doc, {
+        startY: 42,
+        head: [['#', 'Date', 'From', 'Subject', 'Project', 'Status', 'Received By', 'Contact']],
+        body: filteredLetters.map((v, i) => [
+          i + 1, v.date, v.letterFrom || '', v.letterSubject || '', 
+          v.letterProject === 'Other' ? `Other: ${v.letterProjectOther}` : (v.letterProject || ''),
+          v.letterStatus || '', v.name, v.contactNumber,
+        ]),
         styles: { fontSize: 7 },
         headStyles: { fillColor: [30, 58, 95] },
       });
@@ -296,7 +331,7 @@ const ReportsPage = () => {
   };
 
   // ── Export Excel ──
-  const exportExcel = async (type: 'visitors' | 'surveys' | 'summary') => {
+  const exportExcel = async (type: 'visitors' | 'surveys' | 'summary' | 'letters') => {
     const XLSX = await import('xlsx');
     const wb = XLSX.utils.book_new();
 
@@ -306,6 +341,15 @@ const ReportsPage = () => {
         Contact: v.contactNumber, Email: v.email, Date: v.date, Time: v.time,
       }));
       XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(visitorRows), 'Visitors');
+    }
+
+    if (type === 'letters') {
+      const letterRows = filteredLetters.map((v, i) => ({
+        '#': i + 1, Date: v.date, From: v.letterFrom || '', Subject: v.letterSubject || '',
+        Project: v.letterProject === 'Other' ? `Other: ${v.letterProjectOther}` : (v.letterProject || ''),
+        Status: v.letterStatus || '', 'Received By': v.name, Contact: v.contactNumber,
+      }));
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(letterRows), 'Incoming Letters');
     }
 
     if (type === 'surveys' || type === 'summary') {
@@ -541,7 +585,7 @@ const ReportsPage = () => {
 
       {/* ── Tabs ── */}
       <Tabs defaultValue="summary" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-3 h-11">
+        <TabsList className="grid w-full grid-cols-4 h-11">
           <TabsTrigger value="summary" className="text-xs sm:text-sm">
             <TrendingUp className="w-3.5 h-3.5 mr-1.5 hidden sm:inline" />
             Summary
@@ -553,6 +597,10 @@ const ReportsPage = () => {
           <TabsTrigger value="surveys" className="text-xs sm:text-sm">
             <ClipboardList className="w-3.5 h-3.5 mr-1.5 hidden sm:inline" />
             Surveys ({filteredSurveys.length})
+          </TabsTrigger>
+          <TabsTrigger value="letters" className="text-xs sm:text-sm">
+            <Mail className="w-3.5 h-3.5 mr-1.5 hidden sm:inline" />
+            Letters ({filteredLetters.length})
           </TabsTrigger>
         </TabsList>
 
@@ -774,6 +822,115 @@ const ReportsPage = () => {
                   )}
                 </div>
               ) : <EmptyState message="No survey records found" />}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* ── Incoming Letters Tab ── */}
+        <TabsContent value="letters">
+          <Card>
+            <CardHeader className="flex-row items-center justify-between space-y-0 pb-3">
+              <CardTitle className="text-sm font-semibold">Incoming Letters</CardTitle>
+              <div className="flex gap-2">
+                <Button size="sm" variant="outline" onClick={() => exportPDF('letters')} className="gap-1.5 h-8 text-xs">
+                  <FileDown className="w-3.5 h-3.5" /> PDF
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => exportExcel('letters')} className="gap-1.5 h-8 text-xs">
+                  <FileSpreadsheet className="w-3.5 h-3.5" /> Excel
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* Letter-specific filters */}
+              <div className="flex flex-wrap gap-3 p-3 rounded-lg bg-muted/30 border">
+                <div className="space-y-1">
+                  <Label className="text-xs text-muted-foreground">From (Agency/LGU)</Label>
+                  <Select value={letterFilterFrom} onValueChange={setLetterFilterFrom}>
+                    <SelectTrigger className="w-48 h-8 text-xs"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Sources</SelectItem>
+                      {[...new Set(visitors.filter(v => v.purpose === 'Incoming Letter' && v.letterFrom).map(v => v.letterFrom!))].map((f) => (
+                        <SelectItem key={f} value={f}>{f}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs text-muted-foreground">Project</Label>
+                  <Select value={letterFilterProject} onValueChange={setLetterFilterProject}>
+                    <SelectTrigger className="w-40 h-8 text-xs"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Projects</SelectItem>
+                      {LETTER_PROJECTS.map((p) => <SelectItem key={p} value={p}>{p}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs text-muted-foreground">Status</Label>
+                  <Select value={letterFilterStatus} onValueChange={setLetterFilterStatus}>
+                    <SelectTrigger className="w-36 h-8 text-xs"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Statuses</SelectItem>
+                      {LETTER_STATUSES.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              {filteredLetters.length > 0 ? (
+                <div className="overflow-auto max-h-[480px]">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="w-10">#</TableHead>
+                        <TableHead>Date</TableHead>
+                        <TableHead>From</TableHead>
+                        <TableHead>Subject</TableHead>
+                        <TableHead>Project</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Received By</TableHead>
+                        <TableHead>Contact</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredLetters.slice(0, 50).map((v, i) => (
+                        <TableRow key={v.id}>
+                          <TableCell className="text-muted-foreground">{i + 1}</TableCell>
+                          <TableCell>{v.date}</TableCell>
+                          <TableCell className="font-medium">{v.letterFrom}</TableCell>
+                          <TableCell>{v.letterSubject}</TableCell>
+                          <TableCell>
+                            <Badge variant="outline" className="text-xs">
+                              {v.letterProject === 'Other' ? v.letterProjectOther : v.letterProject}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <Badge
+                              variant="secondary"
+                              className={cn("text-xs", {
+                                'bg-success/10 text-success': v.letterStatus === 'Processed',
+                                'bg-warning/10 text-warning': v.letterStatus === 'Pending',
+                                'bg-info/10 text-info': v.letterStatus === 'Received',
+                                'bg-primary/10 text-primary': v.letterStatus === 'Forwarded',
+                                'bg-muted text-muted-foreground': v.letterStatus === 'Archived',
+                              })}
+                            >
+                              {v.letterStatus}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>{v.name}</TableCell>
+                          <TableCell className="text-sm">{v.contactNumber}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                  {filteredLetters.length > 50 && (
+                    <p className="text-xs text-muted-foreground mt-3 text-center py-2">
+                      Showing 50 of {filteredLetters.length} records — download for full data
+                    </p>
+                  )}
+                </div>
+              ) : <EmptyState message="No incoming letter records found" />}
             </CardContent>
           </Card>
         </TabsContent>
