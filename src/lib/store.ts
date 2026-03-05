@@ -28,6 +28,11 @@ export interface VisitorLog {
   sectorOtherSpecify?: string;
   purpose: string;
   service: string;
+  // Incoming Letter fields
+  letterSubject?: string;
+  letterFrom?: string;
+  letterProject?: string;
+  letterProjectOther?: string;
   contactNumber: string;
   email: string;
   date: string;
@@ -199,7 +204,7 @@ export const useAppStore = create<AppState>((set, get) => {
   const visitors = generateMockVisitors();
   const surveys = generateMockSurveys(visitors);
 
-  const defaultPurposes = ['Transaction', 'Inquiry', 'Follow-up', 'Complaint', 'Others'];
+  const defaultPurposes = ['Transaction', 'Inquiry', 'Follow-up', 'Complaint', 'Incoming Letter', 'Others'];
 
   const defaultUsers: User[] = [
     { id: 'u1', username: 'admin', role: 'super_admin', fullName: 'System Administrator' },
