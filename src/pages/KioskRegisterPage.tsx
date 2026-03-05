@@ -4,9 +4,19 @@ import { useAppStore } from '@/lib/store';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Shield } from 'lucide-react';
+import { Shield, Mail } from 'lucide-react';
+
+const PROJECT_OPTIONS = [
+  'DigiGov',
+  'ILCDB',
+  'PNPKI',
+  'Cybersecurity',
+  'FreeWifi4All',
+  'Other',
+];
 
 const SECTOR_OPTIONS = [
   'Student',
@@ -38,10 +48,19 @@ const KioskRegisterPage = () => {
     sectorOtherSpecify: '',
     purpose: 'Transaction',
     service: '',
+    letterSubject: '',
+    letterFrom: '',
+    letterProject: '',
+    letterProjectOther: '',
   });
 
-  const isValid = form.name && form.sex && form.sectorClassification && form.service &&
-    (form.sectorClassification !== 'Others' || form.sectorOtherSpecify.trim());
+  const isIncomingLetter = form.purpose === 'Incoming Letter';
+
+  const isValid = form.name && form.sex && form.sectorClassification &&
+    (form.sectorClassification !== 'Others' || form.sectorOtherSpecify.trim()) &&
+    (isIncomingLetter
+      ? (form.letterSubject.trim() && form.letterFrom.trim() && form.letterProject && (form.letterProject !== 'Other' || form.letterProjectOther.trim()))
+      : form.service);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,7 +75,14 @@ const KioskRegisterPage = () => {
         ? `Others - ${form.sectorOtherSpecify.trim()}`
         : form.sectorClassification,
       purpose: form.purpose,
-      service: form.service,
+      service: isIncomingLetter ? 'Incoming Letter' : form.service,
+      ...(isIncomingLetter && {
+        letterSubject: form.letterSubject.trim(),
+        letterFrom: form.letterFrom.trim(),
+        letterProject: form.letterProject === 'Other'
+          ? `Other - ${form.letterProjectOther.trim()}`
+          : form.letterProject,
+      }),
       contactNumber: form.contactNumber,
       email: form.email,
       date: now.toISOString().split('T')[0],
@@ -154,8 +180,8 @@ const KioskRegisterPage = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="purpose">Purpose of Visit</Label>
-              <Select value={form.purpose} onValueChange={(v) => setForm({ ...form, purpose: v })}>
+              <Label htmlFor="purpose">Purpose of Visit *</Label>
+              <Select value={form.purpose} onValueChange={(v) => setForm({ ...form, purpose: v, service: '', letterSubject: '', letterFrom: '', letterProject: '', letterProjectOther: '' })}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -167,19 +193,71 @@ const KioskRegisterPage = () => {
               </Select>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="service">Service Availed *</Label>
-              <Select value={form.service} onValueChange={(v) => setForm({ ...form, service: v })}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a service" />
-                </SelectTrigger>
-                <SelectContent>
-                  {services.map((s) => (
-                    <SelectItem key={s} value={s}>{s}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            {isIncomingLetter ? (
+              <div className="space-y-4 rounded-lg border border-border bg-muted/30 p-4">
+                <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                  <Mail className="w-4 h-4" />
+                  Incoming Letter Details
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="letterSubject">Content / Subject of the Letter *</Label>
+                  <Textarea
+                    id="letterSubject"
+                    value={form.letterSubject}
+                    onChange={(e) => setForm({ ...form, letterSubject: e.target.value })}
+                    placeholder="Brief description of the letter content..."
+                    className="min-h-[60px]"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="letterFrom">From (Agency / LGU / Person) *</Label>
+                  <Input
+                    id="letterFrom"
+                    value={form.letterFrom}
+                    onChange={(e) => setForm({ ...form, letterFrom: e.target.value })}
+                    placeholder="e.g. DICT Regional Office"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="letterProject">Project Concerned *</Label>
+                  <Select value={form.letterProject} onValueChange={(v) => setForm({ ...form, letterProject: v, letterProjectOther: v !== 'Other' ? '' : form.letterProjectOther })}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select project" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {PROJECT_OPTIONS.map((p) => (
+                        <SelectItem key={p} value={p}>{p}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {form.letterProject === 'Other' && (
+                    <Input
+                      placeholder="Please specify project..."
+                      value={form.letterProjectOther}
+                      onChange={(e) => setForm({ ...form, letterProjectOther: e.target.value })}
+                      className="mt-2"
+                      required
+                    />
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <Label htmlFor="service">Service Availed *</Label>
+                <Select value={form.service} onValueChange={(v) => setForm({ ...form, service: v })}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a service" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {services.map((s) => (
+                      <SelectItem key={s} value={s}>{s}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
 
             <div className="flex gap-3 pt-2">
               <Button type="button" variant="outline" className="flex-1" onClick={() => navigate('/kiosk')}>
