@@ -18,6 +18,11 @@ const PurposesSettingsPage = () => {
   const updateService = useAppStore((s) => s.updateService);
   const deleteService = useAppStore((s) => s.deleteService);
 
+  const surveyParameters = useAppStore((s) => s.surveyParameters);
+  const addSurveyParameter = useAppStore((s) => s.addSurveyParameter);
+  const updateSurveyParameter = useAppStore((s) => s.updateSurveyParameter);
+  const deleteSurveyParameter = useAppStore((s) => s.deleteSurveyParameter);
+
   const addAuditLog = useAppStore((s) => s.addAuditLog);
   const currentUser = useAppStore((s) => s.currentUser);
 
@@ -25,6 +30,8 @@ const PurposesSettingsPage = () => {
   const [editingPurpose, setEditingPurpose] = useState<{ old: string; val: string } | null>(null);
   const [newService, setNewService] = useState('');
   const [editingService, setEditingService] = useState<{ old: string; val: string } | null>(null);
+  const [newParam, setNewParam] = useState('');
+  const [editingParam, setEditingParam] = useState<{ old: string; val: string } | null>(null);
 
   const handleAddPurpose = () => {
     const trimmed = newPurpose.trim();
@@ -78,6 +85,32 @@ const PurposesSettingsPage = () => {
     toast.success('Service deleted.');
   };
 
+  const handleAddParam = () => {
+    const trimmed = newParam.trim();
+    if (!trimmed) return;
+    if (surveyParameters.includes(trimmed)) { toast.error('Parameter already exists.'); return; }
+    addSurveyParameter(trimmed);
+    addAuditLog({ userId: currentUser?.id || '', userName: currentUser?.fullName || '', action: 'Survey Parameter Added', details: `Added parameter: ${trimmed}` });
+    setNewParam('');
+    toast.success('Survey parameter added.');
+  };
+
+  const handleUpdateParam = () => {
+    if (!editingParam) return;
+    const trimmed = editingParam.val.trim();
+    if (!trimmed || (trimmed !== editingParam.old && surveyParameters.includes(trimmed))) { toast.error('Invalid or duplicate parameter.'); return; }
+    updateSurveyParameter(editingParam.old, trimmed);
+    addAuditLog({ userId: currentUser?.id || '', userName: currentUser?.fullName || '', action: 'Survey Parameter Updated', details: `Renamed "${editingParam.old}" to "${trimmed}"` });
+    setEditingParam(null);
+    toast.success('Survey parameter updated.');
+  };
+
+  const handleDeleteParam = (p: string) => {
+    deleteSurveyParameter(p);
+    addAuditLog({ userId: currentUser?.id || '', userName: currentUser?.fullName || '', action: 'Survey Parameter Deleted', details: `Deleted parameter: ${p}` });
+    toast.success('Survey parameter deleted.');
+  };
+
   const renderList = (
     items: string[],
     editing: { old: string; val: string } | null,
@@ -119,20 +152,25 @@ const PurposesSettingsPage = () => {
   return (
     <div className="space-y-6 animate-fade-in">
       <div>
-        <h1 className="text-2xl font-bold text-foreground">Purposes & Services</h1>
-        <p className="text-sm text-muted-foreground">Manage the purposes of visit and services available in the visitor registration form</p>
+        <h1 className="text-2xl font-bold text-foreground">Visitor Transaction Types</h1>
+        <p className="text-sm text-muted-foreground">Manage purposes of visit, services, and survey rating parameters used across the system</p>
       </div>
 
       <Tabs defaultValue="purposes" className="w-full">
         <TabsList>
           <TabsTrigger value="purposes">Purposes of Visit</TabsTrigger>
           <TabsTrigger value="services">Services</TabsTrigger>
+          <TabsTrigger value="survey">Survey Parameters</TabsTrigger>
         </TabsList>
         <TabsContent value="purposes" className="mt-4">
           {renderList(purposes, editingPurpose, setEditingPurpose, handleUpdatePurpose, handleDeletePurpose, newPurpose, setNewPurpose, handleAddPurpose, 'New purpose...')}
         </TabsContent>
         <TabsContent value="services" className="mt-4">
           {renderList(services, editingService, setEditingService, handleUpdateService, handleDeleteService, newService, setNewService, handleAddService, 'New service...')}
+        </TabsContent>
+        <TabsContent value="survey" className="mt-4">
+          <p className="text-sm text-muted-foreground mb-3">These parameters appear as rating criteria in the satisfaction survey form.</p>
+          {renderList(surveyParameters, editingParam, setEditingParam, handleUpdateParam, handleDeleteParam, newParam, setNewParam, handleAddParam, 'New survey parameter...')}
         </TabsContent>
       </Tabs>
     </div>

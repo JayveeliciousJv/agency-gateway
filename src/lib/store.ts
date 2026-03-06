@@ -192,6 +192,7 @@ interface AppState {
   profile: AgencyProfile;
   services: string[];
   purposes: string[];
+  surveyParameters: string[];
   visitors: VisitorLog[];
   surveys: SurveyResponse[];
   auditLogs: AuditEntry[];
@@ -209,8 +210,12 @@ interface AppState {
   addService: (s: string) => void;
   updateService: (oldS: string, newS: string) => void;
   deleteService: (s: string) => void;
+  addSurveyParameter: (p: string) => void;
+  updateSurveyParameter: (oldP: string, newP: string) => void;
+  deleteSurveyParameter: (p: string) => void;
   users: User[];
   addUser: (u: User) => void;
+  updateUser: (id: string, updates: Partial<Pick<User, 'fullName'>>) => void;
   userPasswords: Record<string, string>;
   resetPassword: (username: string, newPassword: string) => void;
 }
@@ -220,6 +225,17 @@ export const useAppStore = create<AppState>((set, get) => {
   const surveys = generateMockSurveys(visitors);
 
   const defaultPurposes = ['Transaction', 'Inquiry', 'Follow-up', 'Complaint', 'Incoming Letter', 'Others'];
+
+  const defaultSurveyParameters = [
+    'Responsiveness',
+    'Reliability',
+    'Access & Facilities',
+    'Communication',
+    'Costs',
+    'Integrity',
+    'Assurance',
+    'Outcome',
+  ];
 
   const defaultUsers: User[] = [
     { id: 'u1', username: 'admin', role: 'super_admin', fullName: 'System Administrator' },
@@ -235,6 +251,7 @@ export const useAppStore = create<AppState>((set, get) => {
     profile: defaultProfile,
     services: defaultServices,
     purposes: defaultPurposes,
+    surveyParameters: defaultSurveyParameters,
     users: defaultUsers,
     userPasswords: defaultPasswords,
     visitors,
@@ -261,9 +278,16 @@ export const useAppStore = create<AppState>((set, get) => {
     addService: (sv) => set((s) => ({ services: [...s.services, sv] })),
     updateService: (oldS, newS) => set((s) => ({ services: s.services.map((x) => (x === oldS ? newS : x)) })),
     deleteService: (sv) => set((s) => ({ services: s.services.filter((x) => x !== sv) })),
+    addSurveyParameter: (p) => set((s) => ({ surveyParameters: [...s.surveyParameters, p] })),
+    updateSurveyParameter: (oldP, newP) => set((s) => ({ surveyParameters: s.surveyParameters.map((x) => (x === oldP ? newP : x)) })),
+    deleteSurveyParameter: (p) => set((s) => ({ surveyParameters: s.surveyParameters.filter((x) => x !== p) })),
     addUser: (u) => set((s) => ({
       users: [...s.users, u],
       userPasswords: { ...s.userPasswords, [u.username]: `${u.username}123` },
+    })),
+    updateUser: (id, updates) => set((s) => ({
+      users: s.users.map((u) => u.id === id ? { ...u, ...updates } : u),
+      currentUser: s.currentUser?.id === id ? { ...s.currentUser, ...updates } : s.currentUser,
     })),
     resetPassword: (username, newPassword) => set((s) => ({
       userPasswords: { ...s.userPasswords, [username]: newPassword },
