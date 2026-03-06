@@ -7,16 +7,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Shield, Star } from 'lucide-react';
 
-const criteria = [
-  { key: 'responsiveness', label: 'Responsiveness' },
-  { key: 'reliability', label: 'Reliability' },
-  { key: 'accessFacilities', label: 'Access & Facilities' },
-  { key: 'communication', label: 'Communication' },
-  { key: 'costs', label: 'Costs' },
-  { key: 'integrity', label: 'Integrity' },
-  { key: 'assurance', label: 'Assurance' },
-  { key: 'outcome', label: 'Outcome' },
-];
+// Survey criteria are now loaded dynamically from the store.
+// The key for each criterion is derived from its label (lowercased, spaces removed).
 
 /**
  * RatingStars — interactive 5-star rating component.
@@ -71,15 +63,27 @@ const RatingStars = ({ value, onChange }: { value: number; onChange: (v: number)
 const KioskSurveyPage = () => {
   const profile = useAppStore((s) => s.profile);
   const addSurvey = useAppStore((s) => s.addSurvey);
+  const surveyParameters = useAppStore((s) => s.surveyParameters);
   const navigate = useNavigate();
   const location = useLocation();
   const { visitorId = '', service = '' } = (location.state as any) || {};
   const services = useAppStore((s) => s.services);
   const [selectedService, setSelectedService] = useState(service);
 
-  const [ratings, setRatings] = useState<Record<string, number>>(
-    Object.fromEntries(criteria.map((c) => [c.key, 0]))
-  );
+  const criteria = surveyParameters.map((label) => ({
+    key: label.toLowerCase().replace(/[^a-z0-9]/g, ''),
+    label,
+  }));
+
+  const [ratings, setRatings] = useState<Record<string, number>>({});
+
+  // Initialize ratings when criteria change
+  const ratingKeys = criteria.map((c) => c.key).join(',');
+  useState(() => {
+    const initial: Record<string, number> = {};
+    criteria.forEach((c) => { initial[c.key] = 0; });
+    setRatings(initial);
+  });
   const [overall, setOverall] = useState(0);
   const [comment, setComment] = useState('');
 
@@ -138,7 +142,7 @@ const KioskSurveyPage = () => {
               <div key={c.key} className="flex items-center justify-between">
                 <Label className="text-sm font-medium">{c.label}</Label>
                 <RatingStars
-                  value={ratings[c.key]}
+                  value={ratings[c.key] || 0}
                   onChange={(v) => setRatings({ ...ratings, [c.key]: v })}
                 />
               </div>

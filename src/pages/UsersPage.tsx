@@ -6,11 +6,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { toast } from 'sonner';
-import { Plus, UserPlus, KeyRound } from 'lucide-react';
+import { Plus, UserPlus, KeyRound, Pencil } from 'lucide-react';
 
 const UsersPage = () => {
   const users = useAppStore((s) => s.users);
   const addUser = useAppStore((s) => s.addUser);
+  const updateUser = useAppStore((s) => s.updateUser);
   const resetPassword = useAppStore((s) => s.resetPassword);
   const addAuditLog = useAppStore((s) => s.addAuditLog);
   const currentUser = useAppStore((s) => s.currentUser);
@@ -23,6 +24,12 @@ const UsersPage = () => {
   const [resetTarget, setResetTarget] = useState<{ username: string; fullName: string } | null>(null);
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+
+  const [editOpen, setEditOpen] = useState(false);
+  const [editTarget, setEditTarget] = useState<{ id: string; username: string; fullName: string } | null>(null);
+  const [editFullName, setEditFullName] = useState('');
+  const [editNewPassword, setEditNewPassword] = useState('');
+  const [editConfirmPassword, setEditConfirmPassword] = useState('');
 
   const handleCreate = () => {
     const trimmedName = fullName.trim();
@@ -83,6 +90,54 @@ const UsersPage = () => {
     setResetTarget(null);
   };
 
+  const openEditDialog = (user: { id: string; username: string; fullName: string }) => {
+    setEditTarget(user);
+    setEditFullName(user.fullName);
+    setEditNewPassword('');
+    setEditConfirmPassword('');
+    setEditOpen(true);
+  };
+
+  const handleEditProfile = () => {
+    if (!editTarget) return;
+    const trimmedName = editFullName.trim();
+    if (!trimmedName) {
+      toast.error('Full name is required.');
+      return;
+    }
+    // Update name if changed
+    if (trimmedName !== editTarget.fullName) {
+      updateUser(editTarget.id, { fullName: trimmedName });
+      addAuditLog({
+        userId: currentUser?.id || '',
+        userName: currentUser?.fullName || '',
+        action: 'Profile Updated',
+        details: `Updated name for @${editTarget.username}: "${editTarget.fullName}" → "${trimmedName}"`,
+      });
+    }
+    // Update password if provided
+    if (editNewPassword) {
+      if (editNewPassword.length < 6) {
+        toast.error('Password must be at least 6 characters.');
+        return;
+      }
+      if (editNewPassword !== editConfirmPassword) {
+        toast.error('Passwords do not match.');
+        return;
+      }
+      resetPassword(editTarget.username, editNewPassword);
+      addAuditLog({
+        userId: currentUser?.id || '',
+        userName: currentUser?.fullName || '',
+        action: 'Password Changed',
+        details: `Password changed for @${editTarget.username}`,
+      });
+    }
+    toast.success('Profile updated successfully.');
+    setEditOpen(false);
+    setEditTarget(null);
+  };
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
@@ -133,15 +188,26 @@ const UsersPage = () => {
                   </p>
                 </div>
               </div>
-              <Button
-                size="icon"
-                variant="ghost"
-                className="h-8 w-8"
-                title="Reset Password"
-                onClick={() => openResetDialog(u)}
-              >
-                <KeyRound className="w-4 h-4" />
-              </Button>
+              <div className="flex gap-1">
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="h-8 w-8"
+                  title="Edit Profile"
+                  onClick={() => openEditDialog(u)}
+                >
+                  <Pencil className="w-4 h-4" />
+                </Button>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="h-8 w-8"
+                  title="Reset Password"
+                  onClick={() => openResetDialog(u)}
+                >
+                  <KeyRound className="w-4 h-4" />
+                </Button>
+              </div>
             </div>
           </Card>
         ))}
@@ -168,6 +234,36 @@ const UsersPage = () => {
               </div>
               <Button onClick={handleResetPassword} className="w-full">
                 <KeyRound className="w-4 h-4 mr-2" /> Reset Password
+              </Button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Profile Dialog */}
+      <Dialog open={editOpen} onOpenChange={setEditOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Profile</DialogTitle>
+          </DialogHeader>
+          {editTarget && (
+            <div className="space-y-4 pt-2">
+              <p className="text-sm text-muted-foreground">
+                Editing profile for <strong>@{editTarget.username}</strong>
+              </p>
+              <div className="space-y-2">
+                <Label>Full Name</Label>
+                <Input value={editFullName} onChange={(e) => setEditFullName(e.target.value)} placeholder="Full name" />
+              </div>
+              <div className="border-t border-border pt-4 space-y-2">
+                <Label className="text-sm font-medium">Change Password <span className="text-muted-foreground font-normal">(optional)</span></Label>
+                <Input type="password" value={editNewPassword} onChange={(e) => setEditNewPassword(e.target.value)} placeholder="New password (min 6 chars)" />
+                {editNewPassword && (
+                  <Input type="password" value={editConfirmPassword} onChange={(e) => setEditConfirmPassword(e.target.value)} placeholder="Confirm new password" />
+                )}
+              </div>
+              <Button onClick={handleEditProfile} className="w-full">
+                <Pencil className="w-4 h-4 mr-2" /> Save Changes
               </Button>
             </div>
           )}

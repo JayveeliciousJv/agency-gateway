@@ -20,7 +20,7 @@ const navItems = [
   { to: '/admin/surveys', icon: BarChart3, label: 'Survey Results' },
   { to: '/admin/users', icon: Users, label: 'Users', role: 'super_admin' as const },
   { to: '/admin/audit', icon: History, label: 'Audit Logs', role: 'super_admin' as const },
-  { to: '/admin/purposes', icon: ListChecks, label: 'Purposes & Services' },
+  { to: '/admin/purposes', icon: ListChecks, label: 'Visitor Transaction Types' },
   { to: '/admin/reports', icon: FileBarChart, label: 'Reports' },
   { to: '/admin/privacy', icon: FileText, label: 'Privacy Prompts', role: 'super_admin' as const },
   { to: '/admin/settings', icon: Settings, label: 'Agency Settings', role: 'super_admin' as const },
