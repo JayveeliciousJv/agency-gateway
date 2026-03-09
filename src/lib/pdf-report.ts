@@ -489,7 +489,7 @@ export function drawBarChart(doc: any, startY: number, title: string, data: Char
 
     // Bar fill
     const barW = Math.max(2, (item.value / maxVal) * maxBarWidth);
-    const colors = [NAVY, ACCENT_BLUE, SUCCESS_GREEN, [234, 179, 8], [239, 68, 68]] as const;
+    const colors = [NAVY, ACCENT_BLUE, [34, 197, 94], [234, 179, 8], [239, 68, 68]] as const;
     const color = colors[i % colors.length];
     doc.setFillColor(...color);
     doc.roundedRect(margin + labelWidth, y, barW, barHeight, 1, 1, 'F');
