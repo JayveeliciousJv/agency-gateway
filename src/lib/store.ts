@@ -42,6 +42,7 @@ export interface VisitorLog {
   letterProject?: string;
   letterProjectOther?: string;
   letterStatus?: 'Received' | 'Processed' | 'Pending' | 'Forwarded' | 'Archived';
+  letterScanLink?: string;
   letterReceivedBy?: string;
   contactNumber: string;
   email: string;

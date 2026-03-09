@@ -6,11 +6,43 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useState } from 'react';
-import { Search, Users, Mail } from 'lucide-react';
+import { Search, Users, Mail, ExternalLink } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 
 const LETTER_STATUSES = ['Received', 'Processed', 'Pending', 'Forwarded', 'Archived'] as const;
+
+const ScanLinkCell = ({ value, onSave }: { value: string; onSave: (link: string) => void }) => {
+  const [editing, setEditing] = useState(false);
+  const [link, setLink] = useState(value);
+
+  if (editing) {
+    return (
+      <Input
+        className="h-7 text-xs w-40"
+        placeholder="Paste link..."
+        value={link}
+        onChange={(e) => setLink(e.target.value)}
+        onBlur={() => { onSave(link); setEditing(false); }}
+        onKeyDown={(e) => { if (e.key === 'Enter') { onSave(link); setEditing(false); } }}
+        autoFocus
+      />
+    );
+  }
+
+  return value ? (
+    <div className="flex items-center gap-1">
+      <a href={value} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline truncate max-w-[120px]">
+        View <ExternalLink className="inline w-3 h-3" />
+      </a>
+      <button onClick={() => setEditing(true)} className="text-xs text-muted-foreground hover:text-foreground">Edit</button>
+    </div>
+  ) : (
+    <button onClick={() => setEditing(true)} className="text-xs text-muted-foreground hover:text-foreground italic">
+      + Add link
+    </button>
+  );
+};
 
 const VisitorLogsPage = () => {
   const visitors = useAppStore((s) => s.visitors);
@@ -43,6 +75,17 @@ const VisitorLogsPage = () => {
       details: `Updated letter ${id} status to ${newStatus}`,
     });
     toast.success(`Letter status updated to ${newStatus}`);
+  };
+
+  const handleScanLinkSave = (id: string, link: string) => {
+    updateVisitor(id, { letterScanLink: link });
+    addAuditLog({
+      userId: currentUser?.id || '',
+      userName: currentUser?.fullName || '',
+      action: 'Update Scan Link',
+      details: `Updated scan link for letter ${id}`,
+    });
+    toast.success('Scan link saved');
   };
 
   return (
@@ -123,8 +166,9 @@ const VisitorLogsPage = () => {
                   <TableHead>From</TableHead>
                   <TableHead>Subject</TableHead>
                   <TableHead>Project</TableHead>
-                  <TableHead>Status</TableHead>
+126:                   <TableHead>Status</TableHead>
                   <TableHead>Received/Processed By</TableHead>
+                  <TableHead>Scan Link</TableHead>
                   <TableHead>Visitor</TableHead>
                   <TableHead>Contact</TableHead>
                 </TableRow>
@@ -160,6 +204,12 @@ const VisitorLogsPage = () => {
                       <span className={cn("text-xs font-medium", v.letterReceivedBy ? "text-foreground" : "text-muted-foreground italic")}>
                         {v.letterReceivedBy || '—'}
                       </span>
+                    </TableCell>
+                    <TableCell>
+                      <ScanLinkCell
+                        value={v.letterScanLink || ''}
+                        onSave={(link) => handleScanLinkSave(v.id, link)}
+                      />
                     </TableCell>
                     <TableCell>{v.name}</TableCell>
                     <TableCell className="text-sm">{v.contactNumber}</TableCell>
