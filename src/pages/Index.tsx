@@ -17,7 +17,7 @@ const Index = () => {
           <img src={logoSrc} alt="Agency Logo" className="w-full h-full object-contain" />
         </div>
 
-        <p className="text-sm text-muted-foreground uppercase tracking-wide font-medium">
+        <p className="text-xs sm:text-sm text-muted-foreground uppercase tracking-wide font-medium whitespace-nowrap">
           {profile.agencyName}
         </p>
         <h1 className="text-2xl font-bold text-foreground mt-1 mb-1">
