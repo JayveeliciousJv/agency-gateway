@@ -374,10 +374,10 @@ const ReportsPage = () => {
 
     if (type === 'visitors' || type === 'summary') {
       const visitorRows = filteredVisitors.map((v, i) => ({
-        '#': i + 1, Name: v.name, Sex: v.sex, 'Age Group': v.ageGroup || '', 'Education': v.educationLevel || '',
-        'Occupation': v.occupation || '', 'Region': v.region || '', Sector: v.sectorClassification,
+        '#': i + 1, Name: v.name, Sex: v.sex, Sector: v.sectorClassification,
         Service: v.service, Purpose: v.purpose, Contact: v.contactNumber, Email: v.email, Date: v.date, Time: v.time,
       }));
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(visitorRows), 'Visitors');
       XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(visitorRows), 'Visitors');
     }
 
