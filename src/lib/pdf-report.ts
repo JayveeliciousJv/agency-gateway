@@ -119,9 +119,8 @@ export function drawHeader(config: ReportConfig): number {
  */
 export function drawTable(config: TableConfig): number {
   const { doc, startY, head, body, columnStyles, styles } = config;
-  const autoTable = (doc as any).autoTable || require('jspdf-autotable').default;
 
-  autoTable(doc, {
+  (doc as any).autoTable({
     startY,
     head,
     body,
