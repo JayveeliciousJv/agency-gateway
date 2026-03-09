@@ -416,18 +416,15 @@ export function drawFooter(doc: any, profile: AgencyProfile) {
 }
 
 /**
- * Add a new page for visualizations
+ * Add a new page with a section title
  */
-export function addVisualizationPage(doc: any, profile: AgencyProfile): number {
 export function addSectionPage(doc: any, title: string): number {
   doc.addPage();
   const pageWidth = doc.internal.pageSize.getWidth();
 
-  // Top accent
   doc.setFillColor(...NAVY);
   doc.rect(0, 0, pageWidth, 3, 'F');
 
-  // Page title
   doc.setFontSize(13);
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(...NAVY);
@@ -439,9 +436,6 @@ export function addSectionPage(doc: any, title: string): number {
   return 28;
 }
 
-/**
- * @deprecated Use addSectionPage instead
- */
 export function addVisualizationPage(doc: any, _profile: AgencyProfile): number {
   return addSectionPage(doc, 'Data Visualizations');
 }
