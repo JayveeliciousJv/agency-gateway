@@ -227,8 +227,7 @@ export function drawDemographics(doc: any, startY: number, data: DemographicsDat
   doc.setTextColor(...NAVY);
   doc.text('Demographics Summary', margin, startY);
 
-  const autoTable = (doc as any).autoTable || require('jspdf-autotable').default;
-  autoTable(doc, {
+  (doc as any).autoTable({
     startY: startY + 4,
     head: [['Category', 'Count', 'Percentage']],
     body: [
