@@ -124,66 +124,6 @@ const KioskRegisterPage = () => {
               </RadioGroup>
             </div>
 
-            {/* Age Group & Education */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="ageGroup">Age Group</Label>
-                <Select value={form.ageGroup} onValueChange={(v) => setForm({ ...form, ageGroup: v as AgeGroup })}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select age group" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {AGE_GROUP_OPTIONS.map((a) => (
-                      <SelectItem key={a} value={a}>{a}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="educationLevel">Education Level</Label>
-                <Select value={form.educationLevel} onValueChange={(v) => setForm({ ...form, educationLevel: v as EducationLevel })}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select education" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {EDUCATION_OPTIONS.map((e) => (
-                      <SelectItem key={e} value={e}>{e}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            {/* Occupation & Region */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="occupation">Occupation</Label>
-                <Select value={form.occupation} onValueChange={(v) => setForm({ ...form, occupation: v })}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select occupation" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {OCCUPATION_OPTIONS.map((o) => (
-                      <SelectItem key={o} value={o}>{o}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="region">Region / Location</Label>
-                <Select value={form.region} onValueChange={(v) => setForm({ ...form, region: v })}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select region" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {REGION_OPTIONS.map((r) => (
-                      <SelectItem key={r} value={r}>{r}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
             {/* Sector */}
             <div className="space-y-2">
               <Label htmlFor="sector">Sector Classification *</Label>
