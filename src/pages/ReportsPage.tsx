@@ -1177,8 +1177,8 @@ const ReportsPage = () => {
                               {v.letterStatus}
                             </Badge>
                           </TableCell>
+                          <TableCell className="text-xs font-medium">{v.letterReceivedBy || '—'}</TableCell>
                           <TableCell>{v.name}</TableCell>
-                          <TableCell className="text-sm">{v.contactNumber}</TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
