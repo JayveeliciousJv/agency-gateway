@@ -77,7 +77,10 @@ export function drawHeader(config: ReportConfig): number {
   doc.text('GOV', centerX, 19.5, { align: 'center' });
 
   // Office Name (bold, larger)
-  doc.setFontSize(16);
+  const nameWidth = doc.getTextWidth(profile.agencyName);
+  const maxTextWidth = pageWidth * 0.85;
+  const agencyFontSize = nameWidth > maxTextWidth ? 11 : 16;
+  doc.setFontSize(agencyFontSize);
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(...DARK_TEXT);
   doc.text(profile.officeName, centerX, 34, { align: 'center' });

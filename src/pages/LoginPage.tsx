@@ -40,7 +40,7 @@ const LoginPage = () => {
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl gov-header-gradient mb-4">
             <Shield className="w-8 h-8 text-primary-foreground" />
           </div>
-          <p className="text-sm text-muted-foreground font-medium tracking-wide uppercase">
+          <p className="text-xs sm:text-sm text-muted-foreground font-medium tracking-wide uppercase whitespace-nowrap">
             {profile.agencyName}
           </p>
           <h1 className="text-2xl font-bold mt-1 text-foreground">
