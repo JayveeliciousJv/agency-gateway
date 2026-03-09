@@ -922,6 +922,10 @@ const ReportsPage = () => {
               ) : <EmptyState message="No survey records found" />}
             </CardContent>
           </Card>
+
+          <DemographicsSummaryBox 
+            data={filteredSurveys.map(s => visitors.find(v => v.id === s.visitorId)).filter(Boolean)} 
+          />
         </TabsContent>
 
         {/* ── Incoming Letters Tab ── */}
