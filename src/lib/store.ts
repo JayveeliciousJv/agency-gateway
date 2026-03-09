@@ -221,7 +221,7 @@ interface AppState {
   resetPassword: (username: string, newPassword: string) => void;
 }
 
-export const useAppStore = create<AppState>((set, get) => {
+export const useAppStore = create<AppState>()(persist((set, get) => {
   const visitors = generateMockVisitors();
   const surveys = generateMockSurveys(visitors);
 
