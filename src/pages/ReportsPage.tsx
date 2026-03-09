@@ -151,7 +151,7 @@ const ReportsPage = () => {
       if (letterFilterProcessor !== 'all' && v.letterReceivedBy !== letterFilterProcessor) return false;
       return true;
     });
-  }, [visitors, appliedFilters, letterFilterFrom, letterFilterProject, letterFilterStatus]);
+  }, [visitors, appliedFilters, letterFilterFrom, letterFilterProject, letterFilterStatus, letterFilterProcessor]);
 
   const filteredSurveys = useMemo(() => {
     return surveys.filter((s) => {
