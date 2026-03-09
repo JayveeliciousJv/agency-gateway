@@ -59,10 +59,6 @@ const KioskRegisterPage = () => {
       id: `v${Date.now()}`,
       name: form.name,
       sex: form.sex as 'Male' | 'Female' | 'Prefer not to say',
-      ageGroup: form.ageGroup || undefined,
-      educationLevel: form.educationLevel || undefined,
-      occupation: form.occupation || undefined,
-      region: form.region || undefined,
       sectorClassification: form.sectorClassification === 'Others'
         ? `Others - ${form.sectorOtherSpecify.trim()}`
         : form.sectorClassification,
