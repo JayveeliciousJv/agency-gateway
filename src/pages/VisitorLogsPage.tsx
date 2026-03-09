@@ -45,6 +45,17 @@ const VisitorLogsPage = () => {
     toast.success(`Letter status updated to ${newStatus}`);
   };
 
+  const handleScanLinkSave = (id: string, link: string) => {
+    updateVisitor(id, { letterScanLink: link });
+    addAuditLog({
+      userId: currentUser?.id || '',
+      userName: currentUser?.fullName || '',
+      action: 'Update Scan Link',
+      details: `Updated scan link for letter ${id}`,
+    });
+    toast.success('Scan link saved');
+  };
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
