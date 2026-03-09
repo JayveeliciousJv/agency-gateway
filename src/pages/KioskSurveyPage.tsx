@@ -5,7 +5,8 @@ import { useAppStore } from '@/lib/store';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Shield, Star } from 'lucide-react';
+import { Star } from 'lucide-react';
+import defaultLogo from '@/assets/default-logo.png';
 
 // Survey criteria are now loaded dynamically from the store.
 // The key for each criterion is derived from its label (lowercased, spaces removed).
