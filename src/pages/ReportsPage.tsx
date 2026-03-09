@@ -447,6 +447,44 @@ const ReportsPage = () => {
     { key: 'last_month', label: 'Last Month' },
     { key: 'all', label: 'All Time' },
   ];
+  // Demographics summary helper
+  const DemographicsSummaryBox = ({ data }: { data: any[] }) => {
+    const total = data.length;
+    const male = data.filter(v => v?.sex === 'Male').length;
+    const female = data.filter(v => v?.sex === 'Female').length;
+    const pnts = data.filter(v => v?.sex === 'Prefer not to say').length;
+
+    return (
+      <Card className="mt-6 border-2 border-primary/20">
+        <CardHeader className="pb-3 bg-muted/40 rounded-t-lg">
+          <CardTitle className="text-sm font-semibold flex items-center gap-2">
+            <Users className="w-4 h-4 text-primary" />
+            Demographics Summary
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="pt-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="text-center p-4 rounded-lg bg-primary/5 border border-primary/10">
+              <p className="text-2xl font-bold text-primary">{total}</p>
+              <p className="text-xs text-muted-foreground font-medium mt-1">Total Visitors / Respondents</p>
+            </div>
+            <div className="text-center p-4 rounded-lg bg-info/5 border border-info/10">
+              <p className="text-2xl font-bold text-info">{male}</p>
+              <p className="text-xs text-muted-foreground font-medium mt-1">Male</p>
+            </div>
+            <div className="text-center p-4 rounded-lg bg-warning/5 border border-warning/10">
+              <p className="text-2xl font-bold text-warning">{female}</p>
+              <p className="text-xs text-muted-foreground font-medium mt-1">Female</p>
+            </div>
+            <div className="text-center p-4 rounded-lg bg-muted/50 border">
+              <p className="text-2xl font-bold text-muted-foreground">{pnts}</p>
+              <p className="text-xs text-muted-foreground font-medium mt-1">Prefer Not to Say</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
 
   return (
     <div className="space-y-0 animate-fade-in">
