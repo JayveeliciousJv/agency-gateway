@@ -253,7 +253,7 @@ const ReportsPage = () => {
     await import('jspdf-autotable');
     const {
       drawHeader, drawTable, drawSummaryMetrics, drawDemographics,
-      drawBarChart, drawPieChart, drawFooter, addVisualizationPage,
+      drawBarChart, drawPieChart, drawFooter, addSectionPage, addVisualizationPage,
     } = await import('@/lib/pdf-report');
 
     const doc = new jsPDF({ orientation: type === 'surveys' || type === 'letters' ? 'landscape' : 'portrait' });
@@ -308,7 +308,7 @@ const ReportsPage = () => {
       ]);
     }
 
-    // Demographics
+    // Demographics data
     let dataForSummary: any[] = [];
     if (type === 'visitors' || type === 'summary') dataForSummary = filteredVisitors;
     else if (type === 'letters') dataForSummary = filteredLetters;
@@ -321,14 +321,9 @@ const ReportsPage = () => {
     const femaleCount = dataForSummary.filter(v => v?.sex === 'Female').length;
     const preferNotToSayCount = dataForSummary.filter(v => v?.sex === 'Prefer not to say').length;
 
-    // Check if we need a new page for demographics
-    const pageH = doc.internal.pageSize.getHeight();
-    if (curY + 70 > pageH - 50) {
-      doc.addPage();
-      curY = 20;
-    }
-
-    curY = drawDemographics(doc, curY + 10, {
+    // ── Demographics Page (separate page) ──
+    let demoY = addSectionPage(doc, 'Demographics Summary');
+    demoY = drawDemographics(doc, demoY, {
       total: totalCount, male: maleCount, female: femaleCount, preferNotToSay: preferNotToSayCount,
     });
 
