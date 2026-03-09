@@ -53,7 +53,7 @@ interface ChartBarData {
 interface ChartPieSlice {
   label: string;
   value: number;
-  color: readonly [number, number, number];
+  color: [number, number, number];
 }
 
 /**
