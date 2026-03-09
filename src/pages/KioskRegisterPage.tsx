@@ -74,7 +74,6 @@ const KioskRegisterPage = () => {
         letterStatus: 'Received' as const,
         letterReceivedBy: currentUser?.fullName || '',
       }),
-      }),
       contactNumber: form.contactNumber,
       email: form.email,
       date: now.toISOString().split('T')[0],
