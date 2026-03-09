@@ -99,8 +99,8 @@ const defaultSurveyPrivacy = `By participating in this satisfaction survey, I vo
 **Security:** All data is protected with appropriate organizational, physical, and technical security measures.`;
 
 const defaultProfile: AgencyProfile = {
-  agencyName: 'Republic of the Philippines',
-  officeName: 'City Government Office',
+  agencyName: 'Department of Information and Communications Technology',
+  officeName: 'Camarines Norte Provincial Office',
   address: '123 Government Ave, Metro Manila',
   contactNumber: '(02) 8888-1234',
   email: 'info@citygovernment.gov.ph',
