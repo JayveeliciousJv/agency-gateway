@@ -3,6 +3,7 @@
  * Reusable across all report types in the system.
  */
 import type { AgencyProfile } from './store';
+import autoTable from 'jspdf-autotable';
 
 // Colors
 const NAVY = [31, 58, 95] as const;        // #1F3A5F
