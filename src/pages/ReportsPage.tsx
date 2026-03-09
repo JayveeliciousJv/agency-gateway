@@ -307,7 +307,7 @@ const ReportsPage = () => {
       const finalY = (doc as any).lastAutoTable?.finalY || 80;
       doc.setFontSize(9);
       doc.text(`Overall Avg Satisfaction: ${summaryData.overallAvg}/5`, 14, finalY + 10);
-      doc.text(`Overall % Satisfied (≥4★): ${summaryData.overallSatisfied}%`, 14, finalY + 16);
+      doc.text(`Overall % Satisfied (>=4 Star): ${summaryData.overallSatisfied}%`, 14, finalY + 16);
     }
 
     // Demographics Summary Table
