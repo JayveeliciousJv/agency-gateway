@@ -282,6 +282,9 @@ export const useAppStore = create<AppState>()(persist((set, get) => {
         profile: { ...s.profile, ...p },
       })),
     addVisitor: (v) => set((s) => ({ visitors: [v, ...s.visitors] })),
+    updateVisitor: (id, updates) => set((s) => ({
+      visitors: s.visitors.map((v) => v.id === id ? { ...v, ...updates } : v),
+    })),
     addSurvey: (s) => set((state) => ({ surveys: [s, ...state.surveys] })),
     addAuditLog: (entry) =>
       set((s) => ({
