@@ -250,67 +250,65 @@ const ReportsPage = () => {
   // ── Export PDF ──
   const exportPDF = async (type: 'visitors' | 'surveys' | 'summary' | 'letters') => {
     const { default: jsPDF } = await import('jspdf');
-    const { default: autoTable } = await import('jspdf-autotable');
+    await import('jspdf-autotable');
+    const {
+      drawHeader, drawTable, drawSummaryMetrics, drawDemographics,
+      drawBarChart, drawPieChart, drawFooter, addVisualizationPage,
+    } = await import('@/lib/pdf-report');
 
     const doc = new jsPDF({ orientation: type === 'surveys' || type === 'letters' ? 'landscape' : 'portrait' });
-    const pageWidth = doc.internal.pageSize.getWidth();
+    const titleMap: Record<string, string> = {
+      visitors: 'Visitor Logs Report', surveys: 'Survey Results Report',
+      summary: 'Summary Analytics Report', letters: 'Incoming Letters Report',
+    };
 
-    doc.setFontSize(14);
-    doc.text(profile.officeName, pageWidth / 2, 15, { align: 'center' });
-    doc.setFontSize(10);
-    doc.text(profile.agencyName, pageWidth / 2, 21, { align: 'center' });
-    doc.setFontSize(9);
-    const titleMap: Record<string, string> = { visitors: 'Visitor Logs', surveys: 'Survey Results', summary: 'Summary Analytics', letters: 'Incoming Letters' };
-    doc.text(`Report: ${titleMap[type]}`, pageWidth / 2, 27, { align: 'center' });
-    doc.text(`Filter: ${filterLabel()}`, pageWidth / 2, 32, { align: 'center' });
-    doc.text(`Generated: ${new Date().toLocaleString('en-PH')}`, pageWidth / 2, 37, { align: 'center' });
+    // Header
+    let curY = drawHeader({ doc, profile, title: titleMap[type], filterLabel: filterLabel() });
 
+    // Main data table
     if (type === 'visitors') {
-      autoTable(doc, {
-        startY: 42,
+      curY = drawTable({
+        doc, startY: curY,
         head: [['#', 'Name', 'Sex', 'Sector', 'Service', 'Purpose', 'Contact', 'Date', 'Time']],
         body: filteredVisitors.map((v, i) => [i + 1, v.name, v.sex, v.sectorClassification, v.service, v.purpose, v.contactNumber, v.date, v.time]),
-        styles: { fontSize: 7 },
-        headStyles: { fillColor: [30, 58, 95] },
       });
     } else if (type === 'letters') {
-      autoTable(doc, {
-        startY: 42,
+      curY = drawTable({
+        doc, startY: curY,
         head: [['#', 'Date', 'From', 'Subject', 'Project', 'Status', 'Received By', 'Contact']],
         body: filteredLetters.map((v, i) => [
-          i + 1, v.date, v.letterFrom || '', v.letterSubject || '', 
+          i + 1, v.date, v.letterFrom || '', v.letterSubject || '',
           v.letterProject === 'Other' ? `Other: ${v.letterProjectOther}` : (v.letterProject || ''),
           v.letterStatus || '', v.name, v.contactNumber,
         ]),
-        styles: { fontSize: 7 },
-        headStyles: { fillColor: [30, 58, 95] },
       });
     } else if (type === 'surveys') {
-      autoTable(doc, {
-        startY: 42,
+      curY = drawTable({
+        doc, startY: curY,
         head: [['#', 'Service', 'Responsive', 'Reliable', 'Access', 'Comms', 'Cost', 'Integrity', 'Assurance', 'Outcome', 'Overall', 'Date']],
         body: filteredSurveys.map((s, i) => [
           i + 1, s.service, s.responsiveness, s.reliability, s.accessFacilities,
           s.communication, s.costs, s.integrity, s.assurance, s.outcome, s.overallSatisfaction, s.date,
         ]),
-        styles: { fontSize: 7 },
-        headStyles: { fillColor: [30, 58, 95] },
       });
     } else {
-      autoTable(doc, {
-        startY: 42,
+      // Summary table
+      curY = drawTable({
+        doc, startY: curY,
         head: [['Service', 'Visitors', 'Surveys', 'Avg Satisfaction', '% Satisfied (>=4 Star)']],
         body: summaryData.serviceRows.map((r) => [r.name, r.visitors, r.surveys, r.avgSatisfaction, r.satisfiedPct]),
-        styles: { fontSize: 8 },
-        headStyles: { fillColor: [30, 58, 95] },
       });
-      const finalY = (doc as any).lastAutoTable?.finalY || 80;
-      doc.setFontSize(9);
-      doc.text(`Overall Avg Satisfaction: ${summaryData.overallAvg}/5`, 14, finalY + 10);
-      doc.text(`Overall % Satisfied (>=4 Star): ${summaryData.overallSatisfied}%`, 14, finalY + 16);
+
+      // Key metrics summary boxes
+      curY = drawSummaryMetrics(doc, curY + 6, [
+        { label: 'Total Visitors', value: String(summaryData.totalVisitors) },
+        { label: 'Total Surveys', value: String(summaryData.totalSurveys) },
+        { label: 'Avg Satisfaction', value: `${summaryData.overallAvg}/5` },
+        { label: '% Satisfied (>=4 Star)', value: `${summaryData.overallSatisfied}%` },
+      ]);
     }
 
-    // Demographics Summary Table
+    // Demographics
     let dataForSummary: any[] = [];
     if (type === 'visitors' || type === 'summary') dataForSummary = filteredVisitors;
     else if (type === 'letters') dataForSummary = filteredLetters;
@@ -323,39 +321,65 @@ const ReportsPage = () => {
     const femaleCount = dataForSummary.filter(v => v?.sex === 'Female').length;
     const preferNotToSayCount = dataForSummary.filter(v => v?.sex === 'Prefer not to say').length;
 
-    const summaryFinalY = (doc as any).lastAutoTable?.finalY || 80;
-    
-    autoTable(doc, {
-      startY: type === 'summary' ? summaryFinalY + 24 : summaryFinalY + 15,
-      head: [['Demographics Summary', 'Count']],
-      body: [
-        ['Total Overall Number of Visitors/Respondents', totalCount],
-        ['Total Number of Male', maleCount],
-        ['Total Number of Female', femaleCount],
-        ['Total Number of Prefer Not to Say', preferNotToSayCount],
-      ],
-      styles: { fontSize: 9 },
-      headStyles: { fillColor: [71, 85, 105], halign: 'center' }, // slate-600
-      columnStyles: {
-        0: { fontStyle: 'bold' },
-        1: { halign: 'center', fontStyle: 'bold' }
-      },
-      margin: { left: 14 },
-      tableWidth: 120,
+    // Check if we need a new page for demographics
+    const pageH = doc.internal.pageSize.getHeight();
+    if (curY + 70 > pageH - 50) {
+      doc.addPage();
+      curY = 20;
+    }
+
+    curY = drawDemographics(doc, curY + 10, {
+      total: totalCount, male: maleCount, female: femaleCount, preferNotToSay: preferNotToSayCount,
     });
 
-    const pageCount = doc.getNumberOfPages();
-    for (let i = 1; i <= pageCount; i++) {
-      doc.setPage(i);
-      const h = doc.internal.pageSize.getHeight();
-      doc.setFontSize(8);
-      doc.text(`Page ${i} of ${pageCount}`, pageWidth / 2, h - 8, { align: 'center' });
-      if (i === pageCount && profile.reportSignatory) {
-        doc.setFontSize(9);
-        doc.text(profile.reportSignatory, pageWidth - 14, h - 28, { align: 'right' });
-        doc.text(profile.reportSignatoryPosition, pageWidth - 14, h - 23, { align: 'right' });
+    // ── Visualization Page (separate page) ──
+    let vizY = addVisualizationPage(doc, profile);
+
+    // Bar chart: Service satisfaction (for summary/surveys)
+    if (type === 'summary' || type === 'surveys') {
+      const barData = summaryData.serviceRows
+        .filter(r => r.avgSatisfaction !== 'N/A')
+        .map(r => ({ label: r.name, value: parseFloat(String(r.avgSatisfaction)) }));
+      if (barData.length > 0) {
+        vizY = drawBarChart(doc, vizY, 'Service Satisfaction (Average Rating)', barData);
+      }
+    } else if (type === 'visitors') {
+      // Bar chart: Visitors by service
+      const serviceCounts: Record<string, number> = {};
+      filteredVisitors.forEach(v => { serviceCounts[v.service] = (serviceCounts[v.service] || 0) + 1; });
+      const barData = Object.entries(serviceCounts)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 10)
+        .map(([label, value]) => ({ label, value }));
+      if (barData.length > 0) {
+        vizY = drawBarChart(doc, vizY, 'Visitors by Service', barData);
+      }
+    } else if (type === 'letters') {
+      // Bar chart: Letters by status
+      const statusCounts: Record<string, number> = {};
+      filteredLetters.forEach(v => { statusCounts[v.letterStatus || 'Unknown'] = (statusCounts[v.letterStatus || 'Unknown'] || 0) + 1; });
+      const barData = Object.entries(statusCounts)
+        .sort((a, b) => b[1] - a[1])
+        .map(([label, value]) => ({ label, value }));
+      if (barData.length > 0) {
+        vizY = drawBarChart(doc, vizY, 'Letters by Status', barData);
       }
     }
+
+    // Pie chart: Gender distribution
+    const PIE_COLORS = [
+      [59, 130, 246] as const,   // blue
+      [234, 179, 8] as const,    // yellow
+      [156, 163, 175] as const,  // gray
+    ];
+    vizY = drawPieChart(doc, vizY + 6, 'Gender Distribution', [
+      { label: 'Male', value: maleCount, color: PIE_COLORS[0] },
+      { label: 'Female', value: femaleCount, color: PIE_COLORS[1] },
+      { label: 'Prefer Not to Say', value: preferNotToSayCount, color: PIE_COLORS[2] },
+    ]);
+
+    // Footer (all pages)
+    drawFooter(doc, profile);
 
     doc.save(`${type}-report-${new Date().toISOString().split('T')[0]}.pdf`);
     toast.success('PDF downloaded');
