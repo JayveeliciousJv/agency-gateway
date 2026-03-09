@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
 export interface AgencyProfile {
   agencyName: string;
@@ -220,7 +221,7 @@ interface AppState {
   resetPassword: (username: string, newPassword: string) => void;
 }
 
-export const useAppStore = create<AppState>((set, get) => {
+export const useAppStore = create<AppState>()(persist((set, get) => {
   const visitors = generateMockVisitors();
   const surveys = generateMockSurveys(visitors);
 
@@ -303,4 +304,4 @@ export const useAppStore = create<AppState>((set, get) => {
     },
     logout: () => set({ currentUser: null, isAuthenticated: false }),
   };
-});
+}, { name: 'app-store' }));
