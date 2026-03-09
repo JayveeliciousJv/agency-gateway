@@ -856,6 +856,8 @@ const ReportsPage = () => {
               ) : <EmptyState message="No visitor records found" />}
             </CardContent>
           </Card>
+
+          <DemographicsSummaryBox data={filteredVisitors} />
         </TabsContent>
 
         {/* ── Survey Results Tab ── */}
