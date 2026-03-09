@@ -796,6 +796,8 @@ const ReportsPage = () => {
               ) : <EmptyState message="No data available for the selected filters" />}
             </CardContent>
           </Card>
+          
+          <DemographicsSummaryBox data={filteredVisitors} />
         </TabsContent>
 
         {/* ── Visitor Logs Tab ── */}
