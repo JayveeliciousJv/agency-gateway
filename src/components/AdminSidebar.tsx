@@ -5,7 +5,7 @@ import {
   ClipboardList,
   BarChart3,
   Settings,
-  Shield,
+  
   LogOut,
   Users,
   History,
