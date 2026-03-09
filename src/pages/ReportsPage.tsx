@@ -1035,6 +1035,8 @@ const ReportsPage = () => {
               ) : <EmptyState message="No incoming letter records found" />}
             </CardContent>
           </Card>
+
+          <DemographicsSummaryBox data={filteredLetters} />
         </TabsContent>
       </Tabs>
     </div>
