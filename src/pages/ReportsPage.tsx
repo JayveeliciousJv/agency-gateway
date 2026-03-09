@@ -252,8 +252,8 @@ const ReportsPage = () => {
     if (type === 'visitors') {
       curY = drawTable({
         doc, startY: curY,
-        head: [['#', 'Name', 'Sex', 'Age', 'Education', 'Occupation', 'Region', 'Sector', 'Service', 'Date']],
-        body: filteredVisitors.map((v, i) => [i + 1, v.name, v.sex, v.ageGroup || '—', v.educationLevel || '—', v.occupation || '—', v.region ? v.region.split(' – ')[0] : '—', v.sectorClassification, v.service, v.date]),
+        head: [['#', 'Name', 'Sex', 'Sector', 'Service', 'Purpose', 'Contact', 'Date']],
+        body: filteredVisitors.map((v, i) => [i + 1, v.name, v.sex, v.sectorClassification, v.service, v.purpose, v.contactNumber, v.date]),
       });
     } else if (type === 'letters') {
       curY = drawTable({
