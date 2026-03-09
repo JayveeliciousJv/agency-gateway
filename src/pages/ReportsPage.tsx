@@ -299,7 +299,7 @@ const ReportsPage = () => {
     } else {
       autoTable(doc, {
         startY: 42,
-        head: [['Service', 'Visitors', 'Surveys', 'Avg Satisfaction', '% Satisfied (≥4★)']],
+        head: [['Service', 'Visitors', 'Surveys', 'Avg Satisfaction', '% Satisfied (>=4 Star)']],
         body: summaryData.serviceRows.map((r) => [r.name, r.visitors, r.surveys, r.avgSatisfaction, r.satisfiedPct]),
         styles: { fontSize: 8 },
         headStyles: { fillColor: [30, 58, 95] },
