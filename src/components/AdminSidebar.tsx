@@ -5,7 +5,7 @@ import {
   ClipboardList,
   BarChart3,
   Settings,
-  Shield,
+  
   LogOut,
   Users,
   History,
@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
+import defaultLogo from '@/assets/default-logo.png';
 
 const navItems = [
   { to: '/admin', icon: LayoutDashboard, label: 'Dashboard', end: true },
@@ -60,8 +61,8 @@ const AdminSidebar = ({ collapsed, onToggle }: AdminSidebarProps) => {
       {/* Brand */}
       <div className="p-3 border-b border-sidebar-border">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg bg-sidebar-primary/20 flex items-center justify-center flex-shrink-0">
-            <Shield className="w-5 h-5 text-sidebar-primary" />
+          <div className="w-9 h-9 rounded-lg overflow-hidden flex items-center justify-center flex-shrink-0">
+            <img src={profile.logoPath || defaultLogo} alt="Agency Logo" className="w-full h-full object-contain" />
           </div>
           {!collapsed && (
             <div className="min-w-0 animate-fade-in">
