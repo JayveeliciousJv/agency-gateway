@@ -12,6 +12,38 @@ import { toast } from 'sonner';
 
 const LETTER_STATUSES = ['Received', 'Processed', 'Pending', 'Forwarded', 'Archived'] as const;
 
+const ScanLinkCell = ({ value, onSave }: { value: string; onSave: (link: string) => void }) => {
+  const [editing, setEditing] = useState(false);
+  const [link, setLink] = useState(value);
+
+  if (editing) {
+    return (
+      <Input
+        className="h-7 text-xs w-40"
+        placeholder="Paste link..."
+        value={link}
+        onChange={(e) => setLink(e.target.value)}
+        onBlur={() => { onSave(link); setEditing(false); }}
+        onKeyDown={(e) => { if (e.key === 'Enter') { onSave(link); setEditing(false); } }}
+        autoFocus
+      />
+    );
+  }
+
+  return value ? (
+    <div className="flex items-center gap-1">
+      <a href={value} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline truncate max-w-[120px]">
+        View <ExternalLink className="inline w-3 h-3" />
+      </a>
+      <button onClick={() => setEditing(true)} className="text-xs text-muted-foreground hover:text-foreground">Edit</button>
+    </div>
+  ) : (
+    <button onClick={() => setEditing(true)} className="text-xs text-muted-foreground hover:text-foreground italic">
+      + Add link
+    </button>
+  );
+};
+
 const VisitorLogsPage = () => {
   const visitors = useAppStore((s) => s.visitors);
   const updateVisitor = useAppStore((s) => s.updateVisitor);
