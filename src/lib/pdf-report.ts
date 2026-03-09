@@ -288,16 +288,12 @@ export function drawDemographics(doc: any, startY: number, data: DemographicsDat
 }
 
 /**
- * Calculate extended demographics from visitor data
+ * Calculate demographics from visitor data (sex and sector only)
  */
 export function calculateExtendedDemographics(visitors: VisitorLog[]): ExtendedDemographicsData {
   const data: ExtendedDemographicsData = {
     total: visitors.length,
     sex: { male: 0, female: 0, preferNotToSay: 0 },
-    ageGroups: {},
-    educationLevels: {},
-    occupations: {},
-    regions: {},
     sectors: {},
   };
 
@@ -306,28 +302,6 @@ export function calculateExtendedDemographics(visitors: VisitorLog[]): ExtendedD
     if (v.sex === 'Male') data.sex.male++;
     else if (v.sex === 'Female') data.sex.female++;
     else data.sex.preferNotToSay++;
-
-    // Age Groups
-    if (v.ageGroup) {
-      data.ageGroups[v.ageGroup] = (data.ageGroups[v.ageGroup] || 0) + 1;
-    }
-
-    // Education Levels
-    if (v.educationLevel) {
-      data.educationLevels[v.educationLevel] = (data.educationLevels[v.educationLevel] || 0) + 1;
-    }
-
-    // Occupations
-    if (v.occupation) {
-      data.occupations[v.occupation] = (data.occupations[v.occupation] || 0) + 1;
-    }
-
-    // Regions
-    if (v.region) {
-      // Simplify region name for display
-      const shortRegion = v.region.split(' – ')[0];
-      data.regions[shortRegion] = (data.regions[shortRegion] || 0) + 1;
-    }
 
     // Sectors
     if (v.sectorClassification) {
