@@ -313,7 +313,7 @@ export function calculateExtendedDemographics(visitors: VisitorLog[]): ExtendedD
 }
 
 /**
- * Draw comprehensive demographics page with all categories
+ * Draw demographics page (sex and sector only)
  */
 export function drawExtendedDemographicsPage(doc: any, startY: number, data: ExtendedDemographicsData): number {
   const pageWidth = doc.internal.pageSize.getWidth();
@@ -322,10 +322,10 @@ export function drawExtendedDemographicsPage(doc: any, startY: number, data: Ext
 
   // Executive Summary Box
   doc.setFillColor(245, 247, 250);
-  doc.roundedRect(margin, curY, pageWidth - margin * 2, 35, 3, 3, 'F');
+  doc.roundedRect(margin, curY, pageWidth - margin * 2, 28, 3, 3, 'F');
   doc.setDrawColor(...NAVY);
   doc.setLineWidth(0.5);
-  doc.line(margin, curY, margin, curY + 35);
+  doc.line(margin, curY, margin, curY + 28);
 
   doc.setFontSize(10);
   doc.setFont('helvetica', 'bold');
@@ -338,15 +338,7 @@ export function drawExtendedDemographicsPage(doc: any, startY: number, data: Ext
   const summaryText = `Total Respondents: ${data.total} | Male: ${data.sex.male} (${data.total ? Math.round((data.sex.male / data.total) * 100) : 0}%) | Female: ${data.sex.female} (${data.total ? Math.round((data.sex.female / data.total) * 100) : 0}%) | Prefer Not to Say: ${data.sex.preferNotToSay} (${data.total ? Math.round((data.sex.preferNotToSay / data.total) * 100) : 0}%)`;
   doc.text(summaryText, margin + 6, curY + 20);
 
-  // Key insight
-  const topSector = Object.entries(data.sectors).sort((a, b) => b[1] - a[1])[0];
-  const topAge = Object.entries(data.ageGroups).sort((a, b) => b[1] - a[1])[0];
-  let insightText = 'Key Insights: ';
-  if (topSector) insightText += `Most common sector: ${topSector[0]} (${topSector[1]}). `;
-  if (topAge) insightText += `Most common age group: ${topAge[0]} (${topAge[1]}).`;
-  doc.text(insightText, margin + 6, curY + 28);
-
-  curY += 45;
+  curY += 38;
 
   // 1. Sex Distribution Table with Visual Bar
   curY = drawDemographicTableWithBar(doc, curY, 'Sex Distribution', [
@@ -361,68 +353,7 @@ export function drawExtendedDemographicsPage(doc: any, startY: number, data: Ext
     curY = 20;
   }
 
-  // 2. Age Group Distribution
-  const ageData = Object.entries(data.ageGroups)
-    .map(([label, count]) => ({ label, count, color: ACCENT_BLUE as [number, number, number] }))
-    .sort((a, b) => {
-      const order = ['18-24', '25-34', '35-44', '45-54', '55-64', '65+'];
-      return order.indexOf(a.label) - order.indexOf(b.label);
-    });
-  if (ageData.length > 0) {
-    curY = drawDemographicTableWithBar(doc, curY, 'Age Group Distribution', ageData, data.total);
-  }
-
-  // Check page break
-  if (curY > doc.internal.pageSize.getHeight() - 80) {
-    doc.addPage();
-    curY = 20;
-  }
-
-  // 3. Education Level Distribution
-  const eduData = Object.entries(data.educationLevels)
-    .map(([label, count]) => ({ label, count, color: SUCCESS_GREEN as [number, number, number] }))
-    .sort((a, b) => b.count - a.count);
-  if (eduData.length > 0) {
-    curY = drawDemographicTableWithBar(doc, curY, 'Education Level Distribution', eduData, data.total);
-  }
-
-  // Check page break
-  if (curY > doc.internal.pageSize.getHeight() - 80) {
-    doc.addPage();
-    curY = 20;
-  }
-
-  // 4. Occupation Distribution
-  const occData = Object.entries(data.occupations)
-    .map(([label, count]) => ({ label, count, color: ACCENT_PURPLE as [number, number, number] }))
-    .sort((a, b) => b.count - a.count)
-    .slice(0, 8); // Top 8
-  if (occData.length > 0) {
-    curY = drawDemographicTableWithBar(doc, curY, 'Occupation Distribution (Top 8)', occData, data.total);
-  }
-
-  // Check page break
-  if (curY > doc.internal.pageSize.getHeight() - 80) {
-    doc.addPage();
-    curY = 20;
-  }
-
-  // 5. Region/Location Distribution
-  const regData = Object.entries(data.regions)
-    .map(([label, count]) => ({ label, count, color: ACCENT_PINK as [number, number, number] }))
-    .sort((a, b) => b.count - a.count)
-    .slice(0, 8); // Top 8
-  if (regData.length > 0) {
-    curY = drawDemographicTableWithBar(doc, curY, 'Region/Location Distribution (Top 8)', regData, data.total);
-  }
-
-  // Check page break
-  if (curY > doc.internal.pageSize.getHeight() - 80) {
-    doc.addPage();
-    curY = 20;
-  }
-
-  // 6. Sector Classification Distribution
+  // 2. Sector Classification Distribution
   const sectorData = Object.entries(data.sectors)
     .map(([label, count]) => ({ label, count, color: NAVY as [number, number, number] }))
     .sort((a, b) => b.count - a.count)
