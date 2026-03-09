@@ -353,21 +353,9 @@ const ReportsPage = () => {
     const femaleCount = dataForSummary.filter(v => v?.sex === 'Female').length;
     const preferNotToSayCount = dataForSummary.filter(v => v?.sex === 'Prefer not to say').length;
 
-    // Age groups
-    const ageGroups: Record<string, number> = {};
-    dataForSummary.forEach(v => { if (v?.ageGroup) ageGroups[v.ageGroup] = (ageGroups[v.ageGroup] || 0) + 1; });
-
-    // Education
-    const eduLevels: Record<string, number> = {};
-    dataForSummary.forEach(v => { if (v?.educationLevel) eduLevels[v.educationLevel] = (eduLevels[v.educationLevel] || 0) + 1; });
-
-    // Occupation
-    const occupations: Record<string, number> = {};
-    dataForSummary.forEach(v => { if (v?.occupation) occupations[v.occupation] = (occupations[v.occupation] || 0) + 1; });
-
-    // Region
-    const regions: Record<string, number> = {};
-    dataForSummary.forEach(v => { if (v?.region) regions[v.region] = (regions[v.region] || 0) + 1; });
+    // Sector
+    const sectors: Record<string, number> = {};
+    dataForSummary.forEach(v => { if (v?.sectorClassification) sectors[v.sectorClassification] = (sectors[v.sectorClassification] || 0) + 1; });
 
     const addDemographicsSheet = () => {
       const demoData: any[] = [
@@ -378,17 +366,8 @@ const ReportsPage = () => {
         { Metric: 'Total Number of Female', Count: femaleCount, Percentage: `${pct(femaleCount, totalCount)}%` },
         { Metric: 'Total Number of Prefer Not to Say', Count: preferNotToSayCount, Percentage: `${pct(preferNotToSayCount, totalCount)}%` },
         { Metric: '', Count: '', Percentage: '' },
-        { Metric: '--- AGE GROUP ---', Count: '', Percentage: '' },
-        ...['18-24', '25-34', '35-44', '45-54', '55-64', '65+'].map(ag => ({ Metric: ag, Count: ageGroups[ag] || 0, Percentage: `${pct(ageGroups[ag] || 0, totalCount)}%` })),
-        { Metric: '', Count: '', Percentage: '' },
-        { Metric: '--- EDUCATION LEVEL ---', Count: '', Percentage: '' },
-        ...Object.entries(eduLevels).sort((a, b) => b[1] - a[1]).map(([k, v]) => ({ Metric: k, Count: v, Percentage: `${pct(v, totalCount)}%` })),
-        { Metric: '', Count: '', Percentage: '' },
-        { Metric: '--- OCCUPATION ---', Count: '', Percentage: '' },
-        ...Object.entries(occupations).sort((a, b) => b[1] - a[1]).map(([k, v]) => ({ Metric: k, Count: v, Percentage: `${pct(v, totalCount)}%` })),
-        { Metric: '', Count: '', Percentage: '' },
-        { Metric: '--- REGION / LOCATION ---', Count: '', Percentage: '' },
-        ...Object.entries(regions).sort((a, b) => b[1] - a[1]).map(([k, v]) => ({ Metric: k, Count: v, Percentage: `${pct(v, totalCount)}%` })),
+        { Metric: '--- SECTOR CLASSIFICATION ---', Count: '', Percentage: '' },
+        ...Object.entries(sectors).sort((a, b) => b[1] - a[1]).map(([k, v]) => ({ Metric: k, Count: v, Percentage: `${pct(v, totalCount)}%` })),
       ];
       XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(demoData), 'Demographics Summary');
     };
