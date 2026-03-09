@@ -123,6 +123,7 @@ const ReportsPage = () => {
   const [letterFilterFrom, setLetterFilterFrom] = useState('all');
   const [letterFilterProject, setLetterFilterProject] = useState('all');
   const [letterFilterStatus, setLetterFilterStatus] = useState('all');
+  const [letterFilterProcessor, setLetterFilterProcessor] = useState('all');
   const LETTER_PROJECTS = ['DigiGov', 'ILCDB', 'PNPKI', 'Cybersecurity', 'FreeWifi4All', 'Other'];
   const LETTER_STATUSES = ['Received', 'Processed', 'Pending', 'Forwarded', 'Archived'];
 
