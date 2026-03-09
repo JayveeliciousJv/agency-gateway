@@ -176,6 +176,7 @@ function generateMockVisitors(): VisitorLog[] {
         letterProject: project,
         letterProjectOther: project === 'Other' ? 'Special Project X' : undefined,
         letterStatus: letterStatuses[Math.floor(Math.random() * letterStatuses.length)],
+        letterReceivedBy: ['System Administrator', 'Staff User'][Math.floor(Math.random() * 2)],
       } : {}),
       contactNumber: `09${Math.floor(100000000 + Math.random() * 900000000)}`,
       email: `visitor${i}@email.com`,
