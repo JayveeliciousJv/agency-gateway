@@ -306,11 +306,43 @@ const ReportsPage = () => {
       });
       const finalY = (doc as any).lastAutoTable?.finalY || 80;
       doc.setFontSize(9);
-      doc.text(`Total Visitors: ${summaryData.totalVisitors}`, 14, finalY + 10);
-      doc.text(`Total Surveys: ${summaryData.totalSurveys}`, 14, finalY + 16);
-      doc.text(`Overall Avg Satisfaction: ${summaryData.overallAvg}/5`, 14, finalY + 22);
-      doc.text(`Overall % Satisfied (≥4★): ${summaryData.overallSatisfied}%`, 14, finalY + 28);
+      doc.text(`Overall Avg Satisfaction: ${summaryData.overallAvg}/5`, 14, finalY + 10);
+      doc.text(`Overall % Satisfied (≥4★): ${summaryData.overallSatisfied}%`, 14, finalY + 16);
     }
+
+    // Demographics Summary Table
+    let dataForSummary: any[] = [];
+    if (type === 'visitors' || type === 'summary') dataForSummary = filteredVisitors;
+    else if (type === 'letters') dataForSummary = filteredLetters;
+    else if (type === 'surveys') {
+      dataForSummary = filteredSurveys.map(s => visitors.find(v => v.id === s.visitorId)).filter(Boolean);
+    }
+
+    const totalCount = dataForSummary.length;
+    const maleCount = dataForSummary.filter(v => v?.sex === 'Male').length;
+    const femaleCount = dataForSummary.filter(v => v?.sex === 'Female').length;
+    const preferNotToSayCount = dataForSummary.filter(v => v?.sex === 'Prefer not to say').length;
+
+    const summaryFinalY = (doc as any).lastAutoTable?.finalY || 80;
+    
+    autoTable(doc, {
+      startY: type === 'summary' ? summaryFinalY + 24 : summaryFinalY + 15,
+      head: [['Demographics Summary', 'Count']],
+      body: [
+        ['Total Overall Number of Visitors/Respondents', totalCount],
+        ['Total Number of Male', maleCount],
+        ['Total Number of Female', femaleCount],
+        ['Total Number of Prefer Not to Say', preferNotToSayCount],
+      ],
+      styles: { fontSize: 9 },
+      headStyles: { fillColor: [71, 85, 105], halign: 'center' }, // slate-600
+      columnStyles: {
+        0: { fontStyle: 'bold' },
+        1: { halign: 'center', fontStyle: 'bold' }
+      },
+      margin: { left: 14 },
+      tableWidth: 120,
+    });
 
     const pageCount = doc.getNumberOfPages();
     for (let i = 1; i <= pageCount; i++) {
@@ -334,6 +366,28 @@ const ReportsPage = () => {
   const exportExcel = async (type: 'visitors' | 'surveys' | 'summary' | 'letters') => {
     const XLSX = await import('xlsx');
     const wb = XLSX.utils.book_new();
+
+    let dataForSummary: any[] = [];
+    if (type === 'visitors' || type === 'summary') dataForSummary = filteredVisitors;
+    else if (type === 'letters') dataForSummary = filteredLetters;
+    else if (type === 'surveys') {
+      dataForSummary = filteredSurveys.map(s => visitors.find(v => v.id === s.visitorId)).filter(Boolean);
+    }
+
+    const totalCount = dataForSummary.length;
+    const maleCount = dataForSummary.filter(v => v?.sex === 'Male').length;
+    const femaleCount = dataForSummary.filter(v => v?.sex === 'Female').length;
+    const preferNotToSayCount = dataForSummary.filter(v => v?.sex === 'Prefer not to say').length;
+
+    const addDemographicsSheet = () => {
+      const demoData = [
+        { Metric: 'Total Overall Number of Visitors/Respondents', Count: totalCount },
+        { Metric: 'Total Number of Male', Count: maleCount },
+        { Metric: 'Total Number of Female', Count: femaleCount },
+        { Metric: 'Total Number of Prefer Not to Say', Count: preferNotToSayCount }
+      ];
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(demoData), 'Demographics Summary');
+    };
 
     if (type === 'visitors' || type === 'summary') {
       const visitorRows = filteredVisitors.map((v, i) => ({
@@ -371,6 +425,8 @@ const ReportsPage = () => {
       XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(summaryRows), 'Summary');
     }
 
+    addDemographicsSheet();
+
     XLSX.writeFile(wb, `${type}-report-${new Date().toISOString().split('T')[0]}.xlsx`);
     toast.success('Excel file downloaded');
     addAuditLog({ userId: currentUser?.id || '', userName: currentUser?.fullName || '', action: 'Export Excel', details: `Exported ${type} report as Excel` });
@@ -391,6 +447,44 @@ const ReportsPage = () => {
     { key: 'last_month', label: 'Last Month' },
     { key: 'all', label: 'All Time' },
   ];
+  // Demographics summary helper
+  const DemographicsSummaryBox = ({ data }: { data: any[] }) => {
+    const total = data.length;
+    const male = data.filter(v => v?.sex === 'Male').length;
+    const female = data.filter(v => v?.sex === 'Female').length;
+    const pnts = data.filter(v => v?.sex === 'Prefer not to say').length;
+
+    return (
+      <Card className="mt-6 border-2 border-primary/20">
+        <CardHeader className="pb-3 bg-muted/40 rounded-t-lg">
+          <CardTitle className="text-sm font-semibold flex items-center gap-2">
+            <Users className="w-4 h-4 text-primary" />
+            Demographics Summary
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="pt-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="text-center p-4 rounded-lg bg-primary/5 border border-primary/10">
+              <p className="text-2xl font-bold text-primary">{total}</p>
+              <p className="text-xs text-muted-foreground font-medium mt-1">Total Visitors / Respondents</p>
+            </div>
+            <div className="text-center p-4 rounded-lg bg-info/5 border border-info/10">
+              <p className="text-2xl font-bold text-info">{male}</p>
+              <p className="text-xs text-muted-foreground font-medium mt-1">Male</p>
+            </div>
+            <div className="text-center p-4 rounded-lg bg-warning/5 border border-warning/10">
+              <p className="text-2xl font-bold text-warning">{female}</p>
+              <p className="text-xs text-muted-foreground font-medium mt-1">Female</p>
+            </div>
+            <div className="text-center p-4 rounded-lg bg-muted/50 border">
+              <p className="text-2xl font-bold text-muted-foreground">{pnts}</p>
+              <p className="text-xs text-muted-foreground font-medium mt-1">Prefer Not to Say</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
 
   return (
     <div className="space-y-0 animate-fade-in">
@@ -702,6 +796,8 @@ const ReportsPage = () => {
               ) : <EmptyState message="No data available for the selected filters" />}
             </CardContent>
           </Card>
+          
+          <DemographicsSummaryBox data={filteredVisitors} />
         </TabsContent>
 
         {/* ── Visitor Logs Tab ── */}
@@ -760,6 +856,8 @@ const ReportsPage = () => {
               ) : <EmptyState message="No visitor records found" />}
             </CardContent>
           </Card>
+
+          <DemographicsSummaryBox data={filteredVisitors} />
         </TabsContent>
 
         {/* ── Survey Results Tab ── */}
@@ -824,6 +922,10 @@ const ReportsPage = () => {
               ) : <EmptyState message="No survey records found" />}
             </CardContent>
           </Card>
+
+          <DemographicsSummaryBox 
+            data={filteredSurveys.map(s => visitors.find(v => v.id === s.visitorId)).filter(Boolean)} 
+          />
         </TabsContent>
 
         {/* ── Incoming Letters Tab ── */}
@@ -933,6 +1035,8 @@ const ReportsPage = () => {
               ) : <EmptyState message="No incoming letter records found" />}
             </CardContent>
           </Card>
+
+          <DemographicsSummaryBox data={filteredLetters} />
         </TabsContent>
       </Tabs>
     </div>
