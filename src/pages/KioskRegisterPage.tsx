@@ -71,6 +71,9 @@ const KioskRegisterPage = () => {
         letterProject: form.letterProject === 'Other'
           ? `Other - ${form.letterProjectOther.trim()}`
           : form.letterProject,
+        letterStatus: 'Received' as const,
+        letterReceivedBy: currentUser?.fullName || '',
+      }),
       }),
       contactNumber: form.contactNumber,
       email: form.email,
