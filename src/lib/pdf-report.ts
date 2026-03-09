@@ -50,10 +50,6 @@ interface DemographicsData {
 interface ExtendedDemographicsData {
   total: number;
   sex: { male: number; female: number; preferNotToSay: number };
-  ageGroups: Record<string, number>;
-  educationLevels: Record<string, number>;
-  occupations: Record<string, number>;
-  regions: Record<string, number>;
   sectors: Record<string, number>;
 }
 
