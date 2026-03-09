@@ -1122,6 +1122,18 @@ const ReportsPage = () => {
                     </SelectContent>
                   </Select>
                 </div>
+                <div className="space-y-1">
+                  <Label className="text-xs text-muted-foreground">Received/Processed By</Label>
+                  <Select value={letterFilterProcessor} onValueChange={setLetterFilterProcessor}>
+                    <SelectTrigger className="w-48 h-8 text-xs"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Processors</SelectItem>
+                      {[...new Set(visitors.filter(v => v.purpose === 'Incoming Letter' && v.letterReceivedBy).map(v => v.letterReceivedBy!))].map((p) => (
+                        <SelectItem key={p} value={p}>{p}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
 
               {filteredLetters.length > 0 ? (
