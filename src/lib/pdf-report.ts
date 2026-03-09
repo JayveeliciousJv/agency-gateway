@@ -3,16 +3,17 @@
  * Reusable across all report types in the system.
  */
 import type { AgencyProfile } from './store';
+import autoTable from 'jspdf-autotable';
 
 // Colors
-const NAVY = [31, 58, 95] as const;        // #1F3A5F
-const LIGHT_GRAY = [244, 246, 248] as const; // #F4F6F8
-const SLATE = [71, 85, 105] as const;       // slate-600
-const WHITE = [255, 255, 255] as const;
-const DARK_TEXT = [30, 41, 59] as const;     // slate-800
-const MID_TEXT = [100, 116, 139] as const;   // slate-400
-const SUCCESS_GREEN = [34, 197, 94] as const;
-const ACCENT_BLUE = [59, 130, 246] as const;
+const NAVY: [number, number, number] = [31, 58, 95];
+const LIGHT_GRAY: [number, number, number] = [244, 246, 248];
+const SLATE: [number, number, number] = [71, 85, 105];
+const WHITE: [number, number, number] = [255, 255, 255];
+const DARK_TEXT: [number, number, number] = [30, 41, 59];
+const MID_TEXT: [number, number, number] = [100, 116, 139];
+const SUCCESS_GREEN: [number, number, number] = [34, 197, 94];
+const ACCENT_BLUE: [number, number, number] = [59, 130, 246];
 
 interface ReportConfig {
   doc: any;
@@ -52,7 +53,7 @@ interface ChartBarData {
 interface ChartPieSlice {
   label: string;
   value: number;
-  color: readonly [number, number, number];
+  color: [number, number, number];
 }
 
 /**
@@ -120,7 +121,7 @@ export function drawHeader(config: ReportConfig): number {
 export function drawTable(config: TableConfig): number {
   const { doc, startY, head, body, columnStyles, styles } = config;
 
-  (doc as any).autoTable({
+  autoTable(doc, {
     startY,
     head,
     body,
@@ -153,7 +154,6 @@ export function drawTable(config: TableConfig): number {
     },
     margin: { left: 14, right: 14 },
     didParseCell: (data: any) => {
-      // Right-align numeric columns (auto-detect)
       if (data.section === 'body') {
         const val = data.cell.raw;
         if (typeof val === 'number' || (typeof val === 'string' && /^\d+(\.\d+)?%?$/.test(val.trim()))) {
@@ -227,7 +227,7 @@ export function drawDemographics(doc: any, startY: number, data: DemographicsDat
   doc.setTextColor(...NAVY);
   doc.text('Demographics Summary', margin, startY);
 
-  (doc as any).autoTable({
+  autoTable(doc, {
     startY: startY + 4,
     head: [['Category', 'Count', 'Percentage']],
     body: [
