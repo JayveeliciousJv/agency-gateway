@@ -217,6 +217,7 @@ interface AppState {
   isAuthenticated: boolean;
   setProfile: (p: Partial<AgencyProfile>) => void;
   addVisitor: (v: VisitorLog) => void;
+  updateVisitor: (id: string, updates: Partial<VisitorLog>) => void;
   addSurvey: (s: SurveyResponse) => void;
   addAuditLog: (entry: Omit<AuditEntry, 'id' | 'timestamp'>) => void;
   login: (username: string, password: string) => boolean;
