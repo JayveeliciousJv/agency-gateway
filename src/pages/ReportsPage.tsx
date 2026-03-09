@@ -123,6 +123,7 @@ const ReportsPage = () => {
   const [letterFilterFrom, setLetterFilterFrom] = useState('all');
   const [letterFilterProject, setLetterFilterProject] = useState('all');
   const [letterFilterStatus, setLetterFilterStatus] = useState('all');
+  const [letterFilterProcessor, setLetterFilterProcessor] = useState('all');
   const LETTER_PROJECTS = ['DigiGov', 'ILCDB', 'PNPKI', 'Cybersecurity', 'FreeWifi4All', 'Other'];
   const LETTER_STATUSES = ['Received', 'Processed', 'Pending', 'Forwarded', 'Archived'];
 
@@ -147,9 +148,10 @@ const ReportsPage = () => {
       if (letterFilterFrom !== 'all' && v.letterFrom !== letterFilterFrom) return false;
       if (letterFilterProject !== 'all' && v.letterProject !== letterFilterProject) return false;
       if (letterFilterStatus !== 'all' && v.letterStatus !== letterFilterStatus) return false;
+      if (letterFilterProcessor !== 'all' && v.letterReceivedBy !== letterFilterProcessor) return false;
       return true;
     });
-  }, [visitors, appliedFilters, letterFilterFrom, letterFilterProject, letterFilterStatus]);
+  }, [visitors, appliedFilters, letterFilterFrom, letterFilterProject, letterFilterStatus, letterFilterProcessor]);
 
   const filteredSurveys = useMemo(() => {
     return surveys.filter((s) => {
@@ -275,11 +277,11 @@ const ReportsPage = () => {
     } else if (type === 'letters') {
       curY = drawTable({
         doc, startY: curY,
-        head: [['#', 'Date', 'From', 'Subject', 'Project', 'Status', 'Received By', 'Contact']],
+        head: [['#', 'Date', 'From', 'Subject', 'Project', 'Status', 'Received/Processed By', 'Visitor']],
         body: filteredLetters.map((v, i) => [
           i + 1, v.date, v.letterFrom || '', v.letterSubject || '',
           v.letterProject === 'Other' ? `Other: ${v.letterProjectOther}` : (v.letterProject || ''),
-          v.letterStatus || '', v.name, v.contactNumber,
+          v.letterStatus || '', v.letterReceivedBy || '—', v.name,
         ]),
       });
     } else if (type === 'surveys') {
@@ -423,7 +425,7 @@ const ReportsPage = () => {
       const letterRows = filteredLetters.map((v, i) => ({
         '#': i + 1, Date: v.date, From: v.letterFrom || '', Subject: v.letterSubject || '',
         Project: v.letterProject === 'Other' ? `Other: ${v.letterProjectOther}` : (v.letterProject || ''),
-        Status: v.letterStatus || '', 'Received By': v.name, Contact: v.contactNumber,
+        Status: v.letterStatus || '', 'Received/Processed By': v.letterReceivedBy || '—', Visitor: v.name, Contact: v.contactNumber,
       }));
       XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(letterRows), 'Incoming Letters');
     }
@@ -1120,6 +1122,18 @@ const ReportsPage = () => {
                     </SelectContent>
                   </Select>
                 </div>
+                <div className="space-y-1">
+                  <Label className="text-xs text-muted-foreground">Received/Processed By</Label>
+                  <Select value={letterFilterProcessor} onValueChange={setLetterFilterProcessor}>
+                    <SelectTrigger className="w-48 h-8 text-xs"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Processors</SelectItem>
+                      {[...new Set(visitors.filter(v => v.purpose === 'Incoming Letter' && v.letterReceivedBy).map(v => v.letterReceivedBy!))].map((p) => (
+                        <SelectItem key={p} value={p}>{p}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
 
               {filteredLetters.length > 0 ? (
@@ -1133,8 +1147,8 @@ const ReportsPage = () => {
                         <TableHead>Subject</TableHead>
                         <TableHead>Project</TableHead>
                         <TableHead>Status</TableHead>
-                        <TableHead>Received By</TableHead>
-                        <TableHead>Contact</TableHead>
+                        <TableHead>Received/Processed By</TableHead>
+                        <TableHead>Visitor</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -1163,8 +1177,8 @@ const ReportsPage = () => {
                               {v.letterStatus}
                             </Badge>
                           </TableCell>
+                          <TableCell className="text-xs font-medium">{v.letterReceivedBy || '—'}</TableCell>
                           <TableCell>{v.name}</TableCell>
-                          <TableCell className="text-sm">{v.contactNumber}</TableCell>
                         </TableRow>
                       ))}
                     </TableBody>

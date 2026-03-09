@@ -42,6 +42,7 @@ export interface VisitorLog {
   letterProject?: string;
   letterProjectOther?: string;
   letterStatus?: 'Received' | 'Processed' | 'Pending' | 'Forwarded' | 'Archived';
+  letterReceivedBy?: string;
   contactNumber: string;
   email: string;
   date: string;
@@ -175,6 +176,7 @@ function generateMockVisitors(): VisitorLog[] {
         letterProject: project,
         letterProjectOther: project === 'Other' ? 'Special Project X' : undefined,
         letterStatus: letterStatuses[Math.floor(Math.random() * letterStatuses.length)],
+        letterReceivedBy: ['System Administrator', 'Staff User'][Math.floor(Math.random() * 2)],
       } : {}),
       contactNumber: `09${Math.floor(100000000 + Math.random() * 900000000)}`,
       email: `visitor${i}@email.com`,
@@ -216,6 +218,7 @@ interface AppState {
   isAuthenticated: boolean;
   setProfile: (p: Partial<AgencyProfile>) => void;
   addVisitor: (v: VisitorLog) => void;
+  updateVisitor: (id: string, updates: Partial<VisitorLog>) => void;
   addSurvey: (s: SurveyResponse) => void;
   addAuditLog: (entry: Omit<AuditEntry, 'id' | 'timestamp'>) => void;
   login: (username: string, password: string) => boolean;
@@ -280,6 +283,9 @@ export const useAppStore = create<AppState>()(persist((set, get) => {
         profile: { ...s.profile, ...p },
       })),
     addVisitor: (v) => set((s) => ({ visitors: [v, ...s.visitors] })),
+    updateVisitor: (id, updates) => set((s) => ({
+      visitors: s.visitors.map((v) => v.id === id ? { ...v, ...updates } : v),
+    })),
     addSurvey: (s) => set((state) => ({ surveys: [s, ...state.surveys] })),
     addAuditLog: (entry) =>
       set((s) => ({
