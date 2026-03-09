@@ -68,13 +68,24 @@ export function drawHeader(config: ReportConfig): number {
   doc.setFillColor(...NAVY);
   doc.rect(0, 0, pageWidth, 3, 'F');
 
-  // Logo placeholder circle
-  doc.setFillColor(...LIGHT_GRAY);
-  doc.circle(centerX, 18, 8, 'F');
-  doc.setFillColor(...NAVY);
-  doc.setFontSize(7);
-  doc.setTextColor(...NAVY);
-  doc.text('GOV', centerX, 19.5, { align: 'center' });
+  // Logo
+  if (profile.logoPath) {
+    try {
+      doc.addImage(profile.logoPath, 'PNG', centerX - 8, 10, 16, 16);
+    } catch {
+      doc.setFillColor(...LIGHT_GRAY);
+      doc.circle(centerX, 18, 8, 'F');
+      doc.setFontSize(7);
+      doc.setTextColor(...NAVY);
+      doc.text('GOV', centerX, 19.5, { align: 'center' });
+    }
+  } else {
+    doc.setFillColor(...LIGHT_GRAY);
+    doc.circle(centerX, 18, 8, 'F');
+    doc.setFontSize(7);
+    doc.setTextColor(...NAVY);
+    doc.text('GOV', centerX, 19.5, { align: 'center' });
+  }
 
   // Office Name (bold, larger)
   const nameWidth = doc.getTextWidth(profile.agencyName);
