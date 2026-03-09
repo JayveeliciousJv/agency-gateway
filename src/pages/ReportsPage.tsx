@@ -306,11 +306,43 @@ const ReportsPage = () => {
       });
       const finalY = (doc as any).lastAutoTable?.finalY || 80;
       doc.setFontSize(9);
-      doc.text(`Total Visitors: ${summaryData.totalVisitors}`, 14, finalY + 10);
-      doc.text(`Total Surveys: ${summaryData.totalSurveys}`, 14, finalY + 16);
-      doc.text(`Overall Avg Satisfaction: ${summaryData.overallAvg}/5`, 14, finalY + 22);
-      doc.text(`Overall % Satisfied (≥4★): ${summaryData.overallSatisfied}%`, 14, finalY + 28);
+      doc.text(`Overall Avg Satisfaction: ${summaryData.overallAvg}/5`, 14, finalY + 10);
+      doc.text(`Overall % Satisfied (≥4★): ${summaryData.overallSatisfied}%`, 14, finalY + 16);
     }
+
+    // Demographics Summary Table
+    let dataForSummary: any[] = [];
+    if (type === 'visitors' || type === 'summary') dataForSummary = filteredVisitors;
+    else if (type === 'letters') dataForSummary = filteredLetters;
+    else if (type === 'surveys') {
+      dataForSummary = filteredSurveys.map(s => visitors.find(v => v.id === s.visitorId)).filter(Boolean);
+    }
+
+    const totalCount = dataForSummary.length;
+    const maleCount = dataForSummary.filter(v => v?.sex === 'Male').length;
+    const femaleCount = dataForSummary.filter(v => v?.sex === 'Female').length;
+    const preferNotToSayCount = dataForSummary.filter(v => v?.sex === 'Prefer not to say').length;
+
+    const summaryFinalY = (doc as any).lastAutoTable?.finalY || 80;
+    
+    autoTable(doc, {
+      startY: type === 'summary' ? summaryFinalY + 24 : summaryFinalY + 15,
+      head: [['Demographics Summary', 'Count']],
+      body: [
+        ['Total Overall Number of Visitors/Respondents', totalCount],
+        ['Total Number of Male', maleCount],
+        ['Total Number of Female', femaleCount],
+        ['Total Number of Prefer Not to Say', preferNotToSayCount],
+      ],
+      styles: { fontSize: 9 },
+      headStyles: { fillColor: [71, 85, 105], halign: 'center' }, // slate-600
+      columnStyles: {
+        0: { fontStyle: 'bold' },
+        1: { halign: 'center', fontStyle: 'bold' }
+      },
+      margin: { left: 14 },
+      tableWidth: 120,
+    });
 
     const pageCount = doc.getNumberOfPages();
     for (let i = 1; i <= pageCount; i++) {
