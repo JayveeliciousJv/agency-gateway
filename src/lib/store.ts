@@ -304,4 +304,4 @@ export const useAppStore = create<AppState>()(persist((set, get) => {
     },
     logout: () => set({ currentUser: null, isAuthenticated: false }),
   };
-});
+}, { name: 'app-store' }));
