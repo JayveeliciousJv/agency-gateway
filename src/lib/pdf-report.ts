@@ -419,6 +419,7 @@ export function drawFooter(doc: any, profile: AgencyProfile) {
  * Add a new page for visualizations
  */
 export function addVisualizationPage(doc: any, profile: AgencyProfile): number {
+export function addSectionPage(doc: any, title: string): number {
   doc.addPage();
   const pageWidth = doc.internal.pageSize.getWidth();
 
@@ -430,12 +431,19 @@ export function addVisualizationPage(doc: any, profile: AgencyProfile): number {
   doc.setFontSize(13);
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(...NAVY);
-  doc.text('Data Visualizations', pageWidth / 2, 16, { align: 'center' });
+  doc.text(title, pageWidth / 2, 16, { align: 'center' });
 
   doc.setFillColor(...LIGHT_GRAY);
   doc.rect(0, 20, pageWidth, 1, 'F');
 
   return 28;
+}
+
+/**
+ * @deprecated Use addSectionPage instead
+ */
+export function addVisualizationPage(doc: any, _profile: AgencyProfile): number {
+  return addSectionPage(doc, 'Data Visualizations');
 }
 
 export type { ReportConfig, TableConfig, SummaryMetric, DemographicsData, ChartBarData, ChartPieSlice };
