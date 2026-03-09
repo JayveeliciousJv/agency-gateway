@@ -148,27 +148,15 @@ const KioskRegisterPage = () => {
               )}
             </div>
 
-            {/* Contact & Email */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="contact">Contact Number</Label>
-                <Input
-                  id="contact"
-                  value={form.contactNumber}
-                  onChange={(e) => setForm({ ...form, contactNumber: e.target.value })}
-                  placeholder="09XX XXX XXXX"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={form.email}
-                  onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  placeholder="email@example.com"
-                />
-              </div>
+            {/* Contact */}
+            <div className="space-y-2">
+              <Label htmlFor="contact">Contact Number</Label>
+              <Input
+                id="contact"
+                value={form.contactNumber}
+                onChange={(e) => setForm({ ...form, contactNumber: e.target.value })}
+                placeholder="09XX XXX XXXX"
+              />
             </div>
 
             {/* Purpose */}
