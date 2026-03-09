@@ -194,27 +194,15 @@ const ReportsPage = () => {
     return { serviceRows, totalVisitors, totalSurveys, overallAvg, overallSatisfied, sectorData, satDist };
   }, [filteredVisitors, filteredSurveys]);
 
-  // Enhanced demographics for a given dataset
+  // Demographics for a given dataset (sex and sector only)
   const buildDemographics = (data: typeof filteredVisitors) => {
     const total = data.length;
     const male = data.filter(v => v.sex === 'Male').length;
     const female = data.filter(v => v.sex === 'Female').length;
     const pnts = data.filter(v => v.sex === 'Prefer not to say').length;
 
-    const ageGroups: Record<string, number> = {};
-    const education: Record<string, number> = {};
-    const occupation: Record<string, number> = {};
-    const region: Record<string, number> = {};
     const sector: Record<string, number> = {};
-
     data.forEach((v) => {
-      if (v.ageGroup) ageGroups[v.ageGroup] = (ageGroups[v.ageGroup] || 0) + 1;
-      if (v.educationLevel) education[v.educationLevel] = (education[v.educationLevel] || 0) + 1;
-      if (v.occupation) occupation[v.occupation] = (occupation[v.occupation] || 0) + 1;
-      if (v.region) {
-        const short = v.region.split(' – ')[0];
-        region[short] = (region[short] || 0) + 1;
-      }
       if (v.sectorClassification) sector[v.sectorClassification] = (sector[v.sectorClassification] || 0) + 1;
     });
 
@@ -225,13 +213,7 @@ const ReportsPage = () => {
         { name: 'Female', value: female },
         { name: 'Prefer not to say', value: pnts },
       ].filter(d => d.value > 0),
-      ageGroups: Object.entries(ageGroups).map(([name, value]) => ({ name, value })).sort((a, b) => {
-        const order = ['18-24', '25-34', '35-44', '45-54', '55-64', '65+'];
-        return order.indexOf(a.name) - order.indexOf(b.name);
-      }),
-      education: Object.entries(education).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value),
-      occupation: Object.entries(occupation).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value).slice(0, 8),
-      region: Object.entries(region).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value).slice(0, 8),
+      sectorData: Object.entries(sector).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value),
     };
   };
 
