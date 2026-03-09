@@ -13,8 +13,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { Progress } from '@/components/ui/progress';
 import {
   FileDown, FileSpreadsheet, RotateCcw, CalendarIcon, Filter, X, ChevronDown,
-  Users, ClipboardList, Star, TrendingUp, FileBarChart, Inbox, Mail,
-  GraduationCap, Briefcase, MapPin, UserCheck,
+  Users, ClipboardList, Star, TrendingUp, FileBarChart, Inbox, Mail, UserCheck,
 } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
