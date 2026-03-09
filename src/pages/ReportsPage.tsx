@@ -367,10 +367,10 @@ const ReportsPage = () => {
     }
 
     // Pie chart: Gender distribution
-    const PIE_COLORS = [
-      [59, 130, 246] as const,   // blue
-      [234, 179, 8] as const,    // yellow
-      [156, 163, 175] as const,  // gray
+    const PIE_COLORS: [number, number, number][] = [
+      [59, 130, 246],   // blue
+      [234, 179, 8],    // yellow
+      [156, 163, 175],  // gray
     ];
     vizY = drawPieChart(doc, vizY + 6, 'Gender Distribution', [
       { label: 'Male', value: maleCount, color: PIE_COLORS[0] },
