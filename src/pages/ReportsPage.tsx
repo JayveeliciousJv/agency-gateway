@@ -1147,8 +1147,8 @@ const ReportsPage = () => {
                         <TableHead>Subject</TableHead>
                         <TableHead>Project</TableHead>
                         <TableHead>Status</TableHead>
-                        <TableHead>Received By</TableHead>
-                        <TableHead>Contact</TableHead>
+                        <TableHead>Received/Processed By</TableHead>
+                        <TableHead>Visitor</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
