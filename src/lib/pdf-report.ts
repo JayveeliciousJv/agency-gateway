@@ -6,14 +6,14 @@ import type { AgencyProfile } from './store';
 import autoTable from 'jspdf-autotable';
 
 // Colors
-const NAVY = [31, 58, 95] as const;        // #1F3A5F
-const LIGHT_GRAY = [244, 246, 248] as const; // #F4F6F8
-const SLATE = [71, 85, 105] as const;       // slate-600
-const WHITE = [255, 255, 255] as const;
-const DARK_TEXT = [30, 41, 59] as const;     // slate-800
-const MID_TEXT = [100, 116, 139] as const;   // slate-400
-const SUCCESS_GREEN = [34, 197, 94] as const;
-const ACCENT_BLUE = [59, 130, 246] as const;
+const NAVY: [number, number, number] = [31, 58, 95];
+const LIGHT_GRAY: [number, number, number] = [244, 246, 248];
+const SLATE: [number, number, number] = [71, 85, 105];
+const WHITE: [number, number, number] = [255, 255, 255];
+const DARK_TEXT: [number, number, number] = [30, 41, 59];
+const MID_TEXT: [number, number, number] = [100, 116, 139];
+const SUCCESS_GREEN: [number, number, number] = [34, 197, 94];
+const ACCENT_BLUE: [number, number, number] = [59, 130, 246];
 
 interface ReportConfig {
   doc: any;
