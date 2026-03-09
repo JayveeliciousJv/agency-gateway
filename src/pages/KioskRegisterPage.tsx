@@ -20,35 +20,6 @@ const SECTOR_OPTIONS = [
   'Indigenous Peoples (IP)', 'Solo Parent', 'Others',
 ];
 
-const AGE_GROUP_OPTIONS: AgeGroup[] = ['18-24', '25-34', '35-44', '45-54', '55-64', '65+'];
-
-const EDUCATION_OPTIONS: EducationLevel[] = ['Elementary', 'High School', 'Vocational', 'College', 'Post-Graduate'];
-
-const OCCUPATION_OPTIONS = [
-  'Government Employee', 'Private Employee', 'Self-Employed', 'Student',
-  'Farmer/Fisherfolk', 'Professional', 'OFW', 'Retired', 'Unemployed', 'Others',
-];
-
-const REGION_OPTIONS = [
-  'Region I – Ilocos Region',
-  'Region II – Cagayan Valley',
-  'Region III – Central Luzon',
-  'Region IV-A – CALABARZON',
-  'Region IV-B – MIMAROPA',
-  'Region V – Bicol Region',
-  'Region VI – Western Visayas',
-  'Region VII – Central Visayas',
-  'Region VIII – Eastern Visayas',
-  'Region IX – Zamboanga Peninsula',
-  'Region X – Northern Mindanao',
-  'Region XI – Davao Region',
-  'Region XII – SOCCSKSARGEN',
-  'Region XIII – CARAGA',
-  'NCR – Metro Manila',
-  'CAR – Cordillera Administrative Region',
-  'BARMM – Bangsamoro',
-];
-
 const KioskRegisterPage = () => {
   const profile = useAppStore((s) => s.profile);
   const services = useAppStore((s) => s.services);
