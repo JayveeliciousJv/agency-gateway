@@ -121,7 +121,7 @@ export function drawHeader(config: ReportConfig): number {
 export function drawTable(config: TableConfig): number {
   const { doc, startY, head, body, columnStyles, styles } = config;
 
-  (doc as any).autoTable({
+  autoTable(doc, {
     startY,
     head,
     body,
@@ -154,7 +154,6 @@ export function drawTable(config: TableConfig): number {
     },
     margin: { left: 14, right: 14 },
     didParseCell: (data: any) => {
-      // Right-align numeric columns (auto-detect)
       if (data.section === 'body') {
         const val = data.cell.raw;
         if (typeof val === 'number' || (typeof val === 'string' && /^\d+(\.\d+)?%?$/.test(val.trim()))) {
