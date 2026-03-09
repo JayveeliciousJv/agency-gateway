@@ -833,12 +833,10 @@ const ReportsPage = () => {
                         <TableHead className="w-10">#</TableHead>
                         <TableHead>Name</TableHead>
                         <TableHead>Sex</TableHead>
-                        <TableHead>Age</TableHead>
-                        <TableHead>Education</TableHead>
-                        <TableHead>Occupation</TableHead>
-                        <TableHead>Region</TableHead>
                         <TableHead>Sector</TableHead>
                         <TableHead>Service</TableHead>
+                        <TableHead>Purpose</TableHead>
+                        <TableHead>Contact</TableHead>
                         <TableHead>Date</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -848,12 +846,10 @@ const ReportsPage = () => {
                           <TableCell className="text-muted-foreground">{i + 1}</TableCell>
                           <TableCell className="font-medium">{v.name}</TableCell>
                           <TableCell>{v.sex}</TableCell>
-                          <TableCell>{v.ageGroup || '—'}</TableCell>
-                          <TableCell>{v.educationLevel || '—'}</TableCell>
-                          <TableCell>{v.occupation || '—'}</TableCell>
-                          <TableCell className="text-xs">{v.region ? v.region.split(' – ')[0] : '—'}</TableCell>
                           <TableCell>{v.sectorClassification}</TableCell>
                           <TableCell>{v.service}</TableCell>
+                          <TableCell>{v.purpose}</TableCell>
+                          <TableCell className="text-sm">{v.contactNumber}</TableCell>
                           <TableCell>{v.date}</TableCell>
                         </TableRow>
                       ))}
