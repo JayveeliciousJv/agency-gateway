@@ -21,10 +21,17 @@ export interface AgencyProfile {
   surveyConsentLabel: string;
 }
 
+export type AgeGroup = '18-24' | '25-34' | '35-44' | '45-54' | '55-64' | '65+';
+export type EducationLevel = 'Elementary' | 'High School' | 'Vocational' | 'College' | 'Post-Graduate';
+
 export interface VisitorLog {
   id: string;
   name: string;
   sex: 'Male' | 'Female' | 'Prefer not to say';
+  ageGroup?: AgeGroup;
+  educationLevel?: EducationLevel;
+  occupation?: string;
+  region?: string;
   sectorClassification: string;
   sectorOtherSpecify?: string;
   purpose: string;
