@@ -12,11 +12,8 @@ const SLATE: [number, number, number] = [71, 85, 105];
 const WHITE: [number, number, number] = [255, 255, 255];
 const DARK_TEXT: [number, number, number] = [30, 41, 59];
 const MID_TEXT: [number, number, number] = [100, 116, 139];
-const SUCCESS_GREEN: [number, number, number] = [34, 197, 94];
 const ACCENT_BLUE: [number, number, number] = [59, 130, 246];
 const ACCENT_YELLOW: [number, number, number] = [234, 179, 8];
-const ACCENT_PURPLE: [number, number, number] = [139, 92, 246];
-const ACCENT_PINK: [number, number, number] = [236, 72, 153];
 
 interface ReportConfig {
   doc: any;
