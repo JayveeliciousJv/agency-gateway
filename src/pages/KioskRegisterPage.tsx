@@ -25,6 +25,7 @@ const KioskRegisterPage = () => {
   const services = useAppStore((s) => s.services);
   const purposes = useAppStore((s) => s.purposes);
   const addVisitor = useAppStore((s) => s.addVisitor);
+  const currentUser = useAppStore((s) => s.currentUser);
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
