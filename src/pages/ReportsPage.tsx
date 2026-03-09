@@ -423,7 +423,7 @@ const ReportsPage = () => {
     </div>
   );
 
-  // ── Comprehensive Demographics Panel ──
+  // ── Demographics Panel (Sex + Sector only) ──
   const DemographicsPanel = ({ data }: { data: ReturnType<typeof buildDemographics> }) => {
     return (
       <div className="space-y-6 mt-6">
@@ -458,7 +458,7 @@ const ReportsPage = () => {
           </Card>
         </div>
 
-        {/* Charts Row 1: Sex + Age Group */}
+        {/* Charts: Sex + Sector */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Sex Pie Chart */}
           <Card>
@@ -492,123 +492,30 @@ const ReportsPage = () => {
             </CardContent>
           </Card>
 
-          {/* Age Group Bar Chart */}
+          {/* Sector Distribution */}
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                <Users className="w-4 h-4 text-primary" /> Age Group Distribution
+                <Users className="w-4 h-4 text-primary" /> Sector Classification
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {data.ageGroups.length > 0 ? (
-                <>
-                  <ResponsiveContainer width="100%" height={160}>
-                    <BarChart data={data.ageGroups} margin={{ top: 5, right: 5, bottom: 5, left: -20 }}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                      <XAxis dataKey="name" tick={{ fontSize: 10 }} />
-                      <YAxis tick={{ fontSize: 10 }} />
-                      <Tooltip formatter={(v: number) => [v, 'Visitors']} />
-                      <Bar dataKey="value" radius={[3, 3, 0, 0]} fill="hsl(var(--primary))" />
-                    </BarChart>
-                  </ResponsiveContainer>
-                  <div className="mt-2 space-y-1">
-                    {data.ageGroups.map((item) => (
-                      <div key={item.name} className="flex items-center gap-2">
-                        <span className="text-xs text-muted-foreground w-12">{item.name}</span>
-                        <Progress value={pct(item.value, data.total)} className="flex-1 h-1.5" />
-                        <span className="text-xs font-semibold w-6 text-right">{item.value}</span>
-                        <span className="text-xs text-muted-foreground w-8 text-right">{pct(item.value, data.total)}%</span>
-                      </div>
-                    ))}
-                  </div>
-                </>
-              ) : <EmptyState message="No age group data" />}
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Charts Row 2: Education + Occupation */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Education Level */}
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                <GraduationCap className="w-4 h-4 text-primary" /> Education Level
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {data.education.length > 0 ? (
-                <>
-                  <ResponsiveContainer width="100%" height={160}>
-                    <PieChart>
-                      <Pie data={data.education} cx="50%" cy="50%" outerRadius={65} paddingAngle={2} dataKey="value" nameKey="name">
-                        {data.education.map((_, i) => <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />)}
-                      </Pie>
-                      <Tooltip formatter={(v: number) => [`${v} (${pct(v, data.total)}%)`, '']} />
-                    </PieChart>
-                  </ResponsiveContainer>
-                  <div className="mt-2 space-y-1.5">
-                    {data.education.map((item, i) => (
-                      <div key={item.name} className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded-sm flex-shrink-0" style={{ backgroundColor: CHART_COLORS[i % CHART_COLORS.length] }} />
-                        <span className="text-xs text-muted-foreground flex-1">{item.name}</span>
-                        <span className="text-xs font-semibold">{item.value}</span>
-                        <span className="text-xs text-muted-foreground w-8 text-right">{pct(item.value, data.total)}%</span>
-                      </div>
-                    ))}
-                  </div>
-                </>
-              ) : <EmptyState message="No education data" />}
-            </CardContent>
-          </Card>
-
-          {/* Occupation */}
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                <Briefcase className="w-4 h-4 text-primary" /> Occupation (Top 8)
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {data.occupation.length > 0 ? (
+              {data.sectorData.length > 0 ? (
                 <div className="space-y-2 mt-1">
-                  {data.occupation.map((item, i) => (
+                  {data.sectorData.map((item, i) => (
                     <div key={item.name} className="flex items-center gap-2">
-                      <span className="text-xs text-muted-foreground w-28 truncate">{item.name}</span>
-                      <Progress value={pct(item.value, data.total)} className="flex-1 h-2" />
+                      <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: CHART_COLORS[i % CHART_COLORS.length] }} />
+                      <span className="text-xs text-muted-foreground flex-1 truncate">{item.name}</span>
+                      <Progress value={pct(item.value, data.total)} className="w-20 h-1.5" />
                       <span className="text-xs font-semibold w-6 text-right">{item.value}</span>
                       <span className="text-xs text-muted-foreground w-8 text-right">{pct(item.value, data.total)}%</span>
                     </div>
                   ))}
                 </div>
-              ) : <EmptyState message="No occupation data" />}
+              ) : <EmptyState message="No sector data" />}
             </CardContent>
           </Card>
         </div>
-
-        {/* Chart Row 3: Region */}
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-semibold flex items-center gap-2">
-              <MapPin className="w-4 h-4 text-primary" /> Region / Location Distribution (Top 8)
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {data.region.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2 mt-1">
-                {data.region.map((item, i) => (
-                  <div key={item.name} className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: CHART_COLORS[i % CHART_COLORS.length] }} />
-                    <span className="text-xs text-muted-foreground flex-1 truncate">{item.name}</span>
-                    <Progress value={pct(item.value, data.total)} className="w-20 h-1.5" />
-                    <span className="text-xs font-semibold w-6 text-right">{item.value}</span>
-                    <span className="text-xs text-muted-foreground w-8 text-right">{pct(item.value, data.total)}%</span>
-                  </div>
-                ))}
-              </div>
-            ) : <EmptyState message="No region data" />}
-          </CardContent>
-        </Card>
       </div>
     );
   };
