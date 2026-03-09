@@ -134,8 +134,9 @@ const VisitorLogsPage = () => {
                   <TableHead>From</TableHead>
                   <TableHead>Subject</TableHead>
                   <TableHead>Project</TableHead>
-                  <TableHead>Status</TableHead>
+126:                   <TableHead>Status</TableHead>
                   <TableHead>Received/Processed By</TableHead>
+                  <TableHead>Scan Link</TableHead>
                   <TableHead>Visitor</TableHead>
                   <TableHead>Contact</TableHead>
                 </TableRow>
@@ -171,6 +172,12 @@ const VisitorLogsPage = () => {
                       <span className={cn("text-xs font-medium", v.letterReceivedBy ? "text-foreground" : "text-muted-foreground italic")}>
                         {v.letterReceivedBy || '—'}
                       </span>
+                    </TableCell>
+                    <TableCell>
+                      <ScanLinkCell
+                        value={v.letterScanLink || ''}
+                        onSave={(link) => handleScanLinkSave(v.id, link)}
+                      />
                     </TableCell>
                     <TableCell>{v.name}</TableCell>
                     <TableCell className="text-sm">{v.contactNumber}</TableCell>
