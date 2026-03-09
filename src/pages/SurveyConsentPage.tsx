@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useAppStore } from '@/lib/store';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Shield, ArrowLeft } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
+import defaultLogo from '@/assets/default-logo.png';
 
 const renderPrivacyText = (text: string, replacements: Record<string, string>) => {
   let processed = text;
