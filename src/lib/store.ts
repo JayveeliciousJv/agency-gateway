@@ -21,10 +21,17 @@ export interface AgencyProfile {
   surveyConsentLabel: string;
 }
 
+export type AgeGroup = '18-24' | '25-34' | '35-44' | '45-54' | '55-64' | '65+';
+export type EducationLevel = 'Elementary' | 'High School' | 'Vocational' | 'College' | 'Post-Graduate';
+
 export interface VisitorLog {
   id: string;
   name: string;
   sex: 'Male' | 'Female' | 'Prefer not to say';
+  ageGroup?: AgeGroup;
+  educationLevel?: EducationLevel;
+  occupation?: string;
+  region?: string;
   sectorClassification: string;
   sectorOtherSpecify?: string;
   purpose: string;
@@ -138,6 +145,10 @@ function generateMockVisitors(): VisitorLog[] {
   const letterStatuses: Array<'Received' | 'Processed' | 'Pending' | 'Forwarded' | 'Archived'> = ['Received', 'Processed', 'Pending', 'Forwarded', 'Archived'];
   const letterSubjects = ['Request for Technical Assistance', 'Invitation to Workshop', 'Compliance Report Submission', 'Project Status Update', 'Budget Allocation Request', 'Personnel Deployment'];
   const letterFromAgencies = ['DICT Region IV', 'DILG Central Office', 'DOF Bureau of Treasury', 'DBM Regional Office', 'DOST-ASTI', 'NPC', 'DENR Provincial Office', 'DepEd Division Office'];
+  const ageGroups: AgeGroup[] = ['18-24', '25-34', '35-44', '45-54', '55-64', '65+'];
+  const educationLevels: EducationLevel[] = ['Elementary', 'High School', 'Vocational', 'College', 'Post-Graduate'];
+  const occupations = ['Government Employee', 'Private Employee', 'Self-Employed', 'Student', 'Farmer/Fisherfolk', 'Professional', 'OFW', 'Retired', 'Unemployed'];
+  const regions = ['Region I', 'Region II', 'Region III', 'Region IV-A', 'Region V', 'Region VI', 'NCR', 'CAR', 'CARAGA'];
 
   for (let i = 0; i < 48; i++) {
     const d = new Date();
@@ -145,12 +156,16 @@ function generateMockVisitors(): VisitorLog[] {
     d.setHours(8 + Math.floor(Math.random() * 8), Math.floor(Math.random() * 60));
     const sexOptions: Array<'Male' | 'Female' | 'Prefer not to say'> = ['Male', 'Female', 'Prefer not to say'];
     const sectorOptions = ['Student', 'Employed/Working', 'Government Employee', 'Private Sector', 'Senior Citizen', 'Youth', 'Women', 'PWD', 'Solo Parent'];
-    const isIncomingLetter = i % 6 === 0; // ~8 incoming letter entries
+    const isIncomingLetter = i % 6 === 0;
     const project = letterProjects[Math.floor(Math.random() * letterProjects.length)];
     logs.push({
       id: `v${i}`,
       name: names[i % names.length],
       sex: sexOptions[Math.floor(Math.random() * sexOptions.length)],
+      ageGroup: ageGroups[Math.floor(Math.random() * ageGroups.length)],
+      educationLevel: educationLevels[Math.floor(Math.random() * educationLevels.length)],
+      occupation: occupations[Math.floor(Math.random() * occupations.length)],
+      region: regions[Math.floor(Math.random() * regions.length)],
       sectorClassification: sectorOptions[Math.floor(Math.random() * sectorOptions.length)],
       purpose: isIncomingLetter ? 'Incoming Letter' : 'Transaction',
       service: isIncomingLetter ? 'Incoming Letter' : defaultServices[Math.floor(Math.random() * defaultServices.length)],

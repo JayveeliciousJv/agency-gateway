@@ -10,9 +10,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Progress } from '@/components/ui/progress';
 import {
   FileDown, FileSpreadsheet, RotateCcw, CalendarIcon, Filter, X, ChevronDown,
   Users, ClipboardList, Star, TrendingUp, FileBarChart, Inbox, Mail,
+  GraduationCap, Briefcase, MapPin, UserCheck,
 } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -23,11 +25,13 @@ import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 
 const CHART_COLORS = [
-  'hsl(200, 80%, 40%)', 'hsl(220, 60%, 22%)', 'hsl(142, 71%, 45%)',
-  'hsl(38, 92%, 50%)', 'hsl(0, 72%, 51%)', 'hsl(270, 60%, 50%)',
-  'hsl(180, 60%, 40%)', 'hsl(330, 60%, 50%)', 'hsl(30, 80%, 50%)',
-  'hsl(160, 60%, 40%)', 'hsl(300, 50%, 50%)',
+  'hsl(220, 60%, 33%)', 'hsl(200, 80%, 40%)', 'hsl(142, 71%, 38%)',
+  'hsl(38, 92%, 50%)', 'hsl(270, 60%, 50%)', 'hsl(0, 72%, 51%)',
+  'hsl(180, 60%, 38%)', 'hsl(330, 60%, 50%)', 'hsl(30, 80%, 48%)',
+  'hsl(160, 60%, 38%)', 'hsl(300, 50%, 50%)',
 ];
+
+const GENDER_COLORS = ['hsl(210, 80%, 50%)', 'hsl(340, 80%, 55%)', 'hsl(220, 20%, 60%)'];
 
 const SECTOR_OPTIONS = [
   'Student', 'Employed/Working', 'Women', 'Person with Disability (PWD)',
@@ -45,7 +49,6 @@ const ReportsPage = () => {
   const addAuditLog = useAppStore((s) => s.addAuditLog);
   const currentUser = useAppStore((s) => s.currentUser);
 
-  // Filter state
   const [datePreset, setDatePreset] = useState<DatePreset>('this_month');
   const [dateFrom, setDateFrom] = useState<Date | undefined>(startOfMonth(new Date()));
   const [dateTo, setDateTo] = useState<Date | undefined>(endOfMonth(new Date()));
@@ -54,67 +57,40 @@ const ReportsPage = () => {
   const [filterSex, setFilterSex] = useState('all');
   const [advancedOpen, setAdvancedOpen] = useState(false);
 
-  // Applied filters (only apply on button click)
   const [appliedFilters, setAppliedFilters] = useState({
     datePreset: 'this_month' as DatePreset,
     dateFrom: startOfMonth(new Date()) as Date | undefined,
     dateTo: endOfMonth(new Date()) as Date | undefined,
-    service: 'all',
-    sector: 'all',
-    sex: 'all',
+    service: 'all', sector: 'all', sex: 'all',
   });
 
   const applyDatePreset = useCallback((preset: DatePreset) => {
     setDatePreset(preset);
     const now = new Date();
     switch (preset) {
-      case 'today':
-        setDateFrom(startOfDay(now));
-        setDateTo(endOfDay(now));
-        break;
-      case 'this_week':
-        setDateFrom(startOfWeek(now, { weekStartsOn: 1 }));
-        setDateTo(endOfWeek(now, { weekStartsOn: 1 }));
-        break;
-      case 'this_month':
-        setDateFrom(startOfMonth(now));
-        setDateTo(endOfMonth(now));
-        break;
-      case 'last_month':
-        setDateFrom(startOfMonth(subMonths(now, 1)));
-        setDateTo(endOfMonth(subMonths(now, 1)));
-        break;
-      case 'all':
-        setDateFrom(undefined);
-        setDateTo(undefined);
-        break;
-      case 'custom':
-        break;
+      case 'today': setDateFrom(startOfDay(now)); setDateTo(endOfDay(now)); break;
+      case 'this_week': setDateFrom(startOfWeek(now, { weekStartsOn: 1 })); setDateTo(endOfWeek(now, { weekStartsOn: 1 })); break;
+      case 'this_month': setDateFrom(startOfMonth(now)); setDateTo(endOfMonth(now)); break;
+      case 'last_month': setDateFrom(startOfMonth(subMonths(now, 1))); setDateTo(endOfMonth(subMonths(now, 1))); break;
+      case 'all': setDateFrom(undefined); setDateTo(undefined); break;
+      case 'custom': break;
     }
   }, []);
 
   const applyFilters = () => {
-    setAppliedFilters({
-      datePreset, dateFrom, dateTo,
-      service: filterService, sector: filterSector, sex: filterSex,
-    });
+    setAppliedFilters({ datePreset, dateFrom, dateTo, service: filterService, sector: filterSector, sex: filterSex });
   };
 
   const resetFilters = () => {
+    const now = new Date();
     setDatePreset('this_month');
-    setDateFrom(startOfMonth(new Date()));
-    setDateTo(endOfMonth(new Date()));
+    setDateFrom(startOfMonth(now));
+    setDateTo(endOfMonth(now));
     setFilterService('all');
     setFilterSector('all');
     setFilterSex('all');
     setAdvancedOpen(false);
-    const now = new Date();
-    setAppliedFilters({
-      datePreset: 'this_month',
-      dateFrom: startOfMonth(now),
-      dateTo: endOfMonth(now),
-      service: 'all', sector: 'all', sex: 'all',
-    });
+    setAppliedFilters({ datePreset: 'this_month', dateFrom: startOfMonth(now), dateTo: endOfMonth(now), service: 'all', sector: 'all', sex: 'all' });
   };
 
   const removeFilter = (key: string) => {
@@ -129,14 +105,10 @@ const ReportsPage = () => {
     setAppliedFilters(updated);
   };
 
-  // Active filter chips
   const activeChips = useMemo(() => {
     const chips: { key: string; label: string }[] = [];
     if (appliedFilters.datePreset !== 'all') {
-      const labels: Record<string, string> = {
-        today: 'Today', this_week: 'This Week', this_month: 'This Month',
-        last_month: 'Last Month', custom: 'Custom Range',
-      };
+      const labels: Record<string, string> = { today: 'Today', this_week: 'This Week', this_month: 'This Month', last_month: 'Last Month', custom: 'Custom Range' };
       const dateLabel = appliedFilters.datePreset === 'custom' && appliedFilters.dateFrom && appliedFilters.dateTo
         ? `${format(appliedFilters.dateFrom, 'MMM d')} – ${format(appliedFilters.dateTo, 'MMM d, yyyy')}`
         : labels[appliedFilters.datePreset] || '';
@@ -148,15 +120,12 @@ const ReportsPage = () => {
     return chips;
   }, [appliedFilters]);
 
-  // Incoming Letters filters
   const [letterFilterFrom, setLetterFilterFrom] = useState('all');
   const [letterFilterProject, setLetterFilterProject] = useState('all');
   const [letterFilterStatus, setLetterFilterStatus] = useState('all');
-
   const LETTER_PROJECTS = ['DigiGov', 'ILCDB', 'PNPKI', 'Cybersecurity', 'FreeWifi4All', 'Other'];
   const LETTER_STATUSES = ['Received', 'Processed', 'Pending', 'Forwarded', 'Archived'];
 
-  // Filtered data based on applied filters
   const filteredVisitors = useMemo(() => {
     return visitors.filter((v) => {
       const d = new Date(v.date);
@@ -169,7 +138,6 @@ const ReportsPage = () => {
     });
   }, [visitors, appliedFilters]);
 
-  // Incoming letters (filtered separately)
   const filteredLetters = useMemo(() => {
     return visitors.filter((v) => {
       if (v.purpose !== 'Incoming Letter') return false;
@@ -193,7 +161,6 @@ const ReportsPage = () => {
     });
   }, [surveys, appliedFilters]);
 
-  // Summary data
   const summaryData = useMemo(() => {
     const serviceCountsMap: Record<string, number> = {};
     filteredVisitors.forEach((v) => { serviceCountsMap[v.service] = (serviceCountsMap[v.service] || 0) + 1; });
@@ -214,28 +181,62 @@ const ReportsPage = () => {
 
     const totalVisitors = filteredVisitors.length;
     const totalSurveys = filteredSurveys.length;
-    const overallAvg = totalSurveys
-      ? (filteredSurveys.reduce((a, s) => a + s.overallSatisfaction, 0) / totalSurveys).toFixed(2)
-      : 'N/A';
-    const overallSatisfied = totalSurveys
-      ? Math.round((filteredSurveys.filter((s) => s.overallSatisfaction >= 4).length / totalSurveys) * 100)
-      : 0;
+    const overallAvg = totalSurveys ? (filteredSurveys.reduce((a, s) => a + s.overallSatisfaction, 0) / totalSurveys).toFixed(2) : 'N/A';
+    const overallSatisfied = totalSurveys ? Math.round((filteredSurveys.filter((s) => s.overallSatisfaction >= 4).length / totalSurveys) * 100) : 0;
 
-    // Sector distribution
     const sectorCounts: Record<string, number> = {};
     filteredVisitors.forEach((v) => { sectorCounts[v.sectorClassification] = (sectorCounts[v.sectorClassification] || 0) + 1; });
-    const sectorData = Object.entries(sectorCounts)
-      .map(([name, count]) => ({ name, count }))
-      .sort((a, b) => b.count - a.count);
+    const sectorData = Object.entries(sectorCounts).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count);
 
-    // Satisfaction distribution
-    const satDist = [1, 2, 3, 4, 5].map((r) => ({
-      name: `${r} Star`,
-      count: filteredSurveys.filter((s) => s.overallSatisfaction === r).length,
-    }));
+    const satDist = [1, 2, 3, 4, 5].map((r) => ({ name: `${r} ★`, count: filteredSurveys.filter((s) => s.overallSatisfaction === r).length }));
 
     return { serviceRows, totalVisitors, totalSurveys, overallAvg, overallSatisfied, sectorData, satDist };
   }, [filteredVisitors, filteredSurveys]);
+
+  // Enhanced demographics for a given dataset
+  const buildDemographics = (data: typeof filteredVisitors) => {
+    const total = data.length;
+    const male = data.filter(v => v.sex === 'Male').length;
+    const female = data.filter(v => v.sex === 'Female').length;
+    const pnts = data.filter(v => v.sex === 'Prefer not to say').length;
+
+    const ageGroups: Record<string, number> = {};
+    const education: Record<string, number> = {};
+    const occupation: Record<string, number> = {};
+    const region: Record<string, number> = {};
+    const sector: Record<string, number> = {};
+
+    data.forEach((v) => {
+      if (v.ageGroup) ageGroups[v.ageGroup] = (ageGroups[v.ageGroup] || 0) + 1;
+      if (v.educationLevel) education[v.educationLevel] = (education[v.educationLevel] || 0) + 1;
+      if (v.occupation) occupation[v.occupation] = (occupation[v.occupation] || 0) + 1;
+      if (v.region) {
+        const short = v.region.split(' – ')[0];
+        region[short] = (region[short] || 0) + 1;
+      }
+      if (v.sectorClassification) sector[v.sectorClassification] = (sector[v.sectorClassification] || 0) + 1;
+    });
+
+    return {
+      total, male, female, pnts,
+      sexData: [
+        { name: 'Male', value: male },
+        { name: 'Female', value: female },
+        { name: 'Prefer not to say', value: pnts },
+      ].filter(d => d.value > 0),
+      ageGroups: Object.entries(ageGroups).map(([name, value]) => ({ name, value })).sort((a, b) => {
+        const order = ['18-24', '25-34', '35-44', '45-54', '55-64', '65+'];
+        return order.indexOf(a.name) - order.indexOf(b.name);
+      }),
+      education: Object.entries(education).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value),
+      occupation: Object.entries(occupation).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value).slice(0, 8),
+      region: Object.entries(region).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value).slice(0, 8),
+    };
+  };
+
+  const visitorDemographics = useMemo(() => buildDemographics(filteredVisitors), [filteredVisitors]);
+
+  const pct = (count: number, total: number) => total ? Math.round((count / total) * 100) : 0;
 
   const filterLabel = () => {
     const parts: string[] = [];
@@ -254,6 +255,7 @@ const ReportsPage = () => {
     const {
       drawHeader, drawTable, drawSummaryMetrics, drawDemographics,
       drawBarChart, drawPieChart, drawFooter, addSectionPage, addVisualizationPage,
+      calculateExtendedDemographics, drawExtendedDemographicsPage,
     } = await import('@/lib/pdf-report');
 
     const doc = new jsPDF({ orientation: type === 'surveys' || type === 'letters' ? 'landscape' : 'portrait' });
@@ -262,15 +264,13 @@ const ReportsPage = () => {
       summary: 'Summary Analytics Report', letters: 'Incoming Letters Report',
     };
 
-    // Header
     let curY = drawHeader({ doc, profile, title: titleMap[type], filterLabel: filterLabel() });
 
-    // Main data table
     if (type === 'visitors') {
       curY = drawTable({
         doc, startY: curY,
-        head: [['#', 'Name', 'Sex', 'Sector', 'Service', 'Purpose', 'Contact', 'Date', 'Time']],
-        body: filteredVisitors.map((v, i) => [i + 1, v.name, v.sex, v.sectorClassification, v.service, v.purpose, v.contactNumber, v.date, v.time]),
+        head: [['#', 'Name', 'Sex', 'Age', 'Education', 'Occupation', 'Region', 'Sector', 'Service', 'Date']],
+        body: filteredVisitors.map((v, i) => [i + 1, v.name, v.sex, v.ageGroup || '—', v.educationLevel || '—', v.occupation || '—', v.region ? v.region.split(' – ')[0] : '—', v.sectorClassification, v.service, v.date]),
       });
     } else if (type === 'letters') {
       curY = drawTable({
@@ -292,14 +292,11 @@ const ReportsPage = () => {
         ]),
       });
     } else {
-      // Summary table
       curY = drawTable({
         doc, startY: curY,
         head: [['Service', 'Visitors', 'Surveys', 'Avg Satisfaction', '% Satisfied (>=4 Star)']],
         body: summaryData.serviceRows.map((r) => [r.name, r.visitors, r.surveys, r.avgSatisfaction, r.satisfiedPct]),
       });
-
-      // Key metrics summary boxes
       curY = drawSummaryMetrics(doc, curY + 6, [
         { label: 'Total Visitors', value: String(summaryData.totalVisitors) },
         { label: 'Total Surveys', value: String(summaryData.totalSurveys) },
@@ -308,74 +305,49 @@ const ReportsPage = () => {
       ]);
     }
 
-    // Demographics data
-    let dataForSummary: any[] = [];
-    if (type === 'visitors' || type === 'summary') dataForSummary = filteredVisitors;
-    else if (type === 'letters') dataForSummary = filteredLetters;
+    // Demographics source data
+    let dataForDemographics: typeof filteredVisitors = [];
+    if (type === 'visitors' || type === 'summary') dataForDemographics = filteredVisitors;
+    else if (type === 'letters') dataForDemographics = filteredLetters as typeof filteredVisitors;
     else if (type === 'surveys') {
-      dataForSummary = filteredSurveys.map(s => visitors.find(v => v.id === s.visitorId)).filter(Boolean);
+      dataForDemographics = filteredSurveys.map(s => visitors.find(v => v.id === s.visitorId)).filter(Boolean) as typeof filteredVisitors;
     }
 
-    const totalCount = dataForSummary.length;
-    const maleCount = dataForSummary.filter(v => v?.sex === 'Male').length;
-    const femaleCount = dataForSummary.filter(v => v?.sex === 'Female').length;
-    const preferNotToSayCount = dataForSummary.filter(v => v?.sex === 'Prefer not to say').length;
+    const extDemographics = calculateExtendedDemographics(dataForDemographics);
 
-    // ── Demographics Page (separate page) ──
-    let demoY = addSectionPage(doc, 'Demographics Summary');
-    demoY = drawDemographics(doc, demoY, {
-      total: totalCount, male: maleCount, female: femaleCount, preferNotToSay: preferNotToSayCount,
-    });
+    // Extended Demographics Page
+    let demoY = addSectionPage(doc, 'Comprehensive Demographics Report');
+    drawExtendedDemographicsPage(doc, demoY, extDemographics);
 
-    // ── Visualization Page (separate page) ──
+    // Visualizations Page
     let vizY = addVisualizationPage(doc, profile);
 
-    // Bar chart: Service satisfaction (for summary/surveys)
+    // Bar chart
     if (type === 'summary' || type === 'surveys') {
-      const barData = summaryData.serviceRows
-        .filter(r => r.avgSatisfaction !== 'N/A')
+      const barData = summaryData.serviceRows.filter(r => r.avgSatisfaction !== 'N/A')
         .map(r => ({ label: r.name, value: parseFloat(String(r.avgSatisfaction)) }));
-      if (barData.length > 0) {
-        vizY = drawBarChart(doc, vizY, 'Service Satisfaction (Average Rating)', barData);
-      }
+      if (barData.length > 0) vizY = drawBarChart(doc, vizY, 'Service Satisfaction (Average Rating)', barData);
     } else if (type === 'visitors') {
-      // Bar chart: Visitors by service
       const serviceCounts: Record<string, number> = {};
       filteredVisitors.forEach(v => { serviceCounts[v.service] = (serviceCounts[v.service] || 0) + 1; });
-      const barData = Object.entries(serviceCounts)
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 10)
-        .map(([label, value]) => ({ label, value }));
-      if (barData.length > 0) {
-        vizY = drawBarChart(doc, vizY, 'Visitors by Service', barData);
-      }
+      const barData = Object.entries(serviceCounts).sort((a, b) => b[1] - a[1]).slice(0, 10).map(([label, value]) => ({ label, value }));
+      if (barData.length > 0) vizY = drawBarChart(doc, vizY, 'Visitors by Service', barData);
     } else if (type === 'letters') {
-      // Bar chart: Letters by status
       const statusCounts: Record<string, number> = {};
       filteredLetters.forEach(v => { statusCounts[v.letterStatus || 'Unknown'] = (statusCounts[v.letterStatus || 'Unknown'] || 0) + 1; });
-      const barData = Object.entries(statusCounts)
-        .sort((a, b) => b[1] - a[1])
-        .map(([label, value]) => ({ label, value }));
-      if (barData.length > 0) {
-        vizY = drawBarChart(doc, vizY, 'Letters by Status', barData);
-      }
+      const barData = Object.entries(statusCounts).sort((a, b) => b[1] - a[1]).map(([label, value]) => ({ label, value }));
+      if (barData.length > 0) vizY = drawBarChart(doc, vizY, 'Letters by Status', barData);
     }
 
-    // Pie chart: Gender distribution
-    const PIE_COLORS: [number, number, number][] = [
-      [59, 130, 246],   // blue
-      [234, 179, 8],    // yellow
-      [156, 163, 175],  // gray
-    ];
+    // Gender pie chart
+    const PIE_COLORS: [number, number, number][] = [[59, 130, 246], [234, 100, 120], [156, 163, 175]];
     vizY = drawPieChart(doc, vizY + 6, 'Gender Distribution', [
-      { label: 'Male', value: maleCount, color: PIE_COLORS[0] },
-      { label: 'Female', value: femaleCount, color: PIE_COLORS[1] },
-      { label: 'Prefer Not to Say', value: preferNotToSayCount, color: PIE_COLORS[2] },
+      { label: 'Male', value: extDemographics.sex.male, color: PIE_COLORS[0] },
+      { label: 'Female', value: extDemographics.sex.female, color: PIE_COLORS[1] },
+      { label: 'Prefer Not to Say', value: extDemographics.sex.preferNotToSay, color: PIE_COLORS[2] },
     ]);
 
-    // Footer (all pages)
     drawFooter(doc, profile);
-
     doc.save(`${type}-report-${new Date().toISOString().split('T')[0]}.pdf`);
     toast.success('PDF downloaded');
     addAuditLog({ userId: currentUser?.id || '', userName: currentUser?.fullName || '', action: 'Export PDF', details: `Exported ${type} report as PDF` });
@@ -398,20 +370,51 @@ const ReportsPage = () => {
     const femaleCount = dataForSummary.filter(v => v?.sex === 'Female').length;
     const preferNotToSayCount = dataForSummary.filter(v => v?.sex === 'Prefer not to say').length;
 
+    // Age groups
+    const ageGroups: Record<string, number> = {};
+    dataForSummary.forEach(v => { if (v?.ageGroup) ageGroups[v.ageGroup] = (ageGroups[v.ageGroup] || 0) + 1; });
+
+    // Education
+    const eduLevels: Record<string, number> = {};
+    dataForSummary.forEach(v => { if (v?.educationLevel) eduLevels[v.educationLevel] = (eduLevels[v.educationLevel] || 0) + 1; });
+
+    // Occupation
+    const occupations: Record<string, number> = {};
+    dataForSummary.forEach(v => { if (v?.occupation) occupations[v.occupation] = (occupations[v.occupation] || 0) + 1; });
+
+    // Region
+    const regions: Record<string, number> = {};
+    dataForSummary.forEach(v => { if (v?.region) regions[v.region] = (regions[v.region] || 0) + 1; });
+
     const addDemographicsSheet = () => {
-      const demoData = [
-        { Metric: 'Total Overall Number of Visitors/Respondents', Count: totalCount },
-        { Metric: 'Total Number of Male', Count: maleCount },
-        { Metric: 'Total Number of Female', Count: femaleCount },
-        { Metric: 'Total Number of Prefer Not to Say', Count: preferNotToSayCount }
+      const demoData: any[] = [
+        { Metric: 'Total Overall Number of Visitors/Respondents', Count: totalCount, Percentage: '100%' },
+        { Metric: '', Count: '', Percentage: '' },
+        { Metric: '--- SEX ---', Count: '', Percentage: '' },
+        { Metric: 'Total Number of Male', Count: maleCount, Percentage: `${pct(maleCount, totalCount)}%` },
+        { Metric: 'Total Number of Female', Count: femaleCount, Percentage: `${pct(femaleCount, totalCount)}%` },
+        { Metric: 'Total Number of Prefer Not to Say', Count: preferNotToSayCount, Percentage: `${pct(preferNotToSayCount, totalCount)}%` },
+        { Metric: '', Count: '', Percentage: '' },
+        { Metric: '--- AGE GROUP ---', Count: '', Percentage: '' },
+        ...['18-24', '25-34', '35-44', '45-54', '55-64', '65+'].map(ag => ({ Metric: ag, Count: ageGroups[ag] || 0, Percentage: `${pct(ageGroups[ag] || 0, totalCount)}%` })),
+        { Metric: '', Count: '', Percentage: '' },
+        { Metric: '--- EDUCATION LEVEL ---', Count: '', Percentage: '' },
+        ...Object.entries(eduLevels).sort((a, b) => b[1] - a[1]).map(([k, v]) => ({ Metric: k, Count: v, Percentage: `${pct(v, totalCount)}%` })),
+        { Metric: '', Count: '', Percentage: '' },
+        { Metric: '--- OCCUPATION ---', Count: '', Percentage: '' },
+        ...Object.entries(occupations).sort((a, b) => b[1] - a[1]).map(([k, v]) => ({ Metric: k, Count: v, Percentage: `${pct(v, totalCount)}%` })),
+        { Metric: '', Count: '', Percentage: '' },
+        { Metric: '--- REGION / LOCATION ---', Count: '', Percentage: '' },
+        ...Object.entries(regions).sort((a, b) => b[1] - a[1]).map(([k, v]) => ({ Metric: k, Count: v, Percentage: `${pct(v, totalCount)}%` })),
       ];
       XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(demoData), 'Demographics Summary');
     };
 
     if (type === 'visitors' || type === 'summary') {
       const visitorRows = filteredVisitors.map((v, i) => ({
-        '#': i + 1, Name: v.name, Sex: v.sex, Sector: v.sectorClassification, Service: v.service, Purpose: v.purpose,
-        Contact: v.contactNumber, Email: v.email, Date: v.date, Time: v.time,
+        '#': i + 1, Name: v.name, Sex: v.sex, 'Age Group': v.ageGroup || '', 'Education': v.educationLevel || '',
+        'Occupation': v.occupation || '', 'Region': v.region || '', Sector: v.sectorClassification,
+        Service: v.service, Purpose: v.purpose, Contact: v.contactNumber, Email: v.email, Date: v.date, Time: v.time,
       }));
       XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(visitorRows), 'Visitors');
     }
@@ -445,7 +448,6 @@ const ReportsPage = () => {
     }
 
     addDemographicsSheet();
-
     XLSX.writeFile(wb, `${type}-report-${new Date().toISOString().split('T')[0]}.xlsx`);
     toast.success('Excel file downloaded');
     addAuditLog({ userId: currentUser?.id || '', userName: currentUser?.fullName || '', action: 'Export Excel', details: `Exported ${type} report as Excel` });
@@ -459,6 +461,196 @@ const ReportsPage = () => {
     </div>
   );
 
+  // ── Comprehensive Demographics Panel ──
+  const DemographicsPanel = ({ data }: { data: ReturnType<typeof buildDemographics> }) => {
+    return (
+      <div className="space-y-6 mt-6">
+        {/* Title */}
+        <div className="flex items-center gap-2">
+          <Users className="w-5 h-5 text-primary" />
+          <h2 className="text-base font-bold text-foreground">Demographic Analysis</h2>
+          <Badge variant="secondary">{data.total} total</Badge>
+        </div>
+
+        {/* Sex + Key Metrics Row */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <Card className="p-4 border-l-4 border-l-primary">
+            <p className="text-xs text-muted-foreground font-medium">Total</p>
+            <p className="text-2xl font-bold text-primary mt-1">{data.total}</p>
+            <p className="text-xs text-muted-foreground mt-0.5">Visitors / Respondents</p>
+          </Card>
+          <Card className="p-4 border-l-4 border-l-blue-500">
+            <p className="text-xs text-muted-foreground font-medium">Male</p>
+            <p className="text-2xl font-bold mt-1">{data.male}</p>
+            <p className="text-xs text-muted-foreground mt-0.5">{pct(data.male, data.total)}% of total</p>
+          </Card>
+          <Card className="p-4 border-l-4 border-l-pink-500">
+            <p className="text-xs text-muted-foreground font-medium">Female</p>
+            <p className="text-2xl font-bold mt-1">{data.female}</p>
+            <p className="text-xs text-muted-foreground mt-0.5">{pct(data.female, data.total)}% of total</p>
+          </Card>
+          <Card className="p-4 border-l-4 border-l-muted-foreground">
+            <p className="text-xs text-muted-foreground font-medium">Prefer Not to Say</p>
+            <p className="text-2xl font-bold mt-1">{data.pnts}</p>
+            <p className="text-xs text-muted-foreground mt-0.5">{pct(data.pnts, data.total)}% of total</p>
+          </Card>
+        </div>
+
+        {/* Charts Row 1: Sex + Age Group */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Sex Pie Chart */}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                <UserCheck className="w-4 h-4 text-primary" /> Sex Distribution
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {data.sexData.length > 0 ? (
+                <ResponsiveContainer width="100%" height={200}>
+                  <PieChart>
+                    <Pie data={data.sexData} cx="50%" cy="50%" innerRadius={45} outerRadius={75} paddingAngle={3} dataKey="value" nameKey="name">
+                      {data.sexData.map((_, i) => <Cell key={i} fill={GENDER_COLORS[i % GENDER_COLORS.length]} />)}
+                    </Pie>
+                    <Tooltip formatter={(value: number) => [`${value} (${pct(value, data.total)}%)`, '']} />
+                    <Legend wrapperStyle={{ fontSize: '11px' }} />
+                  </PieChart>
+                </ResponsiveContainer>
+              ) : <EmptyState message="No sex data" />}
+              <div className="mt-2 space-y-1.5">
+                {data.sexData.map((item, i) => (
+                  <div key={item.name} className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-sm flex-shrink-0" style={{ backgroundColor: GENDER_COLORS[i] }} />
+                    <span className="text-xs text-muted-foreground flex-1">{item.name}</span>
+                    <span className="text-xs font-semibold">{item.value}</span>
+                    <span className="text-xs text-muted-foreground w-8 text-right">{pct(item.value, data.total)}%</span>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Age Group Bar Chart */}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                <Users className="w-4 h-4 text-primary" /> Age Group Distribution
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {data.ageGroups.length > 0 ? (
+                <>
+                  <ResponsiveContainer width="100%" height={160}>
+                    <BarChart data={data.ageGroups} margin={{ top: 5, right: 5, bottom: 5, left: -20 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                      <XAxis dataKey="name" tick={{ fontSize: 10 }} />
+                      <YAxis tick={{ fontSize: 10 }} />
+                      <Tooltip formatter={(v: number) => [v, 'Visitors']} />
+                      <Bar dataKey="value" radius={[3, 3, 0, 0]} fill="hsl(var(--primary))" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                  <div className="mt-2 space-y-1">
+                    {data.ageGroups.map((item) => (
+                      <div key={item.name} className="flex items-center gap-2">
+                        <span className="text-xs text-muted-foreground w-12">{item.name}</span>
+                        <Progress value={pct(item.value, data.total)} className="flex-1 h-1.5" />
+                        <span className="text-xs font-semibold w-6 text-right">{item.value}</span>
+                        <span className="text-xs text-muted-foreground w-8 text-right">{pct(item.value, data.total)}%</span>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              ) : <EmptyState message="No age group data" />}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Charts Row 2: Education + Occupation */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Education Level */}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                <GraduationCap className="w-4 h-4 text-primary" /> Education Level
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {data.education.length > 0 ? (
+                <>
+                  <ResponsiveContainer width="100%" height={160}>
+                    <PieChart>
+                      <Pie data={data.education} cx="50%" cy="50%" outerRadius={65} paddingAngle={2} dataKey="value" nameKey="name">
+                        {data.education.map((_, i) => <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />)}
+                      </Pie>
+                      <Tooltip formatter={(v: number) => [`${v} (${pct(v, data.total)}%)`, '']} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                  <div className="mt-2 space-y-1.5">
+                    {data.education.map((item, i) => (
+                      <div key={item.name} className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-sm flex-shrink-0" style={{ backgroundColor: CHART_COLORS[i % CHART_COLORS.length] }} />
+                        <span className="text-xs text-muted-foreground flex-1">{item.name}</span>
+                        <span className="text-xs font-semibold">{item.value}</span>
+                        <span className="text-xs text-muted-foreground w-8 text-right">{pct(item.value, data.total)}%</span>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              ) : <EmptyState message="No education data" />}
+            </CardContent>
+          </Card>
+
+          {/* Occupation */}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                <Briefcase className="w-4 h-4 text-primary" /> Occupation (Top 8)
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {data.occupation.length > 0 ? (
+                <div className="space-y-2 mt-1">
+                  {data.occupation.map((item, i) => (
+                    <div key={item.name} className="flex items-center gap-2">
+                      <span className="text-xs text-muted-foreground w-28 truncate">{item.name}</span>
+                      <Progress value={pct(item.value, data.total)} className="flex-1 h-2" />
+                      <span className="text-xs font-semibold w-6 text-right">{item.value}</span>
+                      <span className="text-xs text-muted-foreground w-8 text-right">{pct(item.value, data.total)}%</span>
+                    </div>
+                  ))}
+                </div>
+              ) : <EmptyState message="No occupation data" />}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Chart Row 3: Region */}
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-semibold flex items-center gap-2">
+              <MapPin className="w-4 h-4 text-primary" /> Region / Location Distribution (Top 8)
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {data.region.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2 mt-1">
+                {data.region.map((item, i) => (
+                  <div key={item.name} className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: CHART_COLORS[i % CHART_COLORS.length] }} />
+                    <span className="text-xs text-muted-foreground flex-1 truncate">{item.name}</span>
+                    <Progress value={pct(item.value, data.total)} className="w-20 h-1.5" />
+                    <span className="text-xs font-semibold w-6 text-right">{item.value}</span>
+                    <span className="text-xs text-muted-foreground w-8 text-right">{pct(item.value, data.total)}%</span>
+                  </div>
+                ))}
+              </div>
+            ) : <EmptyState message="No region data" />}
+          </CardContent>
+        </Card>
+      </div>
+    );
+  };
+
   const presetButtons: { key: DatePreset; label: string }[] = [
     { key: 'today', label: 'Today' },
     { key: 'this_week', label: 'This Week' },
@@ -466,44 +658,6 @@ const ReportsPage = () => {
     { key: 'last_month', label: 'Last Month' },
     { key: 'all', label: 'All Time' },
   ];
-  // Demographics summary helper
-  const DemographicsSummaryBox = ({ data }: { data: any[] }) => {
-    const total = data.length;
-    const male = data.filter(v => v?.sex === 'Male').length;
-    const female = data.filter(v => v?.sex === 'Female').length;
-    const pnts = data.filter(v => v?.sex === 'Prefer not to say').length;
-
-    return (
-      <Card className="mt-6 border-2 border-primary/20">
-        <CardHeader className="pb-3 bg-muted/40 rounded-t-lg">
-          <CardTitle className="text-sm font-semibold flex items-center gap-2">
-            <Users className="w-4 h-4 text-primary" />
-            Demographics Summary
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="pt-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="text-center p-4 rounded-lg bg-primary/5 border border-primary/10">
-              <p className="text-2xl font-bold text-primary">{total}</p>
-              <p className="text-xs text-muted-foreground font-medium mt-1">Total Visitors / Respondents</p>
-            </div>
-            <div className="text-center p-4 rounded-lg bg-info/5 border border-info/10">
-              <p className="text-2xl font-bold text-info">{male}</p>
-              <p className="text-xs text-muted-foreground font-medium mt-1">Male</p>
-            </div>
-            <div className="text-center p-4 rounded-lg bg-warning/5 border border-warning/10">
-              <p className="text-2xl font-bold text-warning">{female}</p>
-              <p className="text-xs text-muted-foreground font-medium mt-1">Female</p>
-            </div>
-            <div className="text-center p-4 rounded-lg bg-muted/50 border">
-              <p className="text-2xl font-bold text-muted-foreground">{pnts}</p>
-              <p className="text-xs text-muted-foreground font-medium mt-1">Prefer Not to Say</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  };
 
   return (
     <div className="space-y-0 animate-fade-in">
@@ -541,39 +695,22 @@ const ReportsPage = () => {
                 ))}
                 <Popover>
                   <PopoverTrigger asChild>
-                    <Button
-                      size="sm"
-                      variant={datePreset === 'custom' ? 'default' : 'outline'}
-                      className="h-8 text-xs rounded-full"
-                    >
-                      {datePreset === 'custom' && dateFrom && dateTo
-                        ? `${format(dateFrom, 'MMM d')} – ${format(dateTo, 'MMM d')}`
-                        : 'Custom Range'}
+                    <Button size="sm" variant={datePreset === 'custom' ? 'default' : 'outline'} className="h-8 text-xs rounded-full">
+                      {datePreset === 'custom' && dateFrom && dateTo ? `${format(dateFrom, 'MMM d')} – ${format(dateTo, 'MMM d')}` : 'Custom Range'}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0 flex" align="start">
                     <div className="border-r p-2">
                       <p className="text-xs font-medium text-muted-foreground px-2 mb-1">From</p>
-                      <Calendar
-                        mode="single"
-                        selected={dateFrom}
-                        onSelect={(d) => { setDateFrom(d); setDatePreset('custom'); }}
-                        className={cn("p-2 pointer-events-auto")}
-                      />
+                      <Calendar mode="single" selected={dateFrom} onSelect={(d) => { setDateFrom(d); setDatePreset('custom'); }} className={cn("p-2 pointer-events-auto")} />
                     </div>
                     <div className="p-2">
                       <p className="text-xs font-medium text-muted-foreground px-2 mb-1">To</p>
-                      <Calendar
-                        mode="single"
-                        selected={dateTo}
-                        onSelect={(d) => { setDateTo(d); setDatePreset('custom'); }}
-                        className={cn("p-2 pointer-events-auto")}
-                      />
+                      <Calendar mode="single" selected={dateTo} onSelect={(d) => { setDateTo(d); setDatePreset('custom'); }} className={cn("p-2 pointer-events-auto")} />
                     </div>
                   </PopoverContent>
                 </Popover>
               </div>
-
               <div className="ml-auto flex gap-2">
                 <Button size="sm" variant="outline" className="h-8 text-xs" onClick={resetFilters}>
                   <RotateCcw className="w-3.5 h-3.5 mr-1" /> Reset
@@ -656,9 +793,7 @@ const ReportsPage = () => {
               <p className="text-xs text-muted-foreground font-medium">Total Visitors</p>
               <p className="text-2xl font-bold mt-1">{summaryData.totalVisitors}</p>
             </div>
-            <div className="p-2 rounded-lg bg-info/10">
-              <Users className="w-4 h-4 text-info" />
-            </div>
+            <div className="p-2 rounded-lg bg-info/10"><Users className="w-4 h-4 text-info" /></div>
           </div>
         </Card>
         <Card className="p-4 border-l-4 border-l-primary">
@@ -667,9 +802,7 @@ const ReportsPage = () => {
               <p className="text-xs text-muted-foreground font-medium">Total Surveys</p>
               <p className="text-2xl font-bold mt-1">{summaryData.totalSurveys}</p>
             </div>
-            <div className="p-2 rounded-lg bg-primary/10">
-              <ClipboardList className="w-4 h-4 text-primary" />
-            </div>
+            <div className="p-2 rounded-lg bg-primary/10"><ClipboardList className="w-4 h-4 text-primary" /></div>
           </div>
         </Card>
         <Card className="p-4 border-l-4 border-l-warning">
@@ -678,9 +811,7 @@ const ReportsPage = () => {
               <p className="text-xs text-muted-foreground font-medium">Avg Satisfaction</p>
               <p className="text-2xl font-bold mt-1">{summaryData.overallAvg}<span className="text-sm font-normal text-muted-foreground">/5</span></p>
             </div>
-            <div className="p-2 rounded-lg bg-warning/10">
-              <Star className="w-4 h-4 text-warning" />
-            </div>
+            <div className="p-2 rounded-lg bg-warning/10"><Star className="w-4 h-4 text-warning" /></div>
           </div>
         </Card>
         <Card className="p-4 border-l-4 border-l-success">
@@ -689,9 +820,7 @@ const ReportsPage = () => {
               <p className="text-xs text-muted-foreground font-medium">% Satisfied (≥4★)</p>
               <p className="text-2xl font-bold mt-1">{summaryData.overallSatisfied}<span className="text-sm font-normal text-muted-foreground">%</span></p>
             </div>
-            <div className="p-2 rounded-lg bg-success/10">
-              <TrendingUp className="w-4 h-4 text-success" />
-            </div>
+            <div className="p-2 rounded-lg bg-success/10"><TrendingUp className="w-4 h-4 text-success" /></div>
           </div>
         </Card>
       </div>
@@ -700,26 +829,21 @@ const ReportsPage = () => {
       <Tabs defaultValue="summary" className="space-y-4">
         <TabsList className="grid w-full grid-cols-4 h-11">
           <TabsTrigger value="summary" className="text-xs sm:text-sm">
-            <TrendingUp className="w-3.5 h-3.5 mr-1.5 hidden sm:inline" />
-            Summary
+            <TrendingUp className="w-3.5 h-3.5 mr-1.5 hidden sm:inline" /> Summary
           </TabsTrigger>
           <TabsTrigger value="visitors" className="text-xs sm:text-sm">
-            <Users className="w-3.5 h-3.5 mr-1.5 hidden sm:inline" />
-            Visitors ({filteredVisitors.length})
+            <Users className="w-3.5 h-3.5 mr-1.5 hidden sm:inline" /> Visitors ({filteredVisitors.length})
           </TabsTrigger>
           <TabsTrigger value="surveys" className="text-xs sm:text-sm">
-            <ClipboardList className="w-3.5 h-3.5 mr-1.5 hidden sm:inline" />
-            Surveys ({filteredSurveys.length})
+            <ClipboardList className="w-3.5 h-3.5 mr-1.5 hidden sm:inline" /> Surveys ({filteredSurveys.length})
           </TabsTrigger>
           <TabsTrigger value="letters" className="text-xs sm:text-sm">
-            <Mail className="w-3.5 h-3.5 mr-1.5 hidden sm:inline" />
-            Letters ({filteredLetters.length})
+            <Mail className="w-3.5 h-3.5 mr-1.5 hidden sm:inline" /> Letters ({filteredLetters.length})
           </TabsTrigger>
         </TabsList>
 
         {/* ── Summary Tab ── */}
         <TabsContent value="summary" className="space-y-6">
-          {/* Export Buttons */}
           <div className="flex gap-2 justify-end">
             <Button size="sm" variant="outline" onClick={() => exportPDF('summary')} className="gap-1.5">
               <FileDown className="w-4 h-4" /> Export PDF
@@ -731,7 +855,6 @@ const ReportsPage = () => {
 
           {/* Charts Row */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Sector Distribution */}
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-semibold">Sector Distribution</CardTitle>
@@ -751,7 +874,6 @@ const ReportsPage = () => {
               </CardContent>
             </Card>
 
-            {/* Satisfaction Distribution */}
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-semibold">Satisfaction Ratings</CardTitle>
@@ -815,8 +937,8 @@ const ReportsPage = () => {
               ) : <EmptyState message="No data available for the selected filters" />}
             </CardContent>
           </Card>
-          
-          <DemographicsSummaryBox data={filteredVisitors} />
+
+          <DemographicsPanel data={visitorDemographics} />
         </TabsContent>
 
         {/* ── Visitor Logs Tab ── */}
@@ -842,12 +964,13 @@ const ReportsPage = () => {
                         <TableHead className="w-10">#</TableHead>
                         <TableHead>Name</TableHead>
                         <TableHead>Sex</TableHead>
+                        <TableHead>Age</TableHead>
+                        <TableHead>Education</TableHead>
+                        <TableHead>Occupation</TableHead>
+                        <TableHead>Region</TableHead>
                         <TableHead>Sector</TableHead>
                         <TableHead>Service</TableHead>
-                        <TableHead>Purpose</TableHead>
-                        <TableHead>Contact</TableHead>
                         <TableHead>Date</TableHead>
-                        <TableHead>Time</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -856,12 +979,13 @@ const ReportsPage = () => {
                           <TableCell className="text-muted-foreground">{i + 1}</TableCell>
                           <TableCell className="font-medium">{v.name}</TableCell>
                           <TableCell>{v.sex}</TableCell>
+                          <TableCell>{v.ageGroup || '—'}</TableCell>
+                          <TableCell>{v.educationLevel || '—'}</TableCell>
+                          <TableCell>{v.occupation || '—'}</TableCell>
+                          <TableCell className="text-xs">{v.region ? v.region.split(' – ')[0] : '—'}</TableCell>
                           <TableCell>{v.sectorClassification}</TableCell>
                           <TableCell>{v.service}</TableCell>
-                          <TableCell>{v.purpose}</TableCell>
-                          <TableCell className="text-sm">{v.contactNumber}</TableCell>
                           <TableCell>{v.date}</TableCell>
-                          <TableCell>{v.time}</TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
@@ -876,7 +1000,7 @@ const ReportsPage = () => {
             </CardContent>
           </Card>
 
-          <DemographicsSummaryBox data={filteredVisitors} />
+          <DemographicsPanel data={visitorDemographics} />
         </TabsContent>
 
         {/* ── Survey Results Tab ── */}
@@ -942,8 +1066,8 @@ const ReportsPage = () => {
             </CardContent>
           </Card>
 
-          <DemographicsSummaryBox 
-            data={filteredSurveys.map(s => visitors.find(v => v.id === s.visitorId)).filter(Boolean)} 
+          <DemographicsPanel
+            data={buildDemographics(filteredSurveys.map(s => visitors.find(v => v.id === s.visitorId)).filter(Boolean) as typeof filteredVisitors)}
           />
         </TabsContent>
 
@@ -1047,7 +1171,7 @@ const ReportsPage = () => {
                   </Table>
                   {filteredLetters.length > 50 && (
                     <p className="text-xs text-muted-foreground mt-3 text-center py-2">
-                      Showing 50 of {filteredLetters.length} records — download for full data
+                      Showing 50 of {filteredLetters.length} records
                     </p>
                   )}
                 </div>
@@ -1055,7 +1179,7 @@ const ReportsPage = () => {
             </CardContent>
           </Card>
 
-          <DemographicsSummaryBox data={filteredLetters} />
+          <DemographicsPanel data={buildDemographics(filteredLetters as typeof filteredVisitors)} />
         </TabsContent>
       </Tabs>
     </div>
