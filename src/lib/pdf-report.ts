@@ -227,7 +227,7 @@ export function drawDemographics(doc: any, startY: number, data: DemographicsDat
   doc.setTextColor(...NAVY);
   doc.text('Demographics Summary', margin, startY);
 
-  (doc as any).autoTable({
+  autoTable(doc, {
     startY: startY + 4,
     head: [['Category', 'Count', 'Percentage']],
     body: [
