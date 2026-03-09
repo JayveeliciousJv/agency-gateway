@@ -87,20 +87,20 @@ export function drawHeader(config: ReportConfig): number {
     doc.text('GOV', centerX, 19.5, { align: 'center' });
   }
 
-  // Office Name (bold, larger)
+  // Agency Name (top, bold, larger)
   const nameWidth = doc.getTextWidth(profile.agencyName);
   const maxTextWidth = pageWidth * 0.85;
   const agencyFontSize = nameWidth > maxTextWidth ? 11 : 16;
   doc.setFontSize(agencyFontSize);
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(...DARK_TEXT);
-  doc.text(profile.officeName, centerX, 34, { align: 'center' });
+  doc.text(profile.agencyName, centerX, 34, { align: 'center' });
 
-  // Subtitle
+  // Office Name (below, subtitle)
   doc.setFontSize(9);
   doc.setFont('helvetica', 'normal');
   doc.setTextColor(...MID_TEXT);
-  doc.text(profile.agencyName, centerX, 40, { align: 'center' });
+  doc.text(profile.officeName, centerX, 40, { align: 'center' });
 
   // Divider line
   doc.setDrawColor(...NAVY);
