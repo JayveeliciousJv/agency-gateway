@@ -253,7 +253,7 @@ const ReportsPage = () => {
     await import('jspdf-autotable');
     const {
       drawHeader, drawTable, drawSummaryMetrics, drawDemographics,
-      drawBarChart, drawPieChart, drawFooter, addVisualizationPage,
+      drawBarChart, drawPieChart, drawFooter, addSectionPage, addVisualizationPage,
     } = await import('@/lib/pdf-report');
 
     const doc = new jsPDF({ orientation: type === 'surveys' || type === 'letters' ? 'landscape' : 'portrait' });
