@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppStore } from '@/lib/store';
-import type { AgeGroup, EducationLevel } from '@/lib/store';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -21,35 +20,6 @@ const SECTOR_OPTIONS = [
   'Indigenous Peoples (IP)', 'Solo Parent', 'Others',
 ];
 
-const AGE_GROUP_OPTIONS: AgeGroup[] = ['18-24', '25-34', '35-44', '45-54', '55-64', '65+'];
-
-const EDUCATION_OPTIONS: EducationLevel[] = ['Elementary', 'High School', 'Vocational', 'College', 'Post-Graduate'];
-
-const OCCUPATION_OPTIONS = [
-  'Government Employee', 'Private Employee', 'Self-Employed', 'Student',
-  'Farmer/Fisherfolk', 'Professional', 'OFW', 'Retired', 'Unemployed', 'Others',
-];
-
-const REGION_OPTIONS = [
-  'Region I – Ilocos Region',
-  'Region II – Cagayan Valley',
-  'Region III – Central Luzon',
-  'Region IV-A – CALABARZON',
-  'Region IV-B – MIMAROPA',
-  'Region V – Bicol Region',
-  'Region VI – Western Visayas',
-  'Region VII – Central Visayas',
-  'Region VIII – Eastern Visayas',
-  'Region IX – Zamboanga Peninsula',
-  'Region X – Northern Mindanao',
-  'Region XI – Davao Region',
-  'Region XII – SOCCSKSARGEN',
-  'Region XIII – CARAGA',
-  'NCR – Metro Manila',
-  'CAR – Cordillera Administrative Region',
-  'BARMM – Bangsamoro',
-];
-
 const KioskRegisterPage = () => {
   const profile = useAppStore((s) => s.profile);
   const services = useAppStore((s) => s.services);
@@ -62,10 +32,6 @@ const KioskRegisterPage = () => {
     contactNumber: '',
     email: '',
     sex: '' as 'Male' | 'Female' | 'Prefer not to say' | '',
-    ageGroup: '' as AgeGroup | '',
-    educationLevel: '' as EducationLevel | '',
-    occupation: '',
-    region: '',
     sectorClassification: '',
     sectorOtherSpecify: '',
     purpose: 'Transaction',
@@ -93,10 +59,6 @@ const KioskRegisterPage = () => {
       id: `v${Date.now()}`,
       name: form.name,
       sex: form.sex as 'Male' | 'Female' | 'Prefer not to say',
-      ageGroup: form.ageGroup || undefined,
-      educationLevel: form.educationLevel || undefined,
-      occupation: form.occupation || undefined,
-      region: form.region || undefined,
       sectorClassification: form.sectorClassification === 'Others'
         ? `Others - ${form.sectorOtherSpecify.trim()}`
         : form.sectorClassification,
@@ -162,66 +124,6 @@ const KioskRegisterPage = () => {
               </RadioGroup>
             </div>
 
-            {/* Age Group & Education */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="ageGroup">Age Group</Label>
-                <Select value={form.ageGroup} onValueChange={(v) => setForm({ ...form, ageGroup: v as AgeGroup })}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select age group" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {AGE_GROUP_OPTIONS.map((a) => (
-                      <SelectItem key={a} value={a}>{a}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="educationLevel">Education Level</Label>
-                <Select value={form.educationLevel} onValueChange={(v) => setForm({ ...form, educationLevel: v as EducationLevel })}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select education" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {EDUCATION_OPTIONS.map((e) => (
-                      <SelectItem key={e} value={e}>{e}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            {/* Occupation & Region */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="occupation">Occupation</Label>
-                <Select value={form.occupation} onValueChange={(v) => setForm({ ...form, occupation: v })}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select occupation" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {OCCUPATION_OPTIONS.map((o) => (
-                      <SelectItem key={o} value={o}>{o}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="region">Region / Location</Label>
-                <Select value={form.region} onValueChange={(v) => setForm({ ...form, region: v })}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select region" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {REGION_OPTIONS.map((r) => (
-                      <SelectItem key={r} value={r}>{r}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
             {/* Sector */}
             <div className="space-y-2">
               <Label htmlFor="sector">Sector Classification *</Label>
@@ -246,27 +148,15 @@ const KioskRegisterPage = () => {
               )}
             </div>
 
-            {/* Contact & Email */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="contact">Contact Number</Label>
-                <Input
-                  id="contact"
-                  value={form.contactNumber}
-                  onChange={(e) => setForm({ ...form, contactNumber: e.target.value })}
-                  placeholder="09XX XXX XXXX"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={form.email}
-                  onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  placeholder="email@example.com"
-                />
-              </div>
+            {/* Contact */}
+            <div className="space-y-2">
+              <Label htmlFor="contact">Contact Number</Label>
+              <Input
+                id="contact"
+                value={form.contactNumber}
+                onChange={(e) => setForm({ ...form, contactNumber: e.target.value })}
+                placeholder="09XX XXX XXXX"
+              />
             </div>
 
             {/* Purpose */}
