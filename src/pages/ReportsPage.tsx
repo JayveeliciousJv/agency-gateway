@@ -148,6 +148,7 @@ const ReportsPage = () => {
       if (letterFilterFrom !== 'all' && v.letterFrom !== letterFilterFrom) return false;
       if (letterFilterProject !== 'all' && v.letterProject !== letterFilterProject) return false;
       if (letterFilterStatus !== 'all' && v.letterStatus !== letterFilterStatus) return false;
+      if (letterFilterProcessor !== 'all' && v.letterReceivedBy !== letterFilterProcessor) return false;
       return true;
     });
   }, [visitors, appliedFilters, letterFilterFrom, letterFilterProject, letterFilterStatus]);
