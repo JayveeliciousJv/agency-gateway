@@ -367,6 +367,28 @@ const ReportsPage = () => {
     const XLSX = await import('xlsx');
     const wb = XLSX.utils.book_new();
 
+    let dataForSummary: any[] = [];
+    if (type === 'visitors' || type === 'summary') dataForSummary = filteredVisitors;
+    else if (type === 'letters') dataForSummary = filteredLetters;
+    else if (type === 'surveys') {
+      dataForSummary = filteredSurveys.map(s => visitors.find(v => v.id === s.visitorId)).filter(Boolean);
+    }
+
+    const totalCount = dataForSummary.length;
+    const maleCount = dataForSummary.filter(v => v?.sex === 'Male').length;
+    const femaleCount = dataForSummary.filter(v => v?.sex === 'Female').length;
+    const preferNotToSayCount = dataForSummary.filter(v => v?.sex === 'Prefer not to say').length;
+
+    const addDemographicsSheet = () => {
+      const demoData = [
+        { Metric: 'Total Overall Number of Visitors/Respondents', Count: totalCount },
+        { Metric: 'Total Number of Male', Count: maleCount },
+        { Metric: 'Total Number of Female', Count: femaleCount },
+        { Metric: 'Total Number of Prefer Not to Say', Count: preferNotToSayCount }
+      ];
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(demoData), 'Demographics Summary');
+    };
+
     if (type === 'visitors' || type === 'summary') {
       const visitorRows = filteredVisitors.map((v, i) => ({
         '#': i + 1, Name: v.name, Sex: v.sex, Sector: v.sectorClassification, Service: v.service, Purpose: v.purpose,
@@ -402,6 +424,8 @@ const ReportsPage = () => {
       summaryRows.push({ Service: 'TOTAL', Visitors: summaryData.totalVisitors, Surveys: summaryData.totalSurveys, 'Avg Satisfaction': summaryData.overallAvg, '% Satisfied (≥4★)': `${summaryData.overallSatisfied}%` });
       XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(summaryRows), 'Summary');
     }
+
+    addDemographicsSheet();
 
     XLSX.writeFile(wb, `${type}-report-${new Date().toISOString().split('T')[0]}.xlsx`);
     toast.success('Excel file downloaded');
