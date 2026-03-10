@@ -385,7 +385,7 @@ const ReportsPage = () => {
       const letterRows = filteredLetters.map((v, i) => ({
         '#': i + 1, Date: v.date, From: v.letterFrom || '', Subject: v.letterSubject || '',
         Project: v.letterProject === 'Other' ? `Other: ${v.letterProjectOther}` : (v.letterProject || ''),
-        Status: v.letterStatus || '', 'Received/Processed By': v.letterReceivedBy || '—', Visitor: v.name, Contact: v.contactNumber,
+        Status: v.letterStatus || '', 'Received/Processed By': v.letterReceivedBy || '—', 'Scan Link': v.letterScanLink || '—', Visitor: v.name, Contact: v.contactNumber,
       }));
       XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(letterRows), 'Incoming Letters');
     }
