@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  PieChart, Pie, Cell, Legend,
+  PieChart, Pie, Cell, Legend, AreaChart, Area, RadialBarChart, RadialBar,
 } from 'recharts';
 import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, subMonths, startOfDay, endOfDay } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -1044,11 +1044,11 @@ const ReportsPage = () => {
                           <TableCell className="text-xs font-medium">{v.letterReceivedBy || '—'}</TableCell>
                           <TableCell>
                             {v.letterScanLink ? (
-                              <a href={v.letterScanLink} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline">
-                                View <ExternalLink className="inline w-3 h-3" />
+                              <a href={v.letterScanLink} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-primary bg-primary/10 rounded-md hover:bg-primary/20 transition-colors">
+                                <ExternalLink className="w-3.5 h-3.5" /> View Scan
                               </a>
                             ) : (
-                              <span className="text-xs text-muted-foreground">—</span>
+                              <span className="text-xs text-muted-foreground italic">No link</span>
                             )}
                           </TableCell>
                           <TableCell>{v.name}</TableCell>
@@ -1066,7 +1066,173 @@ const ReportsPage = () => {
             </CardContent>
           </Card>
 
-          <DemographicsPanel data={buildDemographics(filteredLetters as typeof filteredVisitors)} />
+          {/* Letter Visualizations */}
+          {filteredLetters.length > 0 && (() => {
+            const statusCounts: Record<string, number> = {};
+            const projectCounts: Record<string, number> = {};
+            const processorCounts: Record<string, number> = {};
+            const monthlyData: Record<string, number> = {};
+            const scanLinkCount = filteredLetters.filter(v => v.letterScanLink).length;
+            const noScanLinkCount = filteredLetters.length - scanLinkCount;
+
+            filteredLetters.forEach(v => {
+              statusCounts[v.letterStatus || 'Unknown'] = (statusCounts[v.letterStatus || 'Unknown'] || 0) + 1;
+              const proj = v.letterProject === 'Other' ? 'Other' : (v.letterProject || 'Unassigned');
+              projectCounts[proj] = (projectCounts[proj] || 0) + 1;
+              if (v.letterReceivedBy) processorCounts[v.letterReceivedBy] = (processorCounts[v.letterReceivedBy] || 0) + 1;
+              const monthKey = v.date ? format(new Date(v.date), 'MMM yyyy') : 'Unknown';
+              monthlyData[monthKey] = (monthlyData[monthKey] || 0) + 1;
+            });
+
+            const statusData = Object.entries(statusCounts).map(([name, value]) => ({ name, value }));
+            const projectData = Object.entries(projectCounts).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value);
+            const processorData = Object.entries(processorCounts).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value);
+            const timelineData = Object.entries(monthlyData).map(([name, count]) => ({ name, count }));
+            const scanData = [{ name: 'With Scan', value: scanLinkCount }, { name: 'Without Scan', value: noScanLinkCount }].filter(d => d.value > 0);
+
+            const STATUS_COLORS: Record<string, string> = {
+              'Received': 'hsl(200, 80%, 50%)',
+              'Processed': 'hsl(142, 71%, 38%)',
+              'Pending': 'hsl(38, 92%, 50%)',
+              'Forwarded': 'hsl(220, 60%, 50%)',
+              'Archived': 'hsl(220, 15%, 55%)',
+              'Unknown': 'hsl(220, 15%, 70%)',
+            };
+
+            return (
+              <div className="space-y-6 mt-6">
+                <div className="flex items-center gap-2">
+                  <Mail className="w-5 h-5 text-primary" />
+                  <h2 className="text-base font-bold text-foreground">Letter Analytics</h2>
+                  <Badge variant="secondary">{filteredLetters.length} letters</Badge>
+                </div>
+
+                {/* KPI cards */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  <Card className="p-4 border-l-4 border-l-primary">
+                    <p className="text-xs text-muted-foreground font-medium">Total Letters</p>
+                    <p className="text-2xl font-bold text-primary mt-1">{filteredLetters.length}</p>
+                  </Card>
+                  <Card className="p-4 border-l-4 border-l-success">
+                    <p className="text-xs text-muted-foreground font-medium">Processed</p>
+                    <p className="text-2xl font-bold mt-1">{statusCounts['Processed'] || 0}</p>
+                    <p className="text-xs text-muted-foreground">{pct(statusCounts['Processed'] || 0, filteredLetters.length)}%</p>
+                  </Card>
+                  <Card className="p-4 border-l-4 border-l-warning">
+                    <p className="text-xs text-muted-foreground font-medium">Pending</p>
+                    <p className="text-2xl font-bold mt-1">{statusCounts['Pending'] || 0}</p>
+                    <p className="text-xs text-muted-foreground">{pct(statusCounts['Pending'] || 0, filteredLetters.length)}%</p>
+                  </Card>
+                  <Card className="p-4 border-l-4 border-l-info">
+                    <p className="text-xs text-muted-foreground font-medium">With Scan Link</p>
+                    <p className="text-2xl font-bold mt-1">{scanLinkCount}</p>
+                    <p className="text-xs text-muted-foreground">{pct(scanLinkCount, filteredLetters.length)}%</p>
+                  </Card>
+                </div>
+
+                {/* Charts Row 1: Status Pie + Project Bar */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm font-semibold">Status Distribution</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <ResponsiveContainer width="100%" height={240}>
+                        <PieChart>
+                          <Pie data={statusData} cx="50%" cy="50%" innerRadius={50} outerRadius={85} paddingAngle={3} dataKey="value" nameKey="name">
+                            {statusData.map((entry) => <Cell key={entry.name} fill={STATUS_COLORS[entry.name] || CHART_COLORS[0]} />)}
+                          </Pie>
+                          <Tooltip formatter={(value: number) => [`${value} (${pct(value, filteredLetters.length)}%)`, '']} />
+                          <Legend wrapperStyle={{ fontSize: '11px' }} />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm font-semibold">Letters by Project</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <ResponsiveContainer width="100%" height={240}>
+                        <BarChart data={projectData} layout="vertical">
+                          <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                          <XAxis type="number" tick={{ fontSize: 11 }} />
+                          <YAxis dataKey="name" type="category" tick={{ fontSize: 11 }} width={90} />
+                          <Tooltip />
+                          <Bar dataKey="value" radius={[0, 4, 4, 0]}>
+                            {projectData.map((_, i) => <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />)}
+                          </Bar>
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Charts Row 2: Timeline Area + Scan Link Donut */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {timelineData.length > 1 && (
+                    <Card>
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-sm font-semibold">Letters Over Time</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <ResponsiveContainer width="100%" height={240}>
+                          <AreaChart data={timelineData}>
+                            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                            <XAxis dataKey="name" tick={{ fontSize: 11 }} />
+                            <YAxis tick={{ fontSize: 11 }} />
+                            <Tooltip />
+                            <Area type="monotone" dataKey="count" stroke="hsl(220, 60%, 33%)" fill="hsl(220, 60%, 33%)" fillOpacity={0.2} strokeWidth={2} />
+                          </AreaChart>
+                        </ResponsiveContainer>
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm font-semibold">Scan Link Coverage</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <ResponsiveContainer width="100%" height={240}>
+                        <PieChart>
+                          <Pie data={scanData} cx="50%" cy="50%" innerRadius={55} outerRadius={85} paddingAngle={4} dataKey="value" nameKey="name">
+                            <Cell fill="hsl(142, 71%, 38%)" />
+                            <Cell fill="hsl(220, 15%, 75%)" />
+                          </Pie>
+                          <Tooltip formatter={(value: number) => [`${value} (${pct(value, filteredLetters.length)}%)`, '']} />
+                          <Legend wrapperStyle={{ fontSize: '11px' }} />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </CardContent>
+                  </Card>
+
+                  {/* Processor workload */}
+                  {processorData.length > 0 && (
+                    <Card>
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-sm font-semibold">Top Processors</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-2 mt-1">
+                          {processorData.slice(0, 8).map((item, i) => (
+                            <div key={item.name} className="flex items-center gap-2">
+                              <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: CHART_COLORS[i % CHART_COLORS.length] }} />
+                              <span className="text-xs text-muted-foreground flex-1 truncate">{item.name}</span>
+                              <Progress value={pct(item.value, filteredLetters.length)} className="w-24 h-1.5" />
+                              <span className="text-xs font-semibold w-6 text-right">{item.value}</span>
+                              <span className="text-xs text-muted-foreground w-8 text-right">{pct(item.value, filteredLetters.length)}%</span>
+                            </div>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+                </div>
+              </div>
+            );
+          })()}
         </TabsContent>
       </Tabs>
     </div>
