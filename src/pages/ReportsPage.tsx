@@ -1042,6 +1042,15 @@ const ReportsPage = () => {
                             </Badge>
                           </TableCell>
                           <TableCell className="text-xs font-medium">{v.letterReceivedBy || '—'}</TableCell>
+                          <TableCell>
+                            {v.letterScanLink ? (
+                              <a href={v.letterScanLink} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline">
+                                View <ExternalLink className="inline w-3 h-3" />
+                              </a>
+                            ) : (
+                              <span className="text-xs text-muted-foreground">—</span>
+                            )}
+                          </TableCell>
                           <TableCell>{v.name}</TableCell>
                         </TableRow>
                       ))}
