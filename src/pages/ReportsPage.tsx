@@ -13,7 +13,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { Progress } from '@/components/ui/progress';
 import {
   FileDown, FileSpreadsheet, RotateCcw, CalendarIcon, Filter, X, ChevronDown,
-  Users, ClipboardList, Star, TrendingUp, FileBarChart, Inbox, Mail, UserCheck,
+  Users, ClipboardList, Star, TrendingUp, FileBarChart, Inbox, Mail, UserCheck, ExternalLink,
 } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -258,11 +258,11 @@ const ReportsPage = () => {
     } else if (type === 'letters') {
       curY = drawTable({
         doc, startY: curY,
-        head: [['#', 'Date', 'From', 'Subject', 'Project', 'Status', 'Received/Processed By', 'Visitor']],
+        head: [['#', 'Date', 'From', 'Subject', 'Project', 'Status', 'Received/Processed By', 'Scan Link', 'Visitor']],
         body: filteredLetters.map((v, i) => [
           i + 1, v.date, v.letterFrom || '', v.letterSubject || '',
           v.letterProject === 'Other' ? `Other: ${v.letterProjectOther}` : (v.letterProject || ''),
-          v.letterStatus || '', v.letterReceivedBy || '—', v.name,
+          v.letterStatus || '', v.letterReceivedBy || '—', v.letterScanLink || '—', v.name,
         ]),
       });
     } else if (type === 'surveys') {
@@ -385,7 +385,7 @@ const ReportsPage = () => {
       const letterRows = filteredLetters.map((v, i) => ({
         '#': i + 1, Date: v.date, From: v.letterFrom || '', Subject: v.letterSubject || '',
         Project: v.letterProject === 'Other' ? `Other: ${v.letterProjectOther}` : (v.letterProject || ''),
-        Status: v.letterStatus || '', 'Received/Processed By': v.letterReceivedBy || '—', Visitor: v.name, Contact: v.contactNumber,
+        Status: v.letterStatus || '', 'Received/Processed By': v.letterReceivedBy || '—', 'Scan Link': v.letterScanLink || '—', Visitor: v.name, Contact: v.contactNumber,
       }));
       XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(letterRows), 'Incoming Letters');
     }
@@ -1011,6 +1011,7 @@ const ReportsPage = () => {
                         <TableHead>Project</TableHead>
                         <TableHead>Status</TableHead>
                         <TableHead>Received/Processed By</TableHead>
+                        <TableHead>Scan Link</TableHead>
                         <TableHead>Visitor</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -1041,6 +1042,15 @@ const ReportsPage = () => {
                             </Badge>
                           </TableCell>
                           <TableCell className="text-xs font-medium">{v.letterReceivedBy || '—'}</TableCell>
+                          <TableCell>
+                            {v.letterScanLink ? (
+                              <a href={v.letterScanLink} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline">
+                                View <ExternalLink className="inline w-3 h-3" />
+                              </a>
+                            ) : (
+                              <span className="text-xs text-muted-foreground">—</span>
+                            )}
+                          </TableCell>
                           <TableCell>{v.name}</TableCell>
                         </TableRow>
                       ))}
