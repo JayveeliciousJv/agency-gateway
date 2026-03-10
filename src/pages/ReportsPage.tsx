@@ -1011,6 +1011,7 @@ const ReportsPage = () => {
                         <TableHead>Project</TableHead>
                         <TableHead>Status</TableHead>
                         <TableHead>Received/Processed By</TableHead>
+                        <TableHead>Scan Link</TableHead>
                         <TableHead>Visitor</TableHead>
                       </TableRow>
                     </TableHeader>
