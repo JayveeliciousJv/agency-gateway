@@ -166,7 +166,7 @@ const VisitorLogsPage = () => {
                   <TableHead>From</TableHead>
                   <TableHead>Subject</TableHead>
                   <TableHead>Project</TableHead>
-126:                   <TableHead>Status</TableHead>
+<TableHead>Status</TableHead>
                   <TableHead>Received/Processed By</TableHead>
                   <TableHead>Scan Link</TableHead>
                   <TableHead>Visitor</TableHead>
