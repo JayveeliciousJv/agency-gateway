@@ -1044,11 +1044,11 @@ const ReportsPage = () => {
                           <TableCell className="text-xs font-medium">{v.letterReceivedBy || '—'}</TableCell>
                           <TableCell>
                             {v.letterScanLink ? (
-                              <a href={v.letterScanLink} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline">
-                                View <ExternalLink className="inline w-3 h-3" />
+                              <a href={v.letterScanLink} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-primary bg-primary/10 rounded-md hover:bg-primary/20 transition-colors">
+                                <ExternalLink className="w-3.5 h-3.5" /> View Scan
                               </a>
                             ) : (
-                              <span className="text-xs text-muted-foreground">—</span>
+                              <span className="text-xs text-muted-foreground italic">No link</span>
                             )}
                           </TableCell>
                           <TableCell>{v.name}</TableCell>
