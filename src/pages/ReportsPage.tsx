@@ -258,11 +258,11 @@ const ReportsPage = () => {
     } else if (type === 'letters') {
       curY = drawTable({
         doc, startY: curY,
-        head: [['#', 'Date', 'From', 'Subject', 'Project', 'Status', 'Received/Processed By', 'Visitor']],
+        head: [['#', 'Date', 'From', 'Subject', 'Project', 'Status', 'Received/Processed By', 'Scan Link', 'Visitor']],
         body: filteredLetters.map((v, i) => [
           i + 1, v.date, v.letterFrom || '', v.letterSubject || '',
           v.letterProject === 'Other' ? `Other: ${v.letterProjectOther}` : (v.letterProject || ''),
-          v.letterStatus || '', v.letterReceivedBy || '—', v.name,
+          v.letterStatus || '', v.letterReceivedBy || '—', v.letterScanLink || '—', v.name,
         ]),
       });
     } else if (type === 'surveys') {
