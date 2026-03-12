@@ -6,7 +6,12 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
-import { Upload, X, Image } from 'lucide-react';
+import { Upload, X, Image, Download, UploadCloud, ShieldAlert } from 'lucide-react';
+import { exportBackup, importBackup } from '@/lib/backup';
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 const AgencySettingsPage = () => {
   const profile = useAppStore((s) => s.profile);
