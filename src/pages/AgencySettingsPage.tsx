@@ -22,6 +22,25 @@ const AgencySettingsPage = () => {
   const [form, setForm] = useState({ ...profile });
   const logoRef = useRef<HTMLInputElement>(null);
   const secondaryLogoRef = useRef<HTMLInputElement>(null);
+  const restoreRef = useRef<HTMLInputElement>(null);
+  const [showRestoreConfirm, setShowRestoreConfirm] = useState(false);
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
+
+  const handleRestoreSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.name.endsWith('.json')) { toast.error('Please select a .json backup file.'); return; }
+    setPendingFile(file);
+    setShowRestoreConfirm(true);
+    e.target.value = '';
+  };
+
+  const confirmRestore = async () => {
+    if (!pendingFile) return;
+    setShowRestoreConfirm(false);
+    await importBackup(pendingFile);
+    setPendingFile(null);
+  };
 
   const handleSave = () => {
     setProfile(form);
