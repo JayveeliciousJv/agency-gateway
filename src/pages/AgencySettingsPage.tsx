@@ -139,6 +139,41 @@ const AgencySettingsPage = () => {
           <Button onClick={handleSave}>Save Changes</Button>
         </div>
       </Card>
+      {/* Backup & Restore */}
+      <Card className="p-6">
+        <h2 className="text-lg font-semibold text-card-foreground mb-1">Backup &amp; Restore</h2>
+        <p className="text-sm text-muted-foreground mb-4">Export your data as a JSON file or restore from a previous backup.</p>
+        <div className="flex flex-wrap gap-3">
+          <Button variant="outline" onClick={exportBackup}>
+            <Download className="w-4 h-4 mr-2" /> Backup Database
+          </Button>
+          <input ref={restoreRef} type="file" accept=".json" className="hidden" onChange={handleRestoreSelect} />
+          <Button variant="outline" onClick={() => restoreRef.current?.click()}>
+            <UploadCloud className="w-4 h-4 mr-2" /> Restore Database
+          </Button>
+        </div>
+        <p className="text-xs text-muted-foreground mt-3 flex items-center gap-1">
+          <ShieldAlert className="w-3.5 h-3.5" /> A safety backup is created automatically before every restore.
+        </p>
+      </Card>
+
+      {/* Restore Confirmation Dialog */}
+      <AlertDialog open={showRestoreConfirm} onOpenChange={setShowRestoreConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Restore from backup?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will replace <strong>all current data</strong> with the selected backup file
+              {pendingFile && <> (<code className="text-xs">{pendingFile.name}</code>)</>}.
+              A safety backup of your current data will be saved automatically. The page will reload after restore.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setPendingFile(null)}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmRestore}>Restore</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
