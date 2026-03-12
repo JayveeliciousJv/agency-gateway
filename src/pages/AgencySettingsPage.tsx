@@ -6,7 +6,12 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
-import { Upload, X, Image } from 'lucide-react';
+import { Upload, X, Image, Download, UploadCloud, ShieldAlert } from 'lucide-react';
+import { exportBackup, importBackup } from '@/lib/backup';
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 const AgencySettingsPage = () => {
   const profile = useAppStore((s) => s.profile);
@@ -17,6 +22,25 @@ const AgencySettingsPage = () => {
   const [form, setForm] = useState({ ...profile });
   const logoRef = useRef<HTMLInputElement>(null);
   const secondaryLogoRef = useRef<HTMLInputElement>(null);
+  const restoreRef = useRef<HTMLInputElement>(null);
+  const [showRestoreConfirm, setShowRestoreConfirm] = useState(false);
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
+
+  const handleRestoreSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.name.endsWith('.json')) { toast.error('Please select a .json backup file.'); return; }
+    setPendingFile(file);
+    setShowRestoreConfirm(true);
+    e.target.value = '';
+  };
+
+  const confirmRestore = async () => {
+    if (!pendingFile) return;
+    setShowRestoreConfirm(false);
+    await importBackup(pendingFile);
+    setPendingFile(null);
+  };
 
   const handleSave = () => {
     setProfile(form);
@@ -115,6 +139,41 @@ const AgencySettingsPage = () => {
           <Button onClick={handleSave}>Save Changes</Button>
         </div>
       </Card>
+      {/* Backup & Restore */}
+      <Card className="p-6">
+        <h2 className="text-lg font-semibold text-card-foreground mb-1">Backup &amp; Restore</h2>
+        <p className="text-sm text-muted-foreground mb-4">Export your data as a JSON file or restore from a previous backup.</p>
+        <div className="flex flex-wrap gap-3">
+          <Button variant="outline" onClick={exportBackup}>
+            <Download className="w-4 h-4 mr-2" /> Backup Database
+          </Button>
+          <input ref={restoreRef} type="file" accept=".json" className="hidden" onChange={handleRestoreSelect} />
+          <Button variant="outline" onClick={() => restoreRef.current?.click()}>
+            <UploadCloud className="w-4 h-4 mr-2" /> Restore Database
+          </Button>
+        </div>
+        <p className="text-xs text-muted-foreground mt-3 flex items-center gap-1">
+          <ShieldAlert className="w-3.5 h-3.5" /> A safety backup is created automatically before every restore.
+        </p>
+      </Card>
+
+      {/* Restore Confirmation Dialog */}
+      <AlertDialog open={showRestoreConfirm} onOpenChange={setShowRestoreConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Restore from backup?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will replace <strong>all current data</strong> with the selected backup file
+              {pendingFile && <> (<code className="text-xs">{pendingFile.name}</code>)</>}.
+              A safety backup of your current data will be saved automatically. The page will reload after restore.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setPendingFile(null)}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmRestore}>Restore</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
