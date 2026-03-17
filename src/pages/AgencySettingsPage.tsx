@@ -158,6 +158,9 @@ const AgencySettingsPage = () => {
         </p>
       </Card>
 
+      {/* Migration System */}
+      <MigrationPanel />
+
       {/* Restore Confirmation Dialog */}
       <AlertDialog open={showRestoreConfirm} onOpenChange={setShowRestoreConfirm}>
         <AlertDialogContent>
