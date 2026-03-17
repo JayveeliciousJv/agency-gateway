@@ -95,13 +95,13 @@ const MigrationPanel = () => {
   /* ---------- Export reports as migration ---------- */
   const handleExportAsMigration = () => {
     if (exportModule === 'visitors') {
-      const nonLetterVisitors = visitors.filter(v => v.purpose !== 'Incoming Letter');
+      const nonLetterVisitors = visitors.filter(v => v.purpose !== 'Incoming Letter') as unknown as Record<string, unknown>[];
       exportAsMigration('visitors', nonLetterVisitors, exportFormat);
     } else if (exportModule === 'letters') {
-      const letterVisitors = visitors.filter(v => v.purpose === 'Incoming Letter');
+      const letterVisitors = visitors.filter(v => v.purpose === 'Incoming Letter') as unknown as Record<string, unknown>[];
       exportAsMigration('letters', letterVisitors, exportFormat);
     } else {
-      exportAsMigration('surveys', surveys, exportFormat);
+      exportAsMigration('surveys', surveys as unknown as Record<string, unknown>[], exportFormat);
     }
     addAuditLog({
       userId: currentUser?.id || '',
