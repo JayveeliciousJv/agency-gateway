@@ -286,7 +286,7 @@ const MigrationPanel = () => {
                 )}
 
                 {parseResult && parseResult.records.length > 0 && parseResult.errors.length === 0 && (
-                  <div className="flex items-center gap-1.5 text-xs text-emerald-600">
+                  <div className="flex items-center gap-1.5 text-xs text-primary">
                     <CheckCircle2 className="w-3.5 h-3.5" /> File is valid and ready to import.
                   </div>
                 )}
