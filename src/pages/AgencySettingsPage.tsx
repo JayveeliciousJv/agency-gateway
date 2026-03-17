@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import { Upload, X, Image, Download, UploadCloud, ShieldAlert } from 'lucide-react';
 import { exportBackup, importBackup } from '@/lib/backup';
+import MigrationPanel from '@/components/MigrationPanel';
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
@@ -156,6 +157,9 @@ const AgencySettingsPage = () => {
           <ShieldAlert className="w-3.5 h-3.5" /> A safety backup is created automatically before every restore.
         </p>
       </Card>
+
+      {/* Migration System */}
+      <MigrationPanel />
 
       {/* Restore Confirmation Dialog */}
       <AlertDialog open={showRestoreConfirm} onOpenChange={setShowRestoreConfirm}>
