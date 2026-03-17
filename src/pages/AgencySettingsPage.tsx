@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import { Upload, X, Image, Download, UploadCloud, ShieldAlert } from 'lucide-react';
 import { exportBackup, importBackup } from '@/lib/backup';
+import MigrationPanel from '@/components/MigrationPanel';
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
