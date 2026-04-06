@@ -51,6 +51,7 @@ const VisitorLogsPage = () => {
   const currentUser = useAppStore((s) => s.currentUser);
   const addAuditLog = useAppStore((s) => s.addAuditLog);
   const [search, setSearch] = useState('');
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
 
   const filtered = visitors.filter(
     (v) =>
