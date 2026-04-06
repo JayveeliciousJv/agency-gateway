@@ -50,6 +50,12 @@ const KioskConsentPage = () => {
             ))}
           </div>
 
+          <div className="rounded-lg border border-border bg-muted/40 p-3 mb-4">
+            <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+              📸 <strong>Photo Capture Notice:</strong> Your photo will be captured during registration for logging and security purposes only.
+            </p>
+          </div>
+
           <div className="flex items-start space-x-3 mb-6">
             <Checkbox id="consent" checked={agreed} onCheckedChange={(checked) => setAgreed(checked === true)} />
             <label htmlFor="consent" className="text-sm cursor-pointer leading-relaxed">

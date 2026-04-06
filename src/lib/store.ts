@@ -46,6 +46,8 @@ export interface VisitorLog {
   letterReceivedBy?: string;
   contactNumber: string;
   email: string;
+  photo?: string;
+  consentTimestamp?: string;
   date: string;
   time: string;
 }
