@@ -124,6 +124,7 @@ const VisitorLogsPage = () => {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead>Photo</TableHead>
                   <TableHead>Name</TableHead>
                   <TableHead>Sex</TableHead>
                   <TableHead>Sector</TableHead>
@@ -137,6 +138,17 @@ const VisitorLogsPage = () => {
               <TableBody>
                 {regularVisitors.slice(0, 50).map((v) => (
                   <TableRow key={v.id}>
+                    <TableCell>
+                      {v.photo ? (
+                        <button onClick={() => setPhotoPreview(v.photo!)} className="w-8 h-8 rounded-full overflow-hidden border border-border hover:ring-2 hover:ring-primary transition-all">
+                          <img src={v.photo} alt={v.name} className="w-full h-full object-cover" />
+                        </button>
+                      ) : (
+                        <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
+                          <Camera className="w-3 h-3 text-muted-foreground" />
+                        </div>
+                      )}
+                    </TableCell>
                     <TableCell className="font-medium">{v.name}</TableCell>
                     <TableCell>{v.sex}</TableCell>
                     <TableCell>{v.sectorClassification}</TableCell>
