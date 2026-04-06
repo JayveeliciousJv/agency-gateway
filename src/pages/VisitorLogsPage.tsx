@@ -245,6 +245,16 @@ const VisitorLogsPage = () => {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Photo Preview Dialog */}
+      <Dialog open={!!photoPreview} onOpenChange={() => setPhotoPreview(null)}>
+        <DialogContent className="max-w-sm">
+          <DialogTitle>Visitor Photo</DialogTitle>
+          {photoPreview && (
+            <img src={photoPreview} alt="Visitor" className="w-full rounded-lg" />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
