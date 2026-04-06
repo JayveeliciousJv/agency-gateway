@@ -6,7 +6,8 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useState } from 'react';
-import { Search, Users, Mail, ExternalLink } from 'lucide-react';
+import { Search, Users, Mail, ExternalLink, Camera } from 'lucide-react';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 
@@ -50,6 +51,7 @@ const VisitorLogsPage = () => {
   const currentUser = useAppStore((s) => s.currentUser);
   const addAuditLog = useAppStore((s) => s.addAuditLog);
   const [search, setSearch] = useState('');
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
 
   const filtered = visitors.filter(
     (v) =>
@@ -122,6 +124,7 @@ const VisitorLogsPage = () => {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead>Photo</TableHead>
                   <TableHead>Name</TableHead>
                   <TableHead>Sex</TableHead>
                   <TableHead>Sector</TableHead>
@@ -135,6 +138,17 @@ const VisitorLogsPage = () => {
               <TableBody>
                 {regularVisitors.slice(0, 50).map((v) => (
                   <TableRow key={v.id}>
+                    <TableCell>
+                      {v.photo ? (
+                        <button onClick={() => setPhotoPreview(v.photo!)} className="w-8 h-8 rounded-full overflow-hidden border border-border hover:ring-2 hover:ring-primary transition-all">
+                          <img src={v.photo} alt={v.name} className="w-full h-full object-cover" />
+                        </button>
+                      ) : (
+                        <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
+                          <Camera className="w-3 h-3 text-muted-foreground" />
+                        </div>
+                      )}
+                    </TableCell>
                     <TableCell className="font-medium">{v.name}</TableCell>
                     <TableCell>{v.sex}</TableCell>
                     <TableCell>{v.sectorClassification}</TableCell>
@@ -231,6 +245,16 @@ const VisitorLogsPage = () => {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Photo Preview Dialog */}
+      <Dialog open={!!photoPreview} onOpenChange={() => setPhotoPreview(null)}>
+        <DialogContent className="max-w-sm">
+          <DialogTitle>Visitor Photo</DialogTitle>
+          {photoPreview && (
+            <img src={photoPreview} alt="Visitor" className="w-full rounded-lg" />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

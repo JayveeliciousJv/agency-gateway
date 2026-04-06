@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Mail } from 'lucide-react';
 import defaultLogo from '@/assets/default-logo.png';
+import CameraCapture from '@/components/CameraCapture';
 
 const PROJECT_OPTIONS = [
   'DigiGov', 'ILCDB', 'PNPKI', 'Cybersecurity', 'FreeWifi4All', 'Other',
@@ -43,6 +44,8 @@ const KioskRegisterPage = () => {
     letterProjectOther: '',
   });
 
+  const [photo, setPhoto] = useState('');
+
   const isIncomingLetter = form.purpose === 'Incoming Letter';
 
   const isValid = form.name && form.sex && form.sectorClassification &&
@@ -76,6 +79,8 @@ const KioskRegisterPage = () => {
       }),
       contactNumber: form.contactNumber,
       email: form.email,
+      photo: photo || undefined,
+      consentTimestamp: now.toISOString(),
       date: now.toISOString().split('T')[0],
       time: now.toTimeString().slice(0, 5),
     };
@@ -98,6 +103,9 @@ const KioskRegisterPage = () => {
           <h2 className="text-lg font-semibold text-card-foreground mb-6">Visitor Registration</h2>
 
           <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Camera Capture */}
+            <CameraCapture onCapture={setPhoto} capturedImage={photo} />
+
             {/* Name */}
             <div className="space-y-2">
               <Label htmlFor="name">Full Name *</Label>
@@ -243,6 +251,11 @@ const KioskRegisterPage = () => {
                 </Select>
               </div>
             )}
+
+            {/* Compliance footer */}
+            <p className="text-[10px] text-muted-foreground text-center">
+              This system complies with the Data Privacy Act of 2012 (RA 10173). Photos are used solely for logging and security purposes.
+            </p>
 
             <div className="flex gap-3 pt-2">
               <Button type="button" variant="outline" className="flex-1" onClick={() => navigate('/kiosk')}>
