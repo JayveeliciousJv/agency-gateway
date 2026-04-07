@@ -236,7 +236,7 @@ const ReportsPage = () => {
     const { default: jsPDF } = await import('jspdf');
     await import('jspdf-autotable');
     const {
-      drawHeader, drawTable, drawSummaryMetrics, drawDemographics,
+      drawHeader, drawTable, drawTableWithPhotos, drawSummaryMetrics, drawDemographics,
       drawBarChart, drawPieChart, drawFooter, addSectionPage, addVisualizationPage,
       calculateExtendedDemographics, drawExtendedDemographicsPage,
     } = await import('@/lib/pdf-report');
