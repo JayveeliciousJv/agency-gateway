@@ -640,4 +640,73 @@ export function addVisualizationPage(doc: any, _profile: AgencyProfile): number 
   return addSectionPage(doc, 'Data Visualizations');
 }
 
+/**
+ * Draw a data table with embedded photo thumbnails
+ * photoColumnIndex: which column contains the photo data (base64 string)
+ * The photo data is removed from body display and rendered as an image in didDrawCell.
+ */
+export function drawTableWithPhotos(config: TableConfig & { photoColumnIndex: number; photos: (string | undefined)[] }): number {
+  const { doc, startY, head, body, photoColumnIndex, photos } = config;
+  const photoSize = 10;
+  const rowHeight = photoSize + 4;
+
+  autoTable(doc, {
+    startY,
+    head,
+    body,
+    theme: 'grid',
+    styles: {
+      fontSize: 7,
+      cellPadding: 2,
+      lineColor: [220, 225, 230],
+      lineWidth: 0.3,
+      textColor: DARK_TEXT,
+      font: 'helvetica',
+      minCellHeight: rowHeight,
+    },
+    headStyles: {
+      fillColor: [...NAVY],
+      textColor: [...WHITE],
+      fontSize: 7,
+      fontStyle: 'bold',
+      halign: 'center',
+      cellPadding: 3,
+    },
+    alternateRowStyles: {
+      fillColor: [...LIGHT_GRAY],
+    },
+    bodyStyles: {
+      fillColor: [...WHITE],
+    },
+    columnStyles: {
+      [photoColumnIndex]: { cellWidth: photoSize + 6, halign: 'center' },
+    },
+    margin: { left: 14, right: 14 },
+    didDrawCell: (data: any) => {
+      if (data.section === 'body' && data.column.index === photoColumnIndex) {
+        const photoData = photos[data.row.index];
+        if (photoData) {
+          try {
+            const x = data.cell.x + (data.cell.width - photoSize) / 2;
+            const y = data.cell.y + (data.cell.height - photoSize) / 2;
+            doc.addImage(photoData, 'JPEG', x, y, photoSize, photoSize);
+          } catch {
+            // skip if image is invalid
+          }
+        }
+      }
+    },
+    didParseCell: (data: any) => {
+      if (data.section === 'body') {
+        const val = data.cell.raw;
+        if (typeof val === 'number' || (typeof val === 'string' && /^\d+(\.\d+)?%?$/.test(val.trim()))) {
+          data.cell.styles.halign = 'right';
+        }
+      }
+    },
+  });
+
+  return (doc as any).lastAutoTable?.finalY || startY + 40;
+}
+
 export type { ReportConfig, TableConfig, SummaryMetric, DemographicsData, ExtendedDemographicsData, ChartBarData, ChartPieSlice };
