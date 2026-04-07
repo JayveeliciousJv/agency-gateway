@@ -33,10 +33,7 @@ const CameraCapture = ({ onCapture, capturedImage, className }: CameraCapturePro
         video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } },
       });
       streamRef.current = stream;
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        await videoRef.current.play();
-      }
+      // Set state first so the video element renders, then attach stream in useEffect
       setCameraState('active');
     } catch (err: any) {
       console.error('Camera error:', err);
@@ -50,6 +47,14 @@ const CameraCapture = ({ onCapture, capturedImage, className }: CameraCapturePro
       }
     }
   }, []);
+
+  // Attach stream to video element once it's rendered
+  useEffect(() => {
+    if (cameraState === 'active' && videoRef.current && streamRef.current) {
+      videoRef.current.srcObject = streamRef.current;
+      videoRef.current.play().catch(console.error);
+    }
+  }, [cameraState]);
 
   useEffect(() => {
     if (capturedImage) {
