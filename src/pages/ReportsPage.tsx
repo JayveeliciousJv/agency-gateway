@@ -241,7 +241,7 @@ const ReportsPage = () => {
       calculateExtendedDemographics, drawExtendedDemographicsPage,
     } = await import('@/lib/pdf-report');
 
-    const doc = new jsPDF({ orientation: type === 'surveys' || type === 'letters' ? 'landscape' : 'portrait' });
+    const doc = new jsPDF({ orientation: type === 'surveys' || type === 'letters' || type === 'visitors' ? 'landscape' : 'portrait' });
     const titleMap: Record<string, string> = {
       visitors: 'Visitor Logs Report', surveys: 'Survey Results Report',
       summary: 'Summary Analytics Report', letters: 'Incoming Letters Report',
