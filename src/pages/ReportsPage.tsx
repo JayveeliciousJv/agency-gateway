@@ -250,21 +250,47 @@ const ReportsPage = () => {
     let curY = drawHeader({ doc, profile, title: titleMap[type], filterLabel: filterLabel() });
 
     if (type === 'visitors') {
-      curY = drawTable({
-        doc, startY: curY,
-        head: [['#', 'Name', 'Sex', 'Sector', 'Service', 'Purpose', 'Contact', 'Date']],
-        body: filteredVisitors.map((v, i) => [i + 1, v.name, v.sex, v.sectorClassification, v.service, v.purpose, v.contactNumber, v.date]),
-      });
+      const hasPhotos = filteredVisitors.some(v => v.photo);
+      if (hasPhotos) {
+        curY = drawTableWithPhotos({
+          doc, startY: curY,
+          head: [['#', 'Photo', 'Name', 'Sex', 'Sector', 'Service', 'Purpose', 'Contact', 'Date']],
+          body: filteredVisitors.map((v, i) => [i + 1, '', v.name, v.sex, v.sectorClassification, v.service, v.purpose, v.contactNumber, v.date]),
+          photoColumnIndex: 1,
+          photos: filteredVisitors.map(v => v.photo),
+        });
+      } else {
+        curY = drawTable({
+          doc, startY: curY,
+          head: [['#', 'Name', 'Sex', 'Sector', 'Service', 'Purpose', 'Contact', 'Date']],
+          body: filteredVisitors.map((v, i) => [i + 1, v.name, v.sex, v.sectorClassification, v.service, v.purpose, v.contactNumber, v.date]),
+        });
+      }
     } else if (type === 'letters') {
-      curY = drawTable({
-        doc, startY: curY,
-        head: [['#', 'Date', 'From', 'Subject', 'Project', 'Status', 'Received/Processed By', 'Scan Link', 'Visitor']],
-        body: filteredLetters.map((v, i) => [
-          i + 1, v.date, v.letterFrom || '', v.letterSubject || '',
-          v.letterProject === 'Other' ? `Other: ${v.letterProjectOther}` : (v.letterProject || ''),
-          v.letterStatus || '', v.letterReceivedBy || '—', v.letterScanLink || '—', v.name,
-        ]),
-      });
+      const hasPhotos = filteredLetters.some(v => v.photo);
+      if (hasPhotos) {
+        curY = drawTableWithPhotos({
+          doc, startY: curY,
+          head: [['#', 'Photo', 'Date', 'From', 'Subject', 'Project', 'Status', 'Received By', 'Visitor']],
+          body: filteredLetters.map((v, i) => [
+            i + 1, '', v.date, v.letterFrom || '', v.letterSubject || '',
+            v.letterProject === 'Other' ? `Other: ${v.letterProjectOther}` : (v.letterProject || ''),
+            v.letterStatus || '', v.letterReceivedBy || '—', v.name,
+          ]),
+          photoColumnIndex: 1,
+          photos: filteredLetters.map(v => v.photo),
+        });
+      } else {
+        curY = drawTable({
+          doc, startY: curY,
+          head: [['#', 'Date', 'From', 'Subject', 'Project', 'Status', 'Received/Processed By', 'Scan Link', 'Visitor']],
+          body: filteredLetters.map((v, i) => [
+            i + 1, v.date, v.letterFrom || '', v.letterSubject || '',
+            v.letterProject === 'Other' ? `Other: ${v.letterProjectOther}` : (v.letterProject || ''),
+            v.letterStatus || '', v.letterReceivedBy || '—', v.letterScanLink || '—', v.name,
+          ]),
+        });
+      }
     } else if (type === 'surveys') {
       curY = drawTable({
         doc, startY: curY,
