@@ -35,8 +35,8 @@ const StepSuccess = ({ onDone }: StepSuccessProps) => {
 
   return (
     <div className="text-center animate-fade-in">
-      <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-green-500/10 mb-6">
-        <CheckCircle2 className="w-10 h-10 text-green-600" />
+      <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-primary/10 mb-6">
+        <CheckCircle2 className="w-10 h-10 text-primary" />
       </div>
       <h1 className="text-2xl font-bold text-foreground mb-2">
         You are successfully logged!
