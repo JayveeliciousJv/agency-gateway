@@ -222,7 +222,9 @@ interface AppState {
   setProfile: (p: Partial<AgencyProfile>) => void;
   addVisitor: (v: VisitorLog) => void;
   updateVisitor: (id: string, updates: Partial<VisitorLog>) => void;
+  deleteVisitor: (id: string) => void;
   addSurvey: (s: SurveyResponse) => void;
+  deleteSurvey: (id: string) => void;
   addAuditLog: (entry: Omit<AuditEntry, 'id' | 'timestamp'>) => void;
   login: (username: string, password: string) => boolean;
   logout: () => void;
@@ -289,7 +291,9 @@ export const useAppStore = create<AppState>()(persist((set, get) => {
     updateVisitor: (id, updates) => set((s) => ({
       visitors: s.visitors.map((v) => v.id === id ? { ...v, ...updates } : v),
     })),
+    deleteVisitor: (id) => set((s) => ({ visitors: s.visitors.filter((v) => v.id !== id) })),
     addSurvey: (s) => set((state) => ({ surveys: [s, ...state.surveys] })),
+    deleteSurvey: (id) => set((s) => ({ surveys: s.surveys.filter((sv) => sv.id !== id) })),
     addAuditLog: (entry) =>
       set((s) => ({
         auditLogs: [
