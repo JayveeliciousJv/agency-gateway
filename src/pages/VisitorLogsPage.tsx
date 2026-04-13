@@ -3,10 +3,12 @@ import { Card } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { useState } from 'react';
-import { Search, Users, Mail, ExternalLink, Camera } from 'lucide-react';
+import { Search, Users, Mail, ExternalLink, Camera, Trash2 } from 'lucide-react';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
@@ -48,6 +50,7 @@ const ScanLinkCell = ({ value, onSave }: { value: string; onSave: (link: string)
 const VisitorLogsPage = () => {
   const visitors = useAppStore((s) => s.visitors);
   const updateVisitor = useAppStore((s) => s.updateVisitor);
+  const deleteVisitor = useAppStore((s) => s.deleteVisitor);
   const currentUser = useAppStore((s) => s.currentUser);
   const addAuditLog = useAppStore((s) => s.addAuditLog);
   const [search, setSearch] = useState('');
@@ -88,6 +91,17 @@ const VisitorLogsPage = () => {
       details: `Updated scan link for letter ${id}`,
     });
     toast.success('Scan link saved');
+  };
+
+  const handleDeleteVisitor = (id: string, name: string) => {
+    deleteVisitor(id);
+    addAuditLog({
+      userId: currentUser?.id || '',
+      userName: currentUser?.fullName || '',
+      action: 'Delete Visitor Record (Right to Erasure)',
+      details: `Deleted visitor record for "${name}" (ID: ${id}) per RA 10173 Right to be Forgotten`,
+    });
+    toast.success('Record deleted per Data Privacy Act (RA 10173)');
   };
 
   return (
@@ -133,6 +147,7 @@ const VisitorLogsPage = () => {
                   <TableHead>Contact</TableHead>
                   <TableHead>Date</TableHead>
                   <TableHead>Time</TableHead>
+                  <TableHead className="w-10"></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -157,6 +172,32 @@ const VisitorLogsPage = () => {
                     <TableCell className="text-sm">{v.contactNumber}</TableCell>
                     <TableCell>{v.date}</TableCell>
                     <TableCell>{v.time}</TableCell>
+                    <TableCell>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive hover:bg-destructive/10">
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Right to Erasure (RA 10173)</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Under the Data Privacy Act of 2012, data subjects have the right to request deletion of their personal data. This will permanently delete the record for <strong>{v.name}</strong> including any captured photo. This action cannot be undone.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction
+                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                              onClick={() => handleDeleteVisitor(v.id, v.name)}
+                            >
+                              Delete Record
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -180,11 +221,12 @@ const VisitorLogsPage = () => {
                   <TableHead>From</TableHead>
                   <TableHead>Subject</TableHead>
                   <TableHead>Project</TableHead>
-<TableHead>Status</TableHead>
+                  <TableHead>Status</TableHead>
                   <TableHead>Received/Processed By</TableHead>
                   <TableHead>Scan Link</TableHead>
                   <TableHead>Visitor</TableHead>
                   <TableHead>Contact</TableHead>
+                  <TableHead className="w-10"></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -227,6 +269,32 @@ const VisitorLogsPage = () => {
                     </TableCell>
                     <TableCell>{v.name}</TableCell>
                     <TableCell className="text-sm">{v.contactNumber}</TableCell>
+                    <TableCell>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive hover:bg-destructive/10">
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Right to Erasure (RA 10173)</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              This will permanently delete the incoming letter record from <strong>{v.letterFrom}</strong> regarding "{v.letterSubject}". This action cannot be undone.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction
+                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                              onClick={() => handleDeleteVisitor(v.id, v.name)}
+                            >
+                              Delete Record
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
