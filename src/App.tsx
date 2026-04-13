@@ -6,9 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import LoginPage from "./pages/LoginPage";
-import KioskConsentPage from "./pages/KioskConsentPage";
 import KioskRegisterPage from "./pages/KioskRegisterPage";
-import KioskThankYouPage from "./pages/KioskThankYouPage";
 import SurveyConsentPage from "./pages/SurveyConsentPage";
 import KioskSurveyPage from "./pages/KioskSurveyPage";
 import SurveyThankYouPage from "./pages/SurveyThankYouPage";
@@ -34,10 +32,8 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/login" element={<LoginPage />} />
-          {/* Visitor Logbook flow */}
-          <Route path="/kiosk" element={<KioskConsentPage />} />
-          <Route path="/kiosk/register" element={<KioskRegisterPage />} />
-          <Route path="/kiosk/thankyou" element={<KioskThankYouPage />} />
+          {/* Visitor Logbook flow — wizard handles all steps */}
+          <Route path="/kiosk" element={<KioskRegisterPage />} />
           {/* Satisfaction Survey flow */}
           <Route path="/survey" element={<SurveyConsentPage />} />
           <Route path="/survey/form" element={<KioskSurveyPage />} />
