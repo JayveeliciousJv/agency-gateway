@@ -34,10 +34,8 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/login" element={<LoginPage />} />
-          {/* Visitor Logbook flow */}
-          <Route path="/kiosk" element={<KioskConsentPage />} />
-          <Route path="/kiosk/register" element={<KioskRegisterPage />} />
-          <Route path="/kiosk/thankyou" element={<KioskThankYouPage />} />
+          {/* Visitor Logbook flow — wizard handles all steps */}
+          <Route path="/kiosk" element={<KioskRegisterPage />} />
           {/* Satisfaction Survey flow */}
           <Route path="/survey" element={<SurveyConsentPage />} />
           <Route path="/survey/form" element={<KioskSurveyPage />} />
