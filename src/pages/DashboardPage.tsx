@@ -237,54 +237,56 @@ const DashboardPage = () => {
   return (
     <div className="space-y-0 animate-fade-in">
       {/* Page Header */}
-      <div className="mb-6">
+      <div className="mb-4 sm:mb-6">
         <div className="flex items-center gap-3 mb-1">
           <div className="p-2 rounded-lg bg-primary/10">
             <LayoutDashboard className="w-5 h-5 text-primary" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
-            <p className="text-sm text-muted-foreground">{profile.officeName} — Overview</p>
+            <h1 className="text-xl sm:text-2xl font-bold text-foreground">Dashboard</h1>
+            <p className="text-xs sm:text-sm text-muted-foreground truncate">{profile.officeName} — Overview</p>
           </div>
         </div>
       </div>
 
       {/* ── Sticky Filter Bar ── */}
-      <div className="sticky top-0 z-20 -mx-1 px-1 pb-4">
+      <div className="sticky top-0 z-20 -mx-1 px-1 pb-3 sm:pb-4">
         <Card className="border shadow-sm">
-          <div className="p-4 space-y-3">
-            <div className="flex flex-wrap items-center gap-2">
-              <CalendarIcon className="w-4 h-4 text-muted-foreground shrink-0" />
-              <div className="flex flex-wrap gap-1.5">
-                {presetButtons.map((p) => (
-                  <Button key={p.key} size="sm" variant={datePreset === p.key ? 'default' : 'outline'} className="h-8 text-xs rounded-full" onClick={() => applyDatePreset(p.key)}>
-                    {p.label}
-                  </Button>
-                ))}
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button size="sm" variant={datePreset === 'custom' ? 'default' : 'outline'} className="h-8 text-xs rounded-full">
-                      {datePreset === 'custom' && dateFrom && dateTo ? `${format(dateFrom, 'MMM d')} – ${format(dateTo, 'MMM d')}` : 'Custom Range'}
+          <div className="p-3 sm:p-4 space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+              <div className="flex items-center gap-2 flex-1 min-w-0">
+                <CalendarIcon className="w-4 h-4 text-muted-foreground shrink-0 hidden sm:block" />
+                <div className="flex flex-wrap gap-1.5">
+                  {presetButtons.map((p) => (
+                    <Button key={p.key} size="sm" variant={datePreset === p.key ? 'default' : 'outline'} className="h-9 sm:h-8 text-xs rounded-full px-3" onClick={() => applyDatePreset(p.key)}>
+                      {p.label}
                     </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0 flex" align="start">
-                    <div className="border-r p-2">
-                      <p className="text-xs font-medium text-muted-foreground px-2 mb-1">From</p>
-                      <Calendar mode="single" selected={dateFrom} onSelect={(d) => { setDateFrom(d); setDatePreset('custom'); }} className={cn("p-2 pointer-events-auto")} />
-                    </div>
-                    <div className="p-2">
-                      <p className="text-xs font-medium text-muted-foreground px-2 mb-1">To</p>
-                      <Calendar mode="single" selected={dateTo} onSelect={(d) => { setDateTo(d); setDatePreset('custom'); }} className={cn("p-2 pointer-events-auto")} />
-                    </div>
-                  </PopoverContent>
-                </Popover>
+                  ))}
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button size="sm" variant={datePreset === 'custom' ? 'default' : 'outline'} className="h-9 sm:h-8 text-xs rounded-full">
+                        {datePreset === 'custom' && dateFrom && dateTo ? `${format(dateFrom, 'MMM d')} – ${format(dateTo, 'MMM d')}` : 'Custom Range'}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0 flex flex-col sm:flex-row" align="start">
+                      <div className="border-b sm:border-b-0 sm:border-r p-2">
+                        <p className="text-xs font-medium text-muted-foreground px-2 mb-1">From</p>
+                        <Calendar mode="single" selected={dateFrom} onSelect={(d) => { setDateFrom(d); setDatePreset('custom'); }} className={cn("p-2 pointer-events-auto")} />
+                      </div>
+                      <div className="p-2">
+                        <p className="text-xs font-medium text-muted-foreground px-2 mb-1">To</p>
+                        <Calendar mode="single" selected={dateTo} onSelect={(d) => { setDateTo(d); setDatePreset('custom'); }} className={cn("p-2 pointer-events-auto")} />
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                </div>
               </div>
-              <div className="ml-auto flex gap-2">
-                <Button size="sm" variant="outline" className="h-8 text-xs" onClick={resetFilters}>
+              <div className="flex gap-2 self-end sm:self-auto">
+                <Button size="sm" variant="outline" className="h-9 sm:h-8 text-xs" onClick={resetFilters}>
                   <RotateCcw className="w-3.5 h-3.5 mr-1" /> Reset
                 </Button>
-                <Button size="sm" className="h-8 text-xs" onClick={applyFilters}>
-                  <Filter className="w-3.5 h-3.5 mr-1" /> Apply Filters
+                <Button size="sm" className="h-9 sm:h-8 text-xs" onClick={applyFilters}>
+                  <Filter className="w-3.5 h-3.5 mr-1" /> Apply
                 </Button>
               </div>
             </div>
@@ -297,11 +299,11 @@ const DashboardPage = () => {
                 </button>
               </CollapsibleTrigger>
               <CollapsibleContent className="pt-3">
-                <div className="flex flex-wrap gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div className="space-y-1">
                     <Label className="text-xs text-muted-foreground">Service</Label>
                     <Select value={filterService} onValueChange={setFilterService}>
-                      <SelectTrigger className="w-48 h-8 text-xs"><SelectValue /></SelectTrigger>
+                      <SelectTrigger className="w-full h-9 sm:h-8 text-xs"><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="all">All Services</SelectItem>
                         {services.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
@@ -311,7 +313,7 @@ const DashboardPage = () => {
                   <div className="space-y-1">
                     <Label className="text-xs text-muted-foreground">Sector</Label>
                     <Select value={filterSector} onValueChange={setFilterSector}>
-                      <SelectTrigger className="w-48 h-8 text-xs"><SelectValue /></SelectTrigger>
+                      <SelectTrigger className="w-full h-9 sm:h-8 text-xs"><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="all">All Sectors</SelectItem>
                         {SECTOR_OPTIONS.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
@@ -321,7 +323,7 @@ const DashboardPage = () => {
                   <div className="space-y-1">
                     <Label className="text-xs text-muted-foreground">Sex</Label>
                     <Select value={filterSex} onValueChange={setFilterSex}>
-                      <SelectTrigger className="w-40 h-8 text-xs"><SelectValue /></SelectTrigger>
+                      <SelectTrigger className="w-full h-9 sm:h-8 text-xs"><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="all">All</SelectItem>
                         <SelectItem value="Male">Male</SelectItem>
@@ -352,16 +354,16 @@ const DashboardPage = () => {
       </div>
 
       {/* ── Primary KPI Cards ── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4">
         {kpiCards.map((k) => (
-          <Card key={k.label} className={cn("p-4 border-l-4 cursor-pointer hover:shadow-md transition-shadow", k.colorClass)} onClick={k.onClick}>
+          <Card key={k.label} className={cn("p-3 sm:p-4 border-l-4 cursor-pointer hover:shadow-md transition-shadow", k.colorClass)} onClick={k.onClick}>
             <div className="flex items-start justify-between">
-              <div>
-                <p className="text-xs text-muted-foreground font-medium">{k.label}</p>
-                <p className="text-2xl font-bold mt-1">{k.value}</p>
+              <div className="min-w-0">
+                <p className="text-[10px] sm:text-xs text-muted-foreground font-medium truncate">{k.label}</p>
+                <p className="text-lg sm:text-2xl font-bold mt-1">{k.value}</p>
               </div>
-              <div className={cn("p-2 rounded-lg", k.iconBg)}>
-                <k.icon className={cn("w-4 h-4", k.iconColor)} />
+              <div className={cn("p-1.5 sm:p-2 rounded-lg shrink-0", k.iconBg)}>
+                <k.icon className={cn("w-3.5 h-3.5 sm:w-4 sm:h-4", k.iconColor)} />
               </div>
             </div>
           </Card>
@@ -369,11 +371,11 @@ const DashboardPage = () => {
       </div>
 
       {/* ── Secondary KPI Strip ── */}
-      <div className="grid grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-4 sm:mb-6">
         {secondaryKpis.map((k) => (
           <Card key={k.label} className="p-3">
             <div className="flex items-center gap-3">
-              <div className="p-1.5 rounded-md bg-muted">
+              <div className="p-1.5 rounded-md bg-muted shrink-0">
                 <k.icon className={cn("w-3.5 h-3.5", k.color)} />
               </div>
               <div className="min-w-0">
@@ -386,7 +388,7 @@ const DashboardPage = () => {
       </div>
 
       {/* ── Charts Row 1 ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-semibold">Services Availed</CardTitle>
@@ -614,8 +616,8 @@ const DashboardPage = () => {
         </CardHeader>
         <CardContent>
           {sortedVisitors.length > 0 ? (
-            <div className="overflow-auto max-h-[400px]">
-              <Table>
+            <div className="overflow-x-auto max-h-[400px]">
+              <Table className="min-w-[600px]">
                 <TableHeader>
                   <TableRow>
                     <TableHead className="cursor-pointer select-none" onClick={() => toggleSort('name')}>

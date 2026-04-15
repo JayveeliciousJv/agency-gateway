@@ -19,7 +19,8 @@ const AuditLogsPage = () => {
             <p className="text-xs mt-1">Actions like profile updates and user management will appear here.</p>
           </div>
         ) : (
-          <Table>
+          <div className="overflow-x-auto">
+          <Table className="min-w-[600px]">
             <TableHeader>
               <TableRow>
                 <TableHead>Timestamp</TableHead>
@@ -39,6 +40,7 @@ const AuditLogsPage = () => {
               ))}
             </TableBody>
           </Table>
+          </div>
         )}
       </Card>
     </div>

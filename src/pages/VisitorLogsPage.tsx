@@ -106,18 +106,18 @@ const VisitorLogsPage = () => {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Visitor Logs</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-foreground">Visitor Logs</h1>
           <p className="text-sm text-muted-foreground">{visitors.length} total records</p>
         </div>
-        <div className="relative w-64">
+        <div className="relative w-full sm:w-64">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
             placeholder="Search visitors..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-9"
+            className="pl-9 h-11 sm:h-9"
           />
         </div>
       </div>
@@ -134,8 +134,8 @@ const VisitorLogsPage = () => {
 
         {/* Regular Visitors Tab */}
         <TabsContent value="visitors">
-          <Card>
-            <Table>
+          <Card className="overflow-x-auto">
+            <Table className="min-w-[700px]">
               <TableHeader>
                 <TableRow>
                   <TableHead>Photo</TableHead>
@@ -212,8 +212,8 @@ const VisitorLogsPage = () => {
 
         {/* Incoming Letters Tab */}
         <TabsContent value="letters">
-          <Card>
-            <Table>
+          <Card className="overflow-x-auto">
+            <Table className="min-w-[900px]">
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-10">#</TableHead>

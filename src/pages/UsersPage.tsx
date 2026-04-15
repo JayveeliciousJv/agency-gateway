@@ -140,14 +140,14 @@ const UsersPage = () => {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">User Accounts</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-foreground">User Accounts</h1>
           <p className="text-sm text-muted-foreground">Manage system users and roles</p>
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <Button><UserPlus className="w-4 h-4 mr-2" /> Add Staff User</Button>
+            <Button className="w-full sm:w-auto h-11 sm:h-9"><UserPlus className="w-4 h-4 mr-2" /> Add Staff User</Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>

@@ -25,7 +25,7 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-background relative">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-background relative p-4">
       <Button
         variant="ghost"
         size="icon"
@@ -41,7 +41,7 @@ const LoginPage = () => {
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-4 overflow-hidden">
             <img src={profile.logoPath || defaultLogo} alt="Agency Logo" className="w-full h-full object-contain" />
           </div>
-          <p className="text-xs sm:text-sm text-muted-foreground font-medium tracking-wide uppercase whitespace-nowrap">
+          <p className="text-xs sm:text-sm text-muted-foreground font-medium tracking-wide uppercase text-center break-words">
             {profile.agencyName}
           </p>
           <h1 className="text-2xl font-bold mt-1 text-foreground">
@@ -51,7 +51,7 @@ const LoginPage = () => {
         </div>
 
         {/* Login Card */}
-        <div className="bg-card rounded-xl p-8 kiosk-card-shadow border border-border">
+        <div className="bg-card rounded-xl p-6 sm:p-8 kiosk-card-shadow border border-border">
           <h2 className="text-lg font-semibold text-card-foreground mb-6">
             Admin Login
           </h2>
