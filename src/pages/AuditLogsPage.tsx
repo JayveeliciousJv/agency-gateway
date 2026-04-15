@@ -41,6 +41,7 @@ const AuditLogsPage = () => {
             </TableBody>
           </Table>
           </div>
+        )}
       </Card>
     </div>
   );
