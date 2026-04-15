@@ -1,19 +1,9 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAppStore } from '@/lib/store';
 import {
-  LayoutDashboard,
-  ClipboardList,
-  BarChart3,
-  Settings,
-  
-  LogOut,
-  Users,
-  History,
-  ListChecks,
-  FileText,
-  FileBarChart,
-  PanelLeftClose,
-  PanelLeft,
+  LayoutDashboard, ClipboardList, BarChart3, Settings,
+  LogOut, Users, History, ListChecks, FileText, FileBarChart,
+  PanelLeftClose, PanelLeft,
 } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
@@ -34,9 +24,10 @@ const navItems = [
 interface AdminSidebarProps {
   collapsed: boolean;
   onToggle: () => void;
+  onNavClick?: () => void;
 }
 
-const AdminSidebar = ({ collapsed, onToggle }: AdminSidebarProps) => {
+const AdminSidebar = ({ collapsed, onToggle, onNavClick }: AdminSidebarProps) => {
   const profile = useAppStore((s) => s.profile);
   const currentUser = useAppStore((s) => s.currentUser);
   const logout = useAppStore((s) => s.logout);
@@ -75,7 +66,7 @@ const AdminSidebar = ({ collapsed, onToggle }: AdminSidebarProps) => {
         </div>
       </div>
 
-      {/* Toggle */}
+      {/* Toggle — hidden on mobile since sidebar is full-width overlay */}
       <div className="px-3 py-2 flex justify-end">
         <button
           onClick={onToggle}
@@ -87,16 +78,17 @@ const AdminSidebar = ({ collapsed, onToggle }: AdminSidebarProps) => {
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 px-2 space-y-1">
+      <nav className="flex-1 px-2 space-y-1 overflow-y-auto">
         {filteredNav.map((item) => {
           const link = (
             <NavLink
               key={item.to}
               to={item.to}
               end={item.end}
+              onClick={onNavClick}
               className={({ isActive }) =>
                 cn(
-                  'flex items-center gap-3 rounded-lg text-sm font-medium transition-colors',
+                  'flex items-center gap-3 rounded-lg text-sm font-medium transition-colors min-h-[44px]',
                   collapsed ? 'justify-center px-2 py-2.5' : 'px-3 py-2.5',
                   isActive
                     ? 'bg-sidebar-accent text-sidebar-accent-foreground'
@@ -140,7 +132,7 @@ const AdminSidebar = ({ collapsed, onToggle }: AdminSidebarProps) => {
             <TooltipTrigger asChild>
               <button
                 onClick={handleLogout}
-                className="p-2 rounded-lg text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent/50 transition-colors flex-shrink-0"
+                className="p-2 rounded-lg text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent/50 transition-colors flex-shrink-0 min-h-[44px] min-w-[44px] flex items-center justify-center"
               >
                 <LogOut className="w-4 h-4" />
               </button>
