@@ -616,8 +616,8 @@ const DashboardPage = () => {
         </CardHeader>
         <CardContent>
           {sortedVisitors.length > 0 ? (
-            <div className="overflow-auto max-h-[400px]">
-              <Table>
+            <div className="overflow-x-auto max-h-[400px]">
+              <Table className="min-w-[600px]">
                 <TableHeader>
                   <TableRow>
                     <TableHead className="cursor-pointer select-none" onClick={() => toggleSort('name')}>
