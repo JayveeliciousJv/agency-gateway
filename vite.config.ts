@@ -5,7 +5,7 @@ import { componentTagger } from "lovable-tagger";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
-  base: "/Wedding-Invitation2/", // 🔴 REQUIRED FOR GITHUB PAGES
+  base: "/", // 🔴 REQUIRED FOR GITHUB PAGES
 
   server: {
     host: "::",
