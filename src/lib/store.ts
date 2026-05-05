@@ -368,4 +368,13 @@ export const useAppStore = create<AppState>()(persist((set, get) => {
     },
     logout: () => set({ currentUser: null, isAuthenticated: false }),
   };
-}, { name: 'app-store' }));
+}, {
+  name: 'app-store',
+  version: 2,
+  migrate: (persistedState: any, version: number) => {
+    if (persistedState && Array.isArray(persistedState.services) && persistedState.services.length && typeof persistedState.services[0] === 'string') {
+      persistedState.services = persistedState.services.map((s: string) => ({ name: s }));
+    }
+    return persistedState;
+  },
+}));
