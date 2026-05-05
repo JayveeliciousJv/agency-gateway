@@ -1,6 +1,34 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
+export interface ServiceItem {
+  name: string;
+  url?: string;
+  subServices?: ServiceItem[];
+}
+
+/** Flatten nested services to a flat list of leaf names (used by filters / reports). */
+export function flattenServices(items: ServiceItem[]): ServiceItem[] {
+  const out: ServiceItem[] = [];
+  for (const it of items) {
+    if (it.subServices?.length) out.push(...flattenServices(it.subServices));
+    else out.push(it);
+  }
+  return out;
+}
+
+/** Find a service by name across the tree (returns leaf or top-level). */
+export function findService(items: ServiceItem[], name: string): ServiceItem | undefined {
+  for (const it of items) {
+    if (it.name === name) return it;
+    if (it.subServices?.length) {
+      const found = findService(it.subServices, name);
+      if (found) return found;
+    }
+  }
+  return undefined;
+}
+
 export interface AgencyProfile {
   agencyName: string;
   officeName: string;
@@ -129,17 +157,25 @@ const defaultProfile: AgencyProfile = {
   surveyConsentLabel: 'I have read, understood, and agree to the collection and processing of my feedback in accordance with RA 10173.',
 };
 
-const defaultServices = [
-  'Business Permit Application',
-  'Real Property Tax Payment',
-  'Civil Registry Services',
-  'Building Permit Application',
-  'Community Tax Certificate',
-  'Health Certificate',
-  'Barangay Clearance',
-  'Police Clearance',
-  'Social Welfare Assistance',
-  'General Inquiry',
+const defaultServices: ServiceItem[] = [
+  { name: 'ICT Training' },
+  { name: 'eGOV PH Mobile App' },
+  { name: 'Diagnostic Exam' },
+  { name: 'eLGU' },
+  { name: 'Digital Signature Application via PNPKI', url: 'https://sites.google.com/dict.gov.ph/pnpki/ors' },
+  {
+    name: 'Assistance on eGOV Services',
+    subServices: [
+      { name: 'NBI Clearance Appointment Assistance', url: 'https://clearance.nbi.gov.ph/' },
+      { name: 'PSA Appointment Assistance', url: 'https://crs-appointment.psahelpline.ph/' },
+      { name: 'Passport Appointment Assistance', url: 'https://passport.gov.ph/appointment' },
+      { name: 'Virtual Pag-IBIG Assistance', url: 'https://www.pagibigfundservices.com/virtualpagibig/' },
+      { name: 'SSS Application Assistance', url: 'https://sso.sss.gov.ph/wsso/logtype?action=register' },
+      { name: 'PRC Appointment Assistance', url: 'https://online.prc.gov.ph/' },
+      { name: 'LTO Appointment Assistance', url: 'https://portal.lto.gov.ph/ords/f?p=1200:HOME::::::' },
+      { name: 'Police Clearance Assistance', url: 'https://pnpclearance.ph/' },
+    ],
+  },
 ];
 
 function generateMockVisitors(): VisitorLog[] {
@@ -172,7 +208,7 @@ function generateMockVisitors(): VisitorLog[] {
       region: regions[Math.floor(Math.random() * regions.length)],
       sectorClassification: sectorOptions[Math.floor(Math.random() * sectorOptions.length)],
       purpose: isIncomingLetter ? 'Incoming Letter' : 'Transaction',
-      service: isIncomingLetter ? 'Incoming Letter' : defaultServices[Math.floor(Math.random() * defaultServices.length)],
+      service: isIncomingLetter ? 'Incoming Letter' : flattenServices(defaultServices)[Math.floor(Math.random() * flattenServices(defaultServices).length)].name,
       ...(isIncomingLetter ? {
         letterSubject: letterSubjects[Math.floor(Math.random() * letterSubjects.length)],
         letterFrom: letterFromAgencies[Math.floor(Math.random() * letterFromAgencies.length)],
@@ -211,7 +247,7 @@ function generateMockSurveys(visitors: VisitorLog[]): SurveyResponse[] {
 
 interface AppState {
   profile: AgencyProfile;
-  services: string[];
+  services: ServiceItem[];
   purposes: string[];
   surveyParameters: string[];
   visitors: VisitorLog[];
@@ -231,9 +267,9 @@ interface AppState {
   addPurpose: (p: string) => void;
   updatePurpose: (oldP: string, newP: string) => void;
   deletePurpose: (p: string) => void;
-  addService: (s: string) => void;
-  updateService: (oldS: string, newS: string) => void;
-  deleteService: (s: string) => void;
+  addService: (s: ServiceItem) => void;
+  updateService: (oldName: string, updated: ServiceItem) => void;
+  deleteService: (name: string) => void;
   addSurveyParameter: (p: string) => void;
   updateSurveyParameter: (oldP: string, newP: string) => void;
   deleteSurveyParameter: (p: string) => void;
@@ -305,8 +341,8 @@ export const useAppStore = create<AppState>()(persist((set, get) => {
     updatePurpose: (oldP, newP) => set((s) => ({ purposes: s.purposes.map((x) => (x === oldP ? newP : x)) })),
     deletePurpose: (p) => set((s) => ({ purposes: s.purposes.filter((x) => x !== p) })),
     addService: (sv) => set((s) => ({ services: [...s.services, sv] })),
-    updateService: (oldS, newS) => set((s) => ({ services: s.services.map((x) => (x === oldS ? newS : x)) })),
-    deleteService: (sv) => set((s) => ({ services: s.services.filter((x) => x !== sv) })),
+    updateService: (oldName, updated) => set((s) => ({ services: s.services.map((x) => (x.name === oldName ? updated : x)) })),
+    deleteService: (name) => set((s) => ({ services: s.services.filter((x) => x.name !== name) })),
     addSurveyParameter: (p) => set((s) => ({ surveyParameters: [...s.surveyParameters, p] })),
     updateSurveyParameter: (oldP, newP) => set((s) => ({ surveyParameters: s.surveyParameters.map((x) => (x === oldP ? newP : x)) })),
     deleteSurveyParameter: (p) => set((s) => ({ surveyParameters: s.surveyParameters.filter((x) => x !== p) })),
@@ -332,4 +368,13 @@ export const useAppStore = create<AppState>()(persist((set, get) => {
     },
     logout: () => set({ currentUser: null, isAuthenticated: false }),
   };
-}, { name: 'app-store' }));
+}, {
+  name: 'app-store',
+  version: 2,
+  migrate: (persistedState: any, version: number) => {
+    if (persistedState && Array.isArray(persistedState.services) && persistedState.services.length && typeof persistedState.services[0] === 'string') {
+      persistedState.services = persistedState.services.map((s: string) => ({ name: s }));
+    }
+    return persistedState;
+  },
+}));

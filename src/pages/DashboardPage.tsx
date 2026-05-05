@@ -306,7 +306,7 @@ const DashboardPage = () => {
                       <SelectTrigger className="w-full h-9 sm:h-8 text-xs"><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="all">All Services</SelectItem>
-                        {services.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                        {services.flatMap((s) => s.subServices?.length ? s.subServices : [s]).map((s) => <SelectItem key={s.name} value={s.name}>{s.name}</SelectItem>)}
                       </SelectContent>
                     </Select>
                   </div>
