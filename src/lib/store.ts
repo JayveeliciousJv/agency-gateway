@@ -208,7 +208,7 @@ function generateMockVisitors(): VisitorLog[] {
       region: regions[Math.floor(Math.random() * regions.length)],
       sectorClassification: sectorOptions[Math.floor(Math.random() * sectorOptions.length)],
       purpose: isIncomingLetter ? 'Incoming Letter' : 'Transaction',
-      service: isIncomingLetter ? 'Incoming Letter' : defaultServices[Math.floor(Math.random() * defaultServices.length)],
+      service: isIncomingLetter ? 'Incoming Letter' : flattenServices(defaultServices)[Math.floor(Math.random() * flattenServices(defaultServices).length)].name,
       ...(isIncomingLetter ? {
         letterSubject: letterSubjects[Math.floor(Math.random() * letterSubjects.length)],
         letterFrom: letterFromAgencies[Math.floor(Math.random() * letterFromAgencies.length)],
@@ -247,7 +247,7 @@ function generateMockSurveys(visitors: VisitorLog[]): SurveyResponse[] {
 
 interface AppState {
   profile: AgencyProfile;
-  services: string[];
+  services: ServiceItem[];
   purposes: string[];
   surveyParameters: string[];
   visitors: VisitorLog[];
@@ -267,9 +267,9 @@ interface AppState {
   addPurpose: (p: string) => void;
   updatePurpose: (oldP: string, newP: string) => void;
   deletePurpose: (p: string) => void;
-  addService: (s: string) => void;
-  updateService: (oldS: string, newS: string) => void;
-  deleteService: (s: string) => void;
+  addService: (s: ServiceItem) => void;
+  updateService: (oldName: string, updated: ServiceItem) => void;
+  deleteService: (name: string) => void;
   addSurveyParameter: (p: string) => void;
   updateSurveyParameter: (oldP: string, newP: string) => void;
   deleteSurveyParameter: (p: string) => void;
@@ -341,8 +341,8 @@ export const useAppStore = create<AppState>()(persist((set, get) => {
     updatePurpose: (oldP, newP) => set((s) => ({ purposes: s.purposes.map((x) => (x === oldP ? newP : x)) })),
     deletePurpose: (p) => set((s) => ({ purposes: s.purposes.filter((x) => x !== p) })),
     addService: (sv) => set((s) => ({ services: [...s.services, sv] })),
-    updateService: (oldS, newS) => set((s) => ({ services: s.services.map((x) => (x === oldS ? newS : x)) })),
-    deleteService: (sv) => set((s) => ({ services: s.services.filter((x) => x !== sv) })),
+    updateService: (oldName, updated) => set((s) => ({ services: s.services.map((x) => (x.name === oldName ? updated : x)) })),
+    deleteService: (name) => set((s) => ({ services: s.services.filter((x) => x.name !== name) })),
     addSurveyParameter: (p) => set((s) => ({ surveyParameters: [...s.surveyParameters, p] })),
     updateSurveyParameter: (oldP, newP) => set((s) => ({ surveyParameters: s.surveyParameters.map((x) => (x === oldP ? newP : x)) })),
     deleteSurveyParameter: (p) => set((s) => ({ surveyParameters: s.surveyParameters.filter((x) => x !== p) })),
