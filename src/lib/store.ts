@@ -1,6 +1,34 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
+export interface ServiceItem {
+  name: string;
+  url?: string;
+  subServices?: ServiceItem[];
+}
+
+/** Flatten nested services to a flat list of leaf names (used by filters / reports). */
+export function flattenServices(items: ServiceItem[]): ServiceItem[] {
+  const out: ServiceItem[] = [];
+  for (const it of items) {
+    if (it.subServices?.length) out.push(...flattenServices(it.subServices));
+    else out.push(it);
+  }
+  return out;
+}
+
+/** Find a service by name across the tree (returns leaf or top-level). */
+export function findService(items: ServiceItem[], name: string): ServiceItem | undefined {
+  for (const it of items) {
+    if (it.name === name) return it;
+    if (it.subServices?.length) {
+      const found = findService(it.subServices, name);
+      if (found) return found;
+    }
+  }
+  return undefined;
+}
+
 export interface AgencyProfile {
   agencyName: string;
   officeName: string;
@@ -129,17 +157,25 @@ const defaultProfile: AgencyProfile = {
   surveyConsentLabel: 'I have read, understood, and agree to the collection and processing of my feedback in accordance with RA 10173.',
 };
 
-const defaultServices = [
-  'Business Permit Application',
-  'Real Property Tax Payment',
-  'Civil Registry Services',
-  'Building Permit Application',
-  'Community Tax Certificate',
-  'Health Certificate',
-  'Barangay Clearance',
-  'Police Clearance',
-  'Social Welfare Assistance',
-  'General Inquiry',
+const defaultServices: ServiceItem[] = [
+  { name: 'ICT Training' },
+  { name: 'eGOV PH Mobile App' },
+  { name: 'Diagnostic Exam' },
+  { name: 'eLGU' },
+  { name: 'Digital Signature Application via PNPKI', url: 'https://sites.google.com/dict.gov.ph/pnpki/ors' },
+  {
+    name: 'Assistance on eGOV Services',
+    subServices: [
+      { name: 'NBI Clearance Appointment Assistance', url: 'https://clearance.nbi.gov.ph/' },
+      { name: 'PSA Appointment Assistance', url: 'https://crs-appointment.psahelpline.ph/' },
+      { name: 'Passport Appointment Assistance', url: 'https://passport.gov.ph/appointment' },
+      { name: 'Virtual Pag-IBIG Assistance', url: 'https://www.pagibigfundservices.com/virtualpagibig/' },
+      { name: 'SSS Application Assistance', url: 'https://sso.sss.gov.ph/wsso/logtype?action=register' },
+      { name: 'PRC Appointment Assistance', url: 'https://online.prc.gov.ph/' },
+      { name: 'LTO Appointment Assistance', url: 'https://portal.lto.gov.ph/ords/f?p=1200:HOME::::::' },
+      { name: 'Police Clearance Assistance', url: 'https://pnpclearance.ph/' },
+    ],
+  },
 ];
 
 function generateMockVisitors(): VisitorLog[] {
