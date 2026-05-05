@@ -1,12 +1,13 @@
 import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAppStore } from '@/lib/store';
+import { useAppStore, findService } from '@/lib/store';
 import KioskProgress from '@/components/kiosk/KioskProgress';
 import StepWelcome from '@/components/kiosk/StepWelcome';
 import StepForm, { type VisitorFormData } from '@/components/kiosk/StepForm';
 import StepCamera from '@/components/kiosk/StepCamera';
 import StepReview from '@/components/kiosk/StepReview';
 import StepSuccess from '@/components/kiosk/StepSuccess';
+import { toast } from 'sonner';
 
 const STEPS = ['Welcome', 'Details', 'Photo', 'Confirm', 'Done'];
 
@@ -27,6 +28,7 @@ const KioskRegisterPage = () => {
     sectorOtherSpecify: '',
     purpose: 'Transaction',
     service: '',
+    subService: '',
     letterSubject: '',
     letterFrom: '',
     letterProject: '',
@@ -35,12 +37,24 @@ const KioskRegisterPage = () => {
 
   const [photo, setPhoto] = useState('');
 
+  const services = useAppStore((s) => s.services);
+
   const handleSubmit = useCallback(() => {
     setIsSubmitting(true);
-    // Simulate brief loading
     setTimeout(() => {
       const now = new Date();
       const isIncomingLetter = form.purpose === 'Incoming Letter';
+
+      const parent = form.service ? findService(services, form.service) : undefined;
+      const sub = form.subService && parent?.subServices?.length
+        ? findService(parent.subServices, form.subService)
+        : undefined;
+      const finalService = sub || parent;
+      const finalServiceName = isIncomingLetter
+        ? 'Incoming Letter'
+        : (finalService?.name || form.service);
+      const redirectUrl = !isIncomingLetter ? finalService?.url : undefined;
+
       const visitor = {
         id: `v${Date.now()}`,
         name: form.name,
@@ -49,7 +63,7 @@ const KioskRegisterPage = () => {
           ? `Others - ${form.sectorOtherSpecify.trim()}`
           : form.sectorClassification,
         purpose: form.purpose,
-        service: isIncomingLetter ? 'Incoming Letter' : form.service,
+        service: finalServiceName,
         ...(isIncomingLetter && {
           letterSubject: form.letterSubject.trim(),
           letterFrom: form.letterFrom.trim(),
@@ -69,8 +83,13 @@ const KioskRegisterPage = () => {
       addVisitor(visitor);
       setIsSubmitting(false);
       setStep(5);
+
+      if (redirectUrl) {
+        toast.success('Opening related service in a new tab...');
+        window.open(redirectUrl, '_blank', 'noopener,noreferrer');
+      }
     }, 1200);
-  }, [form, photo, currentUser, addVisitor]);
+  }, [form, photo, currentUser, addVisitor, services]);
 
   const goHome = useCallback(() => navigate('/'), [navigate]);
 
