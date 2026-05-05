@@ -128,8 +128,8 @@ const KioskSurveyPage = () => {
                   <SelectValue placeholder="Select the service you availed" />
                 </SelectTrigger>
                 <SelectContent>
-                  {services.map((s) => (
-                    <SelectItem key={s} value={s}>{s}</SelectItem>
+                  {services.flatMap((s) => s.subServices?.length ? s.subServices : [s]).map((s) => (
+                    <SelectItem key={s.name} value={s.name}>{s.name}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
