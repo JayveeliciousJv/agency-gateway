@@ -4,8 +4,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Mail, ArrowRight, ArrowLeft } from 'lucide-react';
-import { useAppStore } from '@/lib/store';
+import { Mail, ArrowRight, ArrowLeft, ExternalLink } from 'lucide-react';
+import { useAppStore, findService } from '@/lib/store';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 export interface VisitorFormData {
   name: string;
@@ -16,6 +17,7 @@ export interface VisitorFormData {
   sectorOtherSpecify: string;
   purpose: string;
   service: string;
+  subService: string;
   letterSubject: string;
   letterFrom: string;
   letterProject: string;
@@ -42,12 +44,14 @@ const StepForm = ({ form, setForm, onNext, onBack }: StepFormProps) => {
   const purposes = useAppStore((s) => s.purposes);
 
   const isIncomingLetter = form.purpose === 'Incoming Letter';
+  const parentService = form.service ? findService(services, form.service) : undefined;
+  const hasSubServices = !!parentService?.subServices?.length;
 
   const isValid = form.name && form.sex && form.sectorClassification &&
     (form.sectorClassification !== 'Others' || form.sectorOtherSpecify.trim()) &&
     (isIncomingLetter
       ? (form.letterSubject.trim() && form.letterFrom.trim() && form.letterProject && (form.letterProject !== 'Other' || form.letterProjectOther.trim()))
-      : form.service);
+      : (!!form.service && (!hasSubServices || !!form.subService)));
 
   return (
     <div className="animate-fade-in">
@@ -97,7 +101,7 @@ const StepForm = ({ form, setForm, onNext, onBack }: StepFormProps) => {
           {/* Purpose */}
           <div className="space-y-2">
             <Label htmlFor="purpose">Purpose of Visit *</Label>
-            <Select value={form.purpose} onValueChange={(v) => setForm({ ...form, purpose: v, service: '', letterSubject: '', letterFrom: '', letterProject: '', letterProjectOther: '' })}>
+            <Select value={form.purpose} onValueChange={(v) => setForm({ ...form, purpose: v, service: '', subService: '', letterSubject: '', letterFrom: '', letterProject: '', letterProjectOther: '' })}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
                 {purposes.map((p) => (<SelectItem key={p} value={p}>{p}</SelectItem>))}
@@ -133,14 +137,52 @@ const StepForm = ({ form, setForm, onNext, onBack }: StepFormProps) => {
               </div>
             </div>
           ) : (
-            <div className="space-y-2">
-              <Label htmlFor="service">Service Availed *</Label>
-              <Select value={form.service} onValueChange={(v) => setForm({ ...form, service: v })}>
-                <SelectTrigger><SelectValue placeholder="Select a service" /></SelectTrigger>
-                <SelectContent>
-                  {services.map((s) => (<SelectItem key={s} value={s}>{s}</SelectItem>))}
-                </SelectContent>
-              </Select>
+            <div className="space-y-3">
+              <div className="space-y-2">
+                <Label htmlFor="service" className="flex items-center gap-1.5">
+                  Service Availed *
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span className="text-muted-foreground cursor-help text-xs">ⓘ</span>
+                      </TooltipTrigger>
+                      <TooltipContent>Services with 🔗 will redirect you after submission.</TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </Label>
+                <Select value={form.service} onValueChange={(v) => setForm({ ...form, service: v, subService: '' })}>
+                  <SelectTrigger><SelectValue placeholder="Select a service" /></SelectTrigger>
+                  <SelectContent>
+                    {services.map((s) => (
+                      <SelectItem key={s.name} value={s.name}>
+                        <span className="flex items-center gap-1.5">
+                          {s.name}
+                          {(s.url || s.subServices?.length) && <ExternalLink className="w-3 h-3 text-muted-foreground" />}
+                        </span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {hasSubServices && (
+                <div className="space-y-2 pl-3 border-l-2 border-primary/30">
+                  <Label htmlFor="subService">Select Specific Assistance *</Label>
+                  <Select value={form.subService} onValueChange={(v) => setForm({ ...form, subService: v })}>
+                    <SelectTrigger><SelectValue placeholder="Select sub-service" /></SelectTrigger>
+                    <SelectContent>
+                      {parentService!.subServices!.map((s) => (
+                        <SelectItem key={s.name} value={s.name}>
+                          <span className="flex items-center gap-1.5">
+                            {s.name}
+                            {s.url && <ExternalLink className="w-3 h-3 text-muted-foreground" />}
+                          </span>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
             </div>
           )}
         </div>
