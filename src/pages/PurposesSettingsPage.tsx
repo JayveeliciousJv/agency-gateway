@@ -255,17 +255,23 @@ const PurposesSettingsPage = () => {
                   <Input id="svcName" value={svcName} onChange={(e) => setSvcName(e.target.value)} placeholder="e.g. PSA Appointment Assistance" />
                 </div>
                 <div className="space-y-2">
-                  <Label>Does this service have a related link?</Label>
-                  <RadioGroup value={svcHasLink} onValueChange={(v) => setSvcHasLink(v as 'yes' | 'no')} className="flex gap-4">
-                    <div className="flex items-center gap-2"><RadioGroupItem value="yes" id="link-yes" /><Label htmlFor="link-yes" className="font-normal">Yes</Label></div>
-                    <div className="flex items-center gap-2"><RadioGroupItem value="no" id="link-no" /><Label htmlFor="link-no" className="font-normal">No</Label></div>
+                  <Label>Service Type</Label>
+                  <RadioGroup value={svcType} onValueChange={(v) => setSvcType(v as 'none' | 'link' | 'sub')} className="flex flex-col gap-2">
+                    <div className="flex items-center gap-2"><RadioGroupItem value="none" id="t-none" /><Label htmlFor="t-none" className="font-normal">Standalone (no link, no sub-services)</Label></div>
+                    <div className="flex items-center gap-2"><RadioGroupItem value="link" id="t-link" /><Label htmlFor="t-link" className="font-normal">Has a related link (auto-opens after submission)</Label></div>
+                    {!parentSvc && (
+                      <div className="flex items-center gap-2"><RadioGroupItem value="sub" id="t-sub" /><Label htmlFor="t-sub" className="font-normal">Has sub-services (shows nested dropdown)</Label></div>
+                    )}
                   </RadioGroup>
                 </div>
-                {svcHasLink === 'yes' && (
+                {svcType === 'link' && (
                   <div className="space-y-2">
                     <Label htmlFor="svcUrl">Service URL *</Label>
                     <Input id="svcUrl" value={svcUrl} onChange={(e) => setSvcUrl(e.target.value)} placeholder="https://..." type="url" />
                   </div>
+                )}
+                {svcType === 'sub' && !parentSvc && (
+                  <p className="text-xs text-muted-foreground">After saving, use the <strong>+ Sub</strong> button on this service to add its sub-services.</p>
                 )}
               </div>
               <DialogFooter>
