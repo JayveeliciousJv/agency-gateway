@@ -81,25 +81,26 @@ const PurposesSettingsPage = () => {
   const openAddServiceDialog = (parent: ServiceItem | null = null) => {
     setEditingSvc(null);
     setParentSvc(parent);
-    setSvcName(''); setSvcHasLink('no'); setSvcUrl('');
+    setSvcName(''); setSvcType('none'); setSvcUrl('');
     setSvcDialogOpen(true);
   };
   const openEditServiceDialog = (svc: ServiceItem, parent: ServiceItem | null = null) => {
     setEditingSvc(svc);
     setParentSvc(parent);
     setSvcName(svc.name);
-    setSvcHasLink(svc.url ? 'yes' : 'no');
+    setSvcType(svc.subServices ? 'sub' : svc.url ? 'link' : 'none');
     setSvcUrl(svc.url || '');
     setSvcDialogOpen(true);
   };
   const handleSaveService = () => {
     const name = svcName.trim();
     if (!name) { toast.error('Service name required.'); return; }
-    const url = svcHasLink === 'yes' ? svcUrl.trim() : undefined;
-    if (svcHasLink === 'yes' && !url) { toast.error('URL is required when link is enabled.'); return; }
+    // Sub-services themselves can only have a link (not nested further)
+    const effectiveType = parentSvc && svcType === 'sub' ? 'none' : svcType;
+    const url = effectiveType === 'link' ? svcUrl.trim() : undefined;
+    if (effectiveType === 'link' && !url) { toast.error('URL is required when link is enabled.'); return; }
 
     if (parentSvc) {
-      // Adding/editing sub-service inside parent
       const subs = parentSvc.subServices || [];
       const exists = subs.some((s) => s.name === name && (!editingSvc || editingSvc.name !== name));
       if (exists) { toast.error('Sub-service already exists.'); return; }
@@ -111,12 +112,21 @@ const PurposesSettingsPage = () => {
     } else if (editingSvc) {
       const exists = services.some((s) => s.name === name && s.name !== editingSvc.name);
       if (exists) { toast.error('Service already exists.'); return; }
-      updateService(editingSvc.name, { ...editingSvc, name, url });
-      audit('Service Updated', `${editingSvc.name} → ${name}${url ? ` (${url})` : ''}`);
+      const next: ServiceItem = { ...editingSvc, name, url };
+      if (effectiveType === 'sub') {
+        next.url = undefined;
+        next.subServices = editingSvc.subServices && editingSvc.subServices.length > 0 ? editingSvc.subServices : [];
+      } else {
+        delete (next as any).subServices;
+      }
+      updateService(editingSvc.name, next);
+      audit('Service Updated', `${editingSvc.name} → ${name}${url ? ` (${url})` : ''}${effectiveType === 'sub' ? ' [has sub-services]' : ''}`);
     } else {
       if (services.some((s) => s.name === name)) { toast.error('Service already exists.'); return; }
-      addService({ name, url });
-      audit('Service Added', `${name}${url ? ` (${url})` : ''}`);
+      const newSvc: ServiceItem = { name, url };
+      if (effectiveType === 'sub') { newSvc.url = undefined; newSvc.subServices = []; }
+      addService(newSvc);
+      audit('Service Added', `${name}${url ? ` (${url})` : ''}${effectiveType === 'sub' ? ' [with sub-services]' : ''}`);
     }
     toast.success('Saved.');
     setSvcDialogOpen(false);
