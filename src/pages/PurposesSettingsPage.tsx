@@ -41,7 +41,7 @@ const PurposesSettingsPage = () => {
   const [editingSvc, setEditingSvc] = useState<ServiceItem | null>(null);
   const [parentSvc, setParentSvc] = useState<ServiceItem | null>(null); // when adding sub-service
   const [svcName, setSvcName] = useState('');
-  const [svcHasLink, setSvcHasLink] = useState<'yes' | 'no'>('no');
+  const [svcType, setSvcType] = useState<'none' | 'link' | 'sub'>('none');
   const [svcUrl, setSvcUrl] = useState('');
 
   const audit = (action: string, details: string) =>
