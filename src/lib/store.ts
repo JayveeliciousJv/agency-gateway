@@ -370,11 +370,15 @@ export const useAppStore = create<AppState>()(persist((set, get) => {
   };
 }, {
   name: 'app-store',
-  version: 3,
+  version: 4,
   migrate: (persistedState: any, version: number) => {
     if (persistedState) {
-      // v3: force-replace services with the new official list
+      // v3: replace services with the new official list
       persistedState.services = defaultServices;
+      // v4: regenerate mock visitors/surveys so test data uses the new services
+      const freshVisitors = generateMockVisitors();
+      persistedState.visitors = freshVisitors;
+      persistedState.surveys = generateMockSurveys(freshVisitors);
     }
     return persistedState;
   },
