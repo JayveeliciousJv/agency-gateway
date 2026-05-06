@@ -41,7 +41,7 @@ const PurposesSettingsPage = () => {
   const [editingSvc, setEditingSvc] = useState<ServiceItem | null>(null);
   const [parentSvc, setParentSvc] = useState<ServiceItem | null>(null); // when adding sub-service
   const [svcName, setSvcName] = useState('');
-  const [svcHasLink, setSvcHasLink] = useState<'yes' | 'no'>('no');
+  const [svcType, setSvcType] = useState<'none' | 'link' | 'sub'>('none');
   const [svcUrl, setSvcUrl] = useState('');
 
   const audit = (action: string, details: string) =>
@@ -81,25 +81,26 @@ const PurposesSettingsPage = () => {
   const openAddServiceDialog = (parent: ServiceItem | null = null) => {
     setEditingSvc(null);
     setParentSvc(parent);
-    setSvcName(''); setSvcHasLink('no'); setSvcUrl('');
+    setSvcName(''); setSvcType('none'); setSvcUrl('');
     setSvcDialogOpen(true);
   };
   const openEditServiceDialog = (svc: ServiceItem, parent: ServiceItem | null = null) => {
     setEditingSvc(svc);
     setParentSvc(parent);
     setSvcName(svc.name);
-    setSvcHasLink(svc.url ? 'yes' : 'no');
+    setSvcType(svc.subServices ? 'sub' : svc.url ? 'link' : 'none');
     setSvcUrl(svc.url || '');
     setSvcDialogOpen(true);
   };
   const handleSaveService = () => {
     const name = svcName.trim();
     if (!name) { toast.error('Service name required.'); return; }
-    const url = svcHasLink === 'yes' ? svcUrl.trim() : undefined;
-    if (svcHasLink === 'yes' && !url) { toast.error('URL is required when link is enabled.'); return; }
+    // Sub-services themselves can only have a link (not nested further)
+    const effectiveType = parentSvc && svcType === 'sub' ? 'none' : svcType;
+    const url = effectiveType === 'link' ? svcUrl.trim() : undefined;
+    if (effectiveType === 'link' && !url) { toast.error('URL is required when link is enabled.'); return; }
 
     if (parentSvc) {
-      // Adding/editing sub-service inside parent
       const subs = parentSvc.subServices || [];
       const exists = subs.some((s) => s.name === name && (!editingSvc || editingSvc.name !== name));
       if (exists) { toast.error('Sub-service already exists.'); return; }
@@ -111,12 +112,21 @@ const PurposesSettingsPage = () => {
     } else if (editingSvc) {
       const exists = services.some((s) => s.name === name && s.name !== editingSvc.name);
       if (exists) { toast.error('Service already exists.'); return; }
-      updateService(editingSvc.name, { ...editingSvc, name, url });
-      audit('Service Updated', `${editingSvc.name} → ${name}${url ? ` (${url})` : ''}`);
+      const next: ServiceItem = { ...editingSvc, name, url };
+      if (effectiveType === 'sub') {
+        next.url = undefined;
+        next.subServices = editingSvc.subServices && editingSvc.subServices.length > 0 ? editingSvc.subServices : [];
+      } else {
+        delete (next as any).subServices;
+      }
+      updateService(editingSvc.name, next);
+      audit('Service Updated', `${editingSvc.name} → ${name}${url ? ` (${url})` : ''}${effectiveType === 'sub' ? ' [has sub-services]' : ''}`);
     } else {
       if (services.some((s) => s.name === name)) { toast.error('Service already exists.'); return; }
-      addService({ name, url });
-      audit('Service Added', `${name}${url ? ` (${url})` : ''}`);
+      const newSvc: ServiceItem = { name, url };
+      if (effectiveType === 'sub') { newSvc.url = undefined; newSvc.subServices = []; }
+      addService(newSvc);
+      audit('Service Added', `${name}${url ? ` (${url})` : ''}${effectiveType === 'sub' ? ' [with sub-services]' : ''}`);
     }
     toast.success('Saved.');
     setSvcDialogOpen(false);
@@ -245,17 +255,23 @@ const PurposesSettingsPage = () => {
                   <Input id="svcName" value={svcName} onChange={(e) => setSvcName(e.target.value)} placeholder="e.g. PSA Appointment Assistance" />
                 </div>
                 <div className="space-y-2">
-                  <Label>Does this service have a related link?</Label>
-                  <RadioGroup value={svcHasLink} onValueChange={(v) => setSvcHasLink(v as 'yes' | 'no')} className="flex gap-4">
-                    <div className="flex items-center gap-2"><RadioGroupItem value="yes" id="link-yes" /><Label htmlFor="link-yes" className="font-normal">Yes</Label></div>
-                    <div className="flex items-center gap-2"><RadioGroupItem value="no" id="link-no" /><Label htmlFor="link-no" className="font-normal">No</Label></div>
+                  <Label>Service Type</Label>
+                  <RadioGroup value={svcType} onValueChange={(v) => setSvcType(v as 'none' | 'link' | 'sub')} className="flex flex-col gap-2">
+                    <div className="flex items-center gap-2"><RadioGroupItem value="none" id="t-none" /><Label htmlFor="t-none" className="font-normal">Standalone (no link, no sub-services)</Label></div>
+                    <div className="flex items-center gap-2"><RadioGroupItem value="link" id="t-link" /><Label htmlFor="t-link" className="font-normal">Has a related link (auto-opens after submission)</Label></div>
+                    {!parentSvc && (
+                      <div className="flex items-center gap-2"><RadioGroupItem value="sub" id="t-sub" /><Label htmlFor="t-sub" className="font-normal">Has sub-services (shows nested dropdown)</Label></div>
+                    )}
                   </RadioGroup>
                 </div>
-                {svcHasLink === 'yes' && (
+                {svcType === 'link' && (
                   <div className="space-y-2">
                     <Label htmlFor="svcUrl">Service URL *</Label>
                     <Input id="svcUrl" value={svcUrl} onChange={(e) => setSvcUrl(e.target.value)} placeholder="https://..." type="url" />
                   </div>
+                )}
+                {svcType === 'sub' && !parentSvc && (
+                  <p className="text-xs text-muted-foreground">After saving, use the <strong>+ Sub</strong> button on this service to add its sub-services.</p>
                 )}
               </div>
               <DialogFooter>
