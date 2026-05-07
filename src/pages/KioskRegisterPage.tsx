@@ -48,14 +48,17 @@ const KioskRegisterPage = () => {
       const now = new Date();
       const isIncomingLetter = form.purpose === 'Incoming Letter';
 
-      const parent = form.service ? findService(services, form.service) : undefined;
+      const isOtherService = form.service === 'Other';
+      const parent = form.service && !isOtherService ? findService(services, form.service) : undefined;
       const sub = form.subService && parent?.subServices?.length
         ? findService(parent.subServices, form.subService)
         : undefined;
       const finalService = sub || parent;
       const finalServiceName = isIncomingLetter
         ? 'Incoming Letter'
-        : (finalService?.name || form.service);
+        : isOtherService
+          ? `Other - ${form.serviceOtherSpecify.trim()}`
+          : (finalService?.name || form.service);
       const redirectUrl = !isIncomingLetter ? finalService?.url : undefined;
 
       const visitor = {
