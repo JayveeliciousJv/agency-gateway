@@ -263,7 +263,9 @@ interface AppState {
   profile: AgencyProfile;
   services: ServiceItem[];
   purposes: string[];
+  archivedPurposes: string[];
   surveyParameters: string[];
+  archivedSurveyParameters: string[];
   visitors: VisitorLog[];
   surveys: SurveyResponse[];
   auditLogs: AuditEntry[];
@@ -281,12 +283,17 @@ interface AppState {
   addPurpose: (p: string) => void;
   updatePurpose: (oldP: string, newP: string) => void;
   deletePurpose: (p: string) => void;
+  archivePurpose: (p: string) => void;
+  restorePurpose: (p: string) => void;
   addService: (s: ServiceItem) => void;
   updateService: (oldName: string, updated: ServiceItem) => void;
   deleteService: (name: string) => void;
+  setServiceActive: (name: string, isActive: boolean, parentName?: string) => void;
   addSurveyParameter: (p: string) => void;
   updateSurveyParameter: (oldP: string, newP: string) => void;
   deleteSurveyParameter: (p: string) => void;
+  archiveSurveyParameter: (p: string) => void;
+  restoreSurveyParameter: (p: string) => void;
   users: User[];
   addUser: (u: User) => void;
   updateUser: (id: string, updates: Partial<Pick<User, 'fullName'>>) => void;
