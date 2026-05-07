@@ -332,7 +332,9 @@ export const useAppStore = create<AppState>()(persist((set, get) => {
     profile: defaultProfile,
     services: defaultServices,
     purposes: defaultPurposes,
+    archivedPurposes: [],
     surveyParameters: defaultSurveyParameters,
+    archivedSurveyParameters: [],
     users: defaultUsers,
     userPasswords: defaultPasswords,
     visitors,
@@ -360,13 +362,49 @@ export const useAppStore = create<AppState>()(persist((set, get) => {
       })),
     addPurpose: (p) => set((s) => ({ purposes: [...s.purposes, p] })),
     updatePurpose: (oldP, newP) => set((s) => ({ purposes: s.purposes.map((x) => (x === oldP ? newP : x)) })),
-    deletePurpose: (p) => set((s) => ({ purposes: s.purposes.filter((x) => x !== p) })),
-    addService: (sv) => set((s) => ({ services: [...s.services, sv] })),
+    deletePurpose: (p) => set((s) => ({
+      purposes: s.purposes.filter((x) => x !== p),
+      archivedPurposes: s.archivedPurposes.filter((x) => x !== p),
+    })),
+    archivePurpose: (p) => set((s) => ({
+      purposes: s.purposes.filter((x) => x !== p),
+      archivedPurposes: s.archivedPurposes.includes(p) ? s.archivedPurposes : [...s.archivedPurposes, p],
+    })),
+    restorePurpose: (p) => set((s) => ({
+      archivedPurposes: s.archivedPurposes.filter((x) => x !== p),
+      purposes: s.purposes.includes(p) ? s.purposes : [...s.purposes, p],
+    })),
+    addService: (sv) => set((s) => ({ services: [...s.services, { isActive: true, ...sv }] })),
     updateService: (oldName, updated) => set((s) => ({ services: s.services.map((x) => (x.name === oldName ? updated : x)) })),
     deleteService: (name) => set((s) => ({ services: s.services.filter((x) => x.name !== name) })),
+    setServiceActive: (name, isActive, parentName) => set((s) => ({
+      services: s.services.map((svc) => {
+        if (parentName) {
+          if (svc.name !== parentName) return svc;
+          return {
+            ...svc,
+            subServices: (svc.subServices || []).map((sub) =>
+              sub.name === name ? { ...sub, isActive } : sub,
+            ),
+          };
+        }
+        return svc.name === name ? { ...svc, isActive } : svc;
+      }),
+    })),
     addSurveyParameter: (p) => set((s) => ({ surveyParameters: [...s.surveyParameters, p] })),
     updateSurveyParameter: (oldP, newP) => set((s) => ({ surveyParameters: s.surveyParameters.map((x) => (x === oldP ? newP : x)) })),
-    deleteSurveyParameter: (p) => set((s) => ({ surveyParameters: s.surveyParameters.filter((x) => x !== p) })),
+    deleteSurveyParameter: (p) => set((s) => ({
+      surveyParameters: s.surveyParameters.filter((x) => x !== p),
+      archivedSurveyParameters: s.archivedSurveyParameters.filter((x) => x !== p),
+    })),
+    archiveSurveyParameter: (p) => set((s) => ({
+      surveyParameters: s.surveyParameters.filter((x) => x !== p),
+      archivedSurveyParameters: s.archivedSurveyParameters.includes(p) ? s.archivedSurveyParameters : [...s.archivedSurveyParameters, p],
+    })),
+    restoreSurveyParameter: (p) => set((s) => ({
+      archivedSurveyParameters: s.archivedSurveyParameters.filter((x) => x !== p),
+      surveyParameters: s.surveyParameters.includes(p) ? s.surveyParameters : [...s.surveyParameters, p],
+    })),
     addUser: (u) => set((s) => ({
       users: [...s.users, u],
       userPasswords: { ...s.userPasswords, [u.username]: `${u.username}123` },
