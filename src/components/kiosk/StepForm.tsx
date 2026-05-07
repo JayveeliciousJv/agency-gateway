@@ -177,7 +177,7 @@ const StepForm = ({ form, setForm, onNext, onBack }: StepFormProps) => {
                     </Tooltip>
                   </TooltipProvider>
                 </Label>
-                <Select value={form.service} onValueChange={(v) => setForm({ ...form, service: v, subService: '' })}>
+                <Select value={form.service} onValueChange={(v) => setForm({ ...form, service: v, subService: '', serviceOtherSpecify: v === 'Other' ? form.serviceOtherSpecify : '' })}>
                   <SelectTrigger><SelectValue placeholder="Select a service" /></SelectTrigger>
                   <SelectContent>
                     {services.map((s) => (
@@ -188,8 +188,17 @@ const StepForm = ({ form, setForm, onNext, onBack }: StepFormProps) => {
                         </span>
                       </SelectItem>
                     ))}
+                    <SelectItem value="Other">Other (please specify)</SelectItem>
                   </SelectContent>
                 </Select>
+                {isOtherService && (
+                  <Input
+                    placeholder="Please specify the service..."
+                    value={form.serviceOtherSpecify}
+                    onChange={(e) => setForm({ ...form, serviceOtherSpecify: e.target.value })}
+                    className="mt-2"
+                  />
+                )}
               </div>
 
               {hasSubServices && (
