@@ -8,6 +8,8 @@ import { Mail, ArrowRight, ArrowLeft, ExternalLink } from 'lucide-react';
 import { useAppStore, findService } from '@/lib/store';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
+export type OrganizationType = 'LGU' | 'NGA' | 'SUC' | 'Other' | '';
+
 export interface VisitorFormData {
   name: string;
   contactNumber: string;
@@ -15,6 +17,8 @@ export interface VisitorFormData {
   sex: 'Male' | 'Female' | 'Prefer not to say' | '';
   sectorClassification: string;
   sectorOtherSpecify: string;
+  organizationType: OrganizationType;
+  organizationOtherSpecify: string;
   purpose: string;
   service: string;
   subService: string;
