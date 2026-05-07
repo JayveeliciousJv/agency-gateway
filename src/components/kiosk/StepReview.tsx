@@ -34,6 +34,7 @@ const StepReview = ({ form, photo, onSubmit, onBack, isSubmitting }: StepReviewP
     { label: 'Name', value: form.name },
     { label: 'Sex', value: form.sex },
     { label: 'Sector', value: form.sectorClassification === 'Others' ? `Others - ${form.sectorOtherSpecify}` : form.sectorClassification },
+    { label: 'Org Type', value: form.organizationType === 'Other' ? `Other - ${form.organizationOtherSpecify}` : (form.organizationType || '—') },
     { label: 'Contact', value: form.contactNumber || 'Not provided' },
     { label: 'Purpose', value: form.purpose },
     { label: 'Service', value: form.purpose === 'Incoming Letter' ? 'Incoming Letter' : form.service },
