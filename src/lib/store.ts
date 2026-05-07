@@ -429,15 +429,24 @@ export const useAppStore = create<AppState>()(persist((set, get) => {
   };
 }, {
   name: 'app-store',
-  version: 4,
+  version: 5,
   migrate: (persistedState: any, version: number) => {
     if (persistedState) {
-      // v3: replace services with the new official list
-      persistedState.services = defaultServices;
-      // v4: regenerate mock visitors/surveys so test data uses the new services
-      const freshVisitors = generateMockVisitors();
-      persistedState.visitors = freshVisitors;
-      persistedState.surveys = generateMockSurveys(freshVisitors);
+      if (version < 4) {
+        persistedState.services = defaultServices;
+        const freshVisitors = generateMockVisitors();
+        persistedState.visitors = freshVisitors;
+        persistedState.surveys = generateMockSurveys(freshVisitors);
+      }
+      if (version < 5) {
+        persistedState.archivedPurposes = persistedState.archivedPurposes || [];
+        persistedState.archivedSurveyParameters = persistedState.archivedSurveyParameters || [];
+        persistedState.services = (persistedState.services || []).map((s: ServiceItem) => ({
+          isActive: true,
+          ...s,
+          subServices: s.subServices?.map((sub) => ({ isActive: true, ...sub })),
+        }));
+      }
     }
     return persistedState;
   },
