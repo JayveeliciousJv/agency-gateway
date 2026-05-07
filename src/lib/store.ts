@@ -5,6 +5,7 @@ export interface ServiceItem {
   name: string;
   url?: string;
   subServices?: ServiceItem[];
+  isActive?: boolean; // default true; false = archived (hidden from dropdowns, kept for history)
 }
 
 /** Flatten nested services to a flat list of leaf names (used by filters / reports). */
