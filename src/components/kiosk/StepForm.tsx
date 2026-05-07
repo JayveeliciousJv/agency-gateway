@@ -30,6 +30,8 @@ export interface VisitorFormData {
 
 const PROJECT_OPTIONS = ['DigiGov', 'ILCDB', 'PNPKI', 'Cybersecurity', 'FreeWifi4All', 'Other'];
 
+const ORGANIZATION_OPTIONS: Array<'LGU' | 'NGA' | 'SUC' | 'Other'> = ['LGU', 'NGA', 'SUC', 'Other'];
+
 const SECTOR_OPTIONS = [
   'Student', 'Employed/Working', 'Women', 'Person with Disability (PWD)',
   'Senior Citizen', 'Youth', 'Government Employee', 'Private Sector',
