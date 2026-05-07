@@ -51,7 +51,8 @@ const StepForm = ({ form, setForm, onNext, onBack }: StepFormProps) => {
   const purposes = useAppStore((s) => s.purposes);
 
   const isIncomingLetter = form.purpose === 'Incoming Letter';
-  const parentService = form.service ? findService(services, form.service) : undefined;
+  const isOtherService = form.service === 'Other';
+  const parentService = form.service && !isOtherService ? findService(services, form.service) : undefined;
   const hasSubServices = !!parentService?.subServices?.length;
 
   const isValid = form.name && form.sex && form.sectorClassification &&
@@ -60,7 +61,7 @@ const StepForm = ({ form, setForm, onNext, onBack }: StepFormProps) => {
     (form.organizationType !== 'Other' || form.organizationOtherSpecify.trim()) &&
     (isIncomingLetter
       ? (form.letterSubject.trim() && form.letterFrom.trim() && form.letterProject && (form.letterProject !== 'Other' || form.letterProjectOther.trim()))
-      : (!!form.service && (!hasSubServices || !!form.subService)));
+      : (!!form.service && (isOtherService ? !!form.serviceOtherSpecify.trim() : (!hasSubServices || !!form.subService))));
 
   return (
     <div className="animate-fade-in">
