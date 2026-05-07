@@ -66,6 +66,7 @@ export interface VisitorLog {
   organizationOtherSpecify?: string;
   purpose: string;
   service: string;
+  serviceOtherSpecify?: string;
   // Incoming Letter fields
   letterSubject?: string;
   letterFrom?: string;
