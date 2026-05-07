@@ -18,6 +18,16 @@ export function flattenServices(items: ServiceItem[]): ServiceItem[] {
   return out;
 }
 
+/** Recursively filter to only active services (and active sub-services). */
+export function filterActiveServices(items: ServiceItem[]): ServiceItem[] {
+  return items
+    .filter((it) => it.isActive !== false)
+    .map((it) => ({
+      ...it,
+      subServices: it.subServices ? filterActiveServices(it.subServices) : undefined,
+    }));
+}
+
 /** Find a service by name across the tree (returns leaf or top-level). */
 export function findService(items: ServiceItem[], name: string): ServiceItem | undefined {
   for (const it of items) {
