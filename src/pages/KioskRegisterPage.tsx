@@ -26,6 +26,8 @@ const KioskRegisterPage = () => {
     sex: '',
     sectorClassification: '',
     sectorOtherSpecify: '',
+    organizationType: '',
+    organizationOtherSpecify: '',
     purpose: 'Transaction',
     service: '',
     subService: '',
