@@ -30,6 +30,7 @@ const KioskRegisterPage = () => {
     organizationOtherSpecify: '',
     purpose: 'Transaction',
     service: '',
+    serviceOtherSpecify: '',
     subService: '',
     letterSubject: '',
     letterFrom: '',
