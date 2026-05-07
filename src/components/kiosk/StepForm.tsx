@@ -56,8 +56,6 @@ const StepForm = ({ form, setForm, onNext, onBack }: StepFormProps) => {
   const parentService = form.service && !isOtherService ? findService(services, form.service) : undefined;
 
   const isIncomingLetter = form.purpose === 'Incoming Letter';
-  const isOtherService = form.service === 'Other';
-  const parentService = form.service && !isOtherService ? findService(services, form.service) : undefined;
   const hasSubServices = !!parentService?.subServices?.length;
 
   const isValid = form.name && form.sex && form.sectorClassification &&
