@@ -100,6 +100,23 @@ const StepForm = ({ form, setForm, onNext, onBack }: StepFormProps) => {
             )}
           </div>
 
+          {/* Organization Type */}
+          <div className="space-y-2">
+            <Label htmlFor="orgType">Organization Type *</Label>
+            <Select
+              value={form.organizationType}
+              onValueChange={(v) => setForm({ ...form, organizationType: v as OrganizationType, organizationOtherSpecify: v !== 'Other' ? '' : form.organizationOtherSpecify })}
+            >
+              <SelectTrigger id="orgType"><SelectValue placeholder="Select organization type" /></SelectTrigger>
+              <SelectContent>
+                {ORGANIZATION_OPTIONS.map((o) => (<SelectItem key={o} value={o}>{o}</SelectItem>))}
+              </SelectContent>
+            </Select>
+            {form.organizationType === 'Other' && (
+              <Input placeholder="Please specify..." value={form.organizationOtherSpecify} onChange={(e) => setForm({ ...form, organizationOtherSpecify: e.target.value })} className="mt-2" />
+            )}
+          </div>
+
           {/* Contact */}
           <div className="space-y-2">
             <Label htmlFor="contact">Contact Number</Label>
