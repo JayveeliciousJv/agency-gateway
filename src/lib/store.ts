@@ -62,6 +62,8 @@ export interface VisitorLog {
   region?: string;
   sectorClassification: string;
   sectorOtherSpecify?: string;
+  organizationType?: 'LGU' | 'NGA' | 'SUC' | 'Other';
+  organizationOtherSpecify?: string;
   purpose: string;
   service: string;
   // Incoming Letter fields
