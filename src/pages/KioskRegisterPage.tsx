@@ -72,6 +72,7 @@ const KioskRegisterPage = () => {
         organizationOtherSpecify: form.organizationType === 'Other' ? form.organizationOtherSpecify.trim() : undefined,
         purpose: form.purpose,
         service: finalServiceName,
+        serviceOtherSpecify: isOtherService ? form.serviceOtherSpecify.trim() : undefined,
         ...(isIncomingLetter && {
           letterSubject: form.letterSubject.trim(),
           letterFrom: form.letterFrom.trim(),
