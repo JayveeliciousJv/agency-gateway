@@ -26,6 +26,8 @@ const KioskRegisterPage = () => {
     sex: '',
     sectorClassification: '',
     sectorOtherSpecify: '',
+    organizationType: '',
+    organizationOtherSpecify: '',
     purpose: 'Transaction',
     service: '',
     subService: '',
@@ -62,6 +64,8 @@ const KioskRegisterPage = () => {
         sectorClassification: form.sectorClassification === 'Others'
           ? `Others - ${form.sectorOtherSpecify.trim()}`
           : form.sectorClassification,
+        organizationType: (form.organizationType || undefined) as 'LGU' | 'NGA' | 'SUC' | 'Other' | undefined,
+        organizationOtherSpecify: form.organizationType === 'Other' ? form.organizationOtherSpecify.trim() : undefined,
         purpose: form.purpose,
         service: finalServiceName,
         ...(isIncomingLetter && {

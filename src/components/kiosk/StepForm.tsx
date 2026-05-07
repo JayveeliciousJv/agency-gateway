@@ -8,6 +8,8 @@ import { Mail, ArrowRight, ArrowLeft, ExternalLink } from 'lucide-react';
 import { useAppStore, findService } from '@/lib/store';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
+export type OrganizationType = 'LGU' | 'NGA' | 'SUC' | 'Other' | '';
+
 export interface VisitorFormData {
   name: string;
   contactNumber: string;
@@ -15,6 +17,8 @@ export interface VisitorFormData {
   sex: 'Male' | 'Female' | 'Prefer not to say' | '';
   sectorClassification: string;
   sectorOtherSpecify: string;
+  organizationType: OrganizationType;
+  organizationOtherSpecify: string;
   purpose: string;
   service: string;
   subService: string;
@@ -25,6 +29,8 @@ export interface VisitorFormData {
 }
 
 const PROJECT_OPTIONS = ['DigiGov', 'ILCDB', 'PNPKI', 'Cybersecurity', 'FreeWifi4All', 'Other'];
+
+const ORGANIZATION_OPTIONS: Array<'LGU' | 'NGA' | 'SUC' | 'Other'> = ['LGU', 'NGA', 'SUC', 'Other'];
 
 const SECTOR_OPTIONS = [
   'Student', 'Employed/Working', 'Women', 'Person with Disability (PWD)',
@@ -49,6 +55,8 @@ const StepForm = ({ form, setForm, onNext, onBack }: StepFormProps) => {
 
   const isValid = form.name && form.sex && form.sectorClassification &&
     (form.sectorClassification !== 'Others' || form.sectorOtherSpecify.trim()) &&
+    !!form.organizationType &&
+    (form.organizationType !== 'Other' || form.organizationOtherSpecify.trim()) &&
     (isIncomingLetter
       ? (form.letterSubject.trim() && form.letterFrom.trim() && form.letterProject && (form.letterProject !== 'Other' || form.letterProjectOther.trim()))
       : (!!form.service && (!hasSubServices || !!form.subService)));
@@ -89,6 +97,23 @@ const StepForm = ({ form, setForm, onNext, onBack }: StepFormProps) => {
             </Select>
             {form.sectorClassification === 'Others' && (
               <Input placeholder="Please specify..." value={form.sectorOtherSpecify} onChange={(e) => setForm({ ...form, sectorOtherSpecify: e.target.value })} className="mt-2" />
+            )}
+          </div>
+
+          {/* Organization Type */}
+          <div className="space-y-2">
+            <Label htmlFor="orgType">Organization Type *</Label>
+            <Select
+              value={form.organizationType}
+              onValueChange={(v) => setForm({ ...form, organizationType: v as OrganizationType, organizationOtherSpecify: v !== 'Other' ? '' : form.organizationOtherSpecify })}
+            >
+              <SelectTrigger id="orgType"><SelectValue placeholder="Select organization type" /></SelectTrigger>
+              <SelectContent>
+                {ORGANIZATION_OPTIONS.map((o) => (<SelectItem key={o} value={o}>{o}</SelectItem>))}
+              </SelectContent>
+            </Select>
+            {form.organizationType === 'Other' && (
+              <Input placeholder="Please specify..." value={form.organizationOtherSpecify} onChange={(e) => setForm({ ...form, organizationOtherSpecify: e.target.value })} className="mt-2" />
             )}
           </div>
 
