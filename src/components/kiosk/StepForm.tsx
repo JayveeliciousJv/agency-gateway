@@ -21,6 +21,7 @@ export interface VisitorFormData {
   organizationOtherSpecify: string;
   purpose: string;
   service: string;
+  serviceOtherSpecify: string;
   subService: string;
   letterSubject: string;
   letterFrom: string;
