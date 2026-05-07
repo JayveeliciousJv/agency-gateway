@@ -55,6 +55,8 @@ const StepForm = ({ form, setForm, onNext, onBack }: StepFormProps) => {
 
   const isValid = form.name && form.sex && form.sectorClassification &&
     (form.sectorClassification !== 'Others' || form.sectorOtherSpecify.trim()) &&
+    !!form.organizationType &&
+    (form.organizationType !== 'Other' || form.organizationOtherSpecify.trim()) &&
     (isIncomingLetter
       ? (form.letterSubject.trim() && form.letterFrom.trim() && form.letterProject && (form.letterProject !== 'Other' || form.letterProjectOther.trim()))
       : (!!form.service && (!hasSubServices || !!form.subService)));
