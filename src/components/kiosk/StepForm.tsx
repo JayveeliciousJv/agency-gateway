@@ -128,7 +128,7 @@ const StepForm = ({ form, setForm, onNext, onBack }: StepFormProps) => {
           {/* Purpose */}
           <div className="space-y-2">
             <Label htmlFor="purpose">Purpose of Visit *</Label>
-            <Select value={form.purpose} onValueChange={(v) => setForm({ ...form, purpose: v, service: '', subService: '', letterSubject: '', letterFrom: '', letterProject: '', letterProjectOther: '' })}>
+            <Select value={form.purpose} onValueChange={(v) => setForm({ ...form, purpose: v, service: '', serviceOtherSpecify: '', subService: '', letterSubject: '', letterFrom: '', letterProject: '', letterProjectOther: '' })}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
                 {purposes.map((p) => (<SelectItem key={p} value={p}>{p}</SelectItem>))}
