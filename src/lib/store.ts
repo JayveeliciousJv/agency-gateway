@@ -5,6 +5,7 @@ export interface ServiceItem {
   name: string;
   url?: string;
   subServices?: ServiceItem[];
+  isActive?: boolean; // default true; false = archived (hidden from dropdowns, kept for history)
 }
 
 /** Flatten nested services to a flat list of leaf names (used by filters / reports). */
@@ -15,6 +16,16 @@ export function flattenServices(items: ServiceItem[]): ServiceItem[] {
     else out.push(it);
   }
   return out;
+}
+
+/** Recursively filter to only active services (and active sub-services). */
+export function filterActiveServices(items: ServiceItem[]): ServiceItem[] {
+  return items
+    .filter((it) => it.isActive !== false)
+    .map((it) => ({
+      ...it,
+      subServices: it.subServices ? filterActiveServices(it.subServices) : undefined,
+    }));
 }
 
 /** Find a service by name across the tree (returns leaf or top-level). */
@@ -252,7 +263,9 @@ interface AppState {
   profile: AgencyProfile;
   services: ServiceItem[];
   purposes: string[];
+  archivedPurposes: string[];
   surveyParameters: string[];
+  archivedSurveyParameters: string[];
   visitors: VisitorLog[];
   surveys: SurveyResponse[];
   auditLogs: AuditEntry[];
@@ -270,12 +283,17 @@ interface AppState {
   addPurpose: (p: string) => void;
   updatePurpose: (oldP: string, newP: string) => void;
   deletePurpose: (p: string) => void;
+  archivePurpose: (p: string) => void;
+  restorePurpose: (p: string) => void;
   addService: (s: ServiceItem) => void;
   updateService: (oldName: string, updated: ServiceItem) => void;
   deleteService: (name: string) => void;
+  setServiceActive: (name: string, isActive: boolean, parentName?: string) => void;
   addSurveyParameter: (p: string) => void;
   updateSurveyParameter: (oldP: string, newP: string) => void;
   deleteSurveyParameter: (p: string) => void;
+  archiveSurveyParameter: (p: string) => void;
+  restoreSurveyParameter: (p: string) => void;
   users: User[];
   addUser: (u: User) => void;
   updateUser: (id: string, updates: Partial<Pick<User, 'fullName'>>) => void;
@@ -314,7 +332,9 @@ export const useAppStore = create<AppState>()(persist((set, get) => {
     profile: defaultProfile,
     services: defaultServices,
     purposes: defaultPurposes,
+    archivedPurposes: [],
     surveyParameters: defaultSurveyParameters,
+    archivedSurveyParameters: [],
     users: defaultUsers,
     userPasswords: defaultPasswords,
     visitors,
@@ -342,13 +362,49 @@ export const useAppStore = create<AppState>()(persist((set, get) => {
       })),
     addPurpose: (p) => set((s) => ({ purposes: [...s.purposes, p] })),
     updatePurpose: (oldP, newP) => set((s) => ({ purposes: s.purposes.map((x) => (x === oldP ? newP : x)) })),
-    deletePurpose: (p) => set((s) => ({ purposes: s.purposes.filter((x) => x !== p) })),
-    addService: (sv) => set((s) => ({ services: [...s.services, sv] })),
+    deletePurpose: (p) => set((s) => ({
+      purposes: s.purposes.filter((x) => x !== p),
+      archivedPurposes: s.archivedPurposes.filter((x) => x !== p),
+    })),
+    archivePurpose: (p) => set((s) => ({
+      purposes: s.purposes.filter((x) => x !== p),
+      archivedPurposes: s.archivedPurposes.includes(p) ? s.archivedPurposes : [...s.archivedPurposes, p],
+    })),
+    restorePurpose: (p) => set((s) => ({
+      archivedPurposes: s.archivedPurposes.filter((x) => x !== p),
+      purposes: s.purposes.includes(p) ? s.purposes : [...s.purposes, p],
+    })),
+    addService: (sv) => set((s) => ({ services: [...s.services, { isActive: true, ...sv }] })),
     updateService: (oldName, updated) => set((s) => ({ services: s.services.map((x) => (x.name === oldName ? updated : x)) })),
     deleteService: (name) => set((s) => ({ services: s.services.filter((x) => x.name !== name) })),
+    setServiceActive: (name, isActive, parentName) => set((s) => ({
+      services: s.services.map((svc) => {
+        if (parentName) {
+          if (svc.name !== parentName) return svc;
+          return {
+            ...svc,
+            subServices: (svc.subServices || []).map((sub) =>
+              sub.name === name ? { ...sub, isActive } : sub,
+            ),
+          };
+        }
+        return svc.name === name ? { ...svc, isActive } : svc;
+      }),
+    })),
     addSurveyParameter: (p) => set((s) => ({ surveyParameters: [...s.surveyParameters, p] })),
     updateSurveyParameter: (oldP, newP) => set((s) => ({ surveyParameters: s.surveyParameters.map((x) => (x === oldP ? newP : x)) })),
-    deleteSurveyParameter: (p) => set((s) => ({ surveyParameters: s.surveyParameters.filter((x) => x !== p) })),
+    deleteSurveyParameter: (p) => set((s) => ({
+      surveyParameters: s.surveyParameters.filter((x) => x !== p),
+      archivedSurveyParameters: s.archivedSurveyParameters.filter((x) => x !== p),
+    })),
+    archiveSurveyParameter: (p) => set((s) => ({
+      surveyParameters: s.surveyParameters.filter((x) => x !== p),
+      archivedSurveyParameters: s.archivedSurveyParameters.includes(p) ? s.archivedSurveyParameters : [...s.archivedSurveyParameters, p],
+    })),
+    restoreSurveyParameter: (p) => set((s) => ({
+      archivedSurveyParameters: s.archivedSurveyParameters.filter((x) => x !== p),
+      surveyParameters: s.surveyParameters.includes(p) ? s.surveyParameters : [...s.surveyParameters, p],
+    })),
     addUser: (u) => set((s) => ({
       users: [...s.users, u],
       userPasswords: { ...s.userPasswords, [u.username]: `${u.username}123` },
@@ -373,15 +429,24 @@ export const useAppStore = create<AppState>()(persist((set, get) => {
   };
 }, {
   name: 'app-store',
-  version: 4,
+  version: 5,
   migrate: (persistedState: any, version: number) => {
     if (persistedState) {
-      // v3: replace services with the new official list
-      persistedState.services = defaultServices;
-      // v4: regenerate mock visitors/surveys so test data uses the new services
-      const freshVisitors = generateMockVisitors();
-      persistedState.visitors = freshVisitors;
-      persistedState.surveys = generateMockSurveys(freshVisitors);
+      if (version < 4) {
+        persistedState.services = defaultServices;
+        const freshVisitors = generateMockVisitors();
+        persistedState.visitors = freshVisitors;
+        persistedState.surveys = generateMockSurveys(freshVisitors);
+      }
+      if (version < 5) {
+        persistedState.archivedPurposes = persistedState.archivedPurposes || [];
+        persistedState.archivedSurveyParameters = persistedState.archivedSurveyParameters || [];
+        persistedState.services = (persistedState.services || []).map((s: ServiceItem) => ({
+          isActive: true,
+          ...s,
+          subServices: s.subServices?.map((sub) => ({ isActive: true, ...sub })),
+        }));
+      }
     }
     return persistedState;
   },

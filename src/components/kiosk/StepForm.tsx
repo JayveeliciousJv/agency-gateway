@@ -47,12 +47,15 @@ interface StepFormProps {
 }
 
 const StepForm = ({ form, setForm, onNext, onBack }: StepFormProps) => {
-  const services = useAppStore((s) => s.services);
+  const allServices = useAppStore((s) => s.services);
   const purposes = useAppStore((s) => s.purposes);
-
-  const isIncomingLetter = form.purpose === 'Incoming Letter';
+  const services = allServices
+    .filter((s) => s.isActive !== false)
+    .map((s) => ({ ...s, subServices: s.subServices?.filter((sub) => sub.isActive !== false) }));
   const isOtherService = form.service === 'Other';
   const parentService = form.service && !isOtherService ? findService(services, form.service) : undefined;
+
+  const isIncomingLetter = form.purpose === 'Incoming Letter';
   const hasSubServices = !!parentService?.subServices?.length;
 
   const isValid = form.name && form.sex && form.sectorClassification &&
