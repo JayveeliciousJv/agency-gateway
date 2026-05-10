@@ -391,6 +391,10 @@ const ReportsPage = () => {
     const sectors: Record<string, number> = {};
     dataForSummary.forEach(v => { if (v?.sectorClassification) sectors[v.sectorClassification] = (sectors[v.sectorClassification] || 0) + 1; });
 
+    // Org Type
+    const orgTypes: Record<string, number> = {};
+    dataForSummary.forEach(v => { if (v?.organizationType) orgTypes[v.organizationType] = (orgTypes[v.organizationType] || 0) + 1; });
+
     const addDemographicsSheet = () => {
       const demoData: any[] = [
         { Metric: 'Total Overall Number of Visitors/Respondents', Count: totalCount, Percentage: '100%' },
@@ -402,6 +406,9 @@ const ReportsPage = () => {
         { Metric: '', Count: '', Percentage: '' },
         { Metric: '--- SECTOR CLASSIFICATION ---', Count: '', Percentage: '' },
         ...Object.entries(sectors).sort((a, b) => b[1] - a[1]).map(([k, v]) => ({ Metric: k, Count: v, Percentage: `${pct(v, totalCount)}%` })),
+        { Metric: '', Count: '', Percentage: '' },
+        { Metric: '--- ORGANIZATION TYPE ---', Count: '', Percentage: '' },
+        ...Object.entries(orgTypes).sort((a, b) => b[1] - a[1]).map(([k, v]) => ({ Metric: k, Count: v, Percentage: `${pct(v, totalCount)}%` })),
       ];
       XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(demoData), 'Demographics Summary');
     };
