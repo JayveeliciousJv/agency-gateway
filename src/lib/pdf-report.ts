@@ -48,6 +48,7 @@ interface ExtendedDemographicsData {
   total: number;
   sex: { male: number; female: number; preferNotToSay: number };
   sectors: Record<string, number>;
+  orgTypes: Record<string, number>;
 }
 
 interface ChartBarData {
@@ -292,17 +293,19 @@ export function calculateExtendedDemographics(visitors: VisitorLog[]): ExtendedD
     total: visitors.length,
     sex: { male: 0, female: 0, preferNotToSay: 0 },
     sectors: {},
+    orgTypes: {},
   };
 
   visitors.forEach((v) => {
-    // Sex
     if (v.sex === 'Male') data.sex.male++;
     else if (v.sex === 'Female') data.sex.female++;
     else data.sex.preferNotToSay++;
 
-    // Sectors
     if (v.sectorClassification) {
       data.sectors[v.sectorClassification] = (data.sectors[v.sectorClassification] || 0) + 1;
+    }
+    if (v.organizationType) {
+      data.orgTypes[v.organizationType] = (data.orgTypes[v.organizationType] || 0) + 1;
     }
   });
 
