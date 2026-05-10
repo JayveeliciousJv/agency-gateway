@@ -209,8 +209,10 @@ const ReportsPage = () => {
     const pnts = data.filter(v => v.sex === 'Prefer not to say').length;
 
     const sector: Record<string, number> = {};
+    const orgType: Record<string, number> = {};
     data.forEach((v) => {
       if (v.sectorClassification) sector[v.sectorClassification] = (sector[v.sectorClassification] || 0) + 1;
+      if (v.organizationType) orgType[v.organizationType] = (orgType[v.organizationType] || 0) + 1;
     });
 
     return {
@@ -221,6 +223,7 @@ const ReportsPage = () => {
         { name: 'Prefer not to say', value: pnts },
       ].filter(d => d.value > 0),
       sectorData: Object.entries(sector).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value),
+      orgTypeData: Object.entries(orgType).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value),
     };
   };
 
