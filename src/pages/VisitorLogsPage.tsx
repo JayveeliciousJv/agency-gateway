@@ -142,6 +142,7 @@ const VisitorLogsPage = () => {
                   <TableHead>Name</TableHead>
                   <TableHead>Sex</TableHead>
                   <TableHead>Sector</TableHead>
+                  <TableHead>Org Type</TableHead>
                   <TableHead>Service</TableHead>
                   <TableHead>Purpose</TableHead>
                   <TableHead>Contact</TableHead>
@@ -167,7 +168,11 @@ const VisitorLogsPage = () => {
                     <TableCell className="font-medium">{v.name}</TableCell>
                     <TableCell>{v.sex}</TableCell>
                     <TableCell>{v.sectorClassification}</TableCell>
-                    <TableCell>{v.service}</TableCell>
+                    <TableCell>{v.organizationType || '—'}</TableCell>
+                    <TableCell>
+                      {v.service}
+                      {v.serviceOtherSpecify && <span className="block text-xs text-muted-foreground italic">↳ {v.serviceOtherSpecify}</span>}
+                    </TableCell>
                     <TableCell>{v.purpose}</TableCell>
                     <TableCell className="text-sm">{v.contactNumber}</TableCell>
                     <TableCell>{v.date}</TableCell>
