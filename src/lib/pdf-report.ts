@@ -362,6 +362,18 @@ export function drawExtendedDemographicsPage(doc: any, startY: number, data: Ext
     curY = drawDemographicTableWithBar(doc, curY, 'Sector Classification Distribution', sectorData, data.total);
   }
 
+  // 3. Organization Type Distribution
+  if (curY > doc.internal.pageSize.getHeight() - 80) {
+    doc.addPage();
+    curY = 20;
+  }
+  const orgTypeData = Object.entries(data.orgTypes)
+    .map(([label, count]) => ({ label, count, color: ACCENT_BLUE as [number, number, number] }))
+    .sort((a, b) => b.count - a.count);
+  if (orgTypeData.length > 0) {
+    curY = drawDemographicTableWithBar(doc, curY, 'Organization Type Distribution', orgTypeData, data.total);
+  }
+
   return curY;
 }
 
