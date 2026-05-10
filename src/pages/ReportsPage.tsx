@@ -38,6 +38,8 @@ const SECTOR_OPTIONS = [
   'Indigenous Peoples (IP)', 'Solo Parent', 'Others',
 ];
 
+const ORG_TYPE_OPTIONS = ['LGU', 'NGA', 'SUC', 'Other'];
+
 type DatePreset = 'today' | 'this_week' | 'this_month' | 'last_month' | 'custom' | 'all';
 
 const ReportsPage = () => {
@@ -54,13 +56,14 @@ const ReportsPage = () => {
   const [filterService, setFilterService] = useState('all');
   const [filterSector, setFilterSector] = useState('all');
   const [filterSex, setFilterSex] = useState('all');
+  const [filterOrgType, setFilterOrgType] = useState('all');
   const [advancedOpen, setAdvancedOpen] = useState(false);
 
   const [appliedFilters, setAppliedFilters] = useState({
     datePreset: 'this_month' as DatePreset,
     dateFrom: startOfMonth(new Date()) as Date | undefined,
     dateTo: endOfMonth(new Date()) as Date | undefined,
-    service: 'all', sector: 'all', sex: 'all',
+    service: 'all', sector: 'all', sex: 'all', orgType: 'all',
   });
 
   const applyDatePreset = useCallback((preset: DatePreset) => {
@@ -77,7 +80,7 @@ const ReportsPage = () => {
   }, []);
 
   const applyFilters = () => {
-    setAppliedFilters({ datePreset, dateFrom, dateTo, service: filterService, sector: filterSector, sex: filterSex });
+    setAppliedFilters({ datePreset, dateFrom, dateTo, service: filterService, sector: filterSector, sex: filterSex, orgType: filterOrgType });
   };
 
   const resetFilters = () => {
@@ -88,8 +91,9 @@ const ReportsPage = () => {
     setFilterService('all');
     setFilterSector('all');
     setFilterSex('all');
+    setFilterOrgType('all');
     setAdvancedOpen(false);
-    setAppliedFilters({ datePreset: 'this_month', dateFrom: startOfMonth(now), dateTo: endOfMonth(now), service: 'all', sector: 'all', sex: 'all' });
+    setAppliedFilters({ datePreset: 'this_month', dateFrom: startOfMonth(now), dateTo: endOfMonth(now), service: 'all', sector: 'all', sex: 'all', orgType: 'all' });
   };
 
   const removeFilter = (key: string) => {
@@ -97,6 +101,7 @@ const ReportsPage = () => {
     if (key === 'service') { updated.service = 'all'; setFilterService('all'); }
     if (key === 'sector') { updated.sector = 'all'; setFilterSector('all'); }
     if (key === 'sex') { updated.sex = 'all'; setFilterSex('all'); }
+    if (key === 'orgType') { updated.orgType = 'all'; setFilterOrgType('all'); }
     if (key === 'date') {
       updated.datePreset = 'all'; updated.dateFrom = undefined; updated.dateTo = undefined;
       setDatePreset('all'); setDateFrom(undefined); setDateTo(undefined);
@@ -116,6 +121,7 @@ const ReportsPage = () => {
     if (appliedFilters.service !== 'all') chips.push({ key: 'service', label: appliedFilters.service });
     if (appliedFilters.sector !== 'all') chips.push({ key: 'sector', label: appliedFilters.sector });
     if (appliedFilters.sex !== 'all') chips.push({ key: 'sex', label: appliedFilters.sex });
+    if (appliedFilters.orgType !== 'all') chips.push({ key: 'orgType', label: `Org: ${appliedFilters.orgType}` });
     return chips;
   }, [appliedFilters]);
 
@@ -134,6 +140,7 @@ const ReportsPage = () => {
       if (appliedFilters.service !== 'all' && v.service !== appliedFilters.service) return false;
       if (appliedFilters.sector !== 'all' && v.sectorClassification !== appliedFilters.sector) return false;
       if (appliedFilters.sex !== 'all' && v.sex !== appliedFilters.sex) return false;
+      if (appliedFilters.orgType !== 'all' && v.organizationType !== appliedFilters.orgType) return false;
       return true;
     });
   }, [visitors, appliedFilters]);
@@ -202,8 +209,10 @@ const ReportsPage = () => {
     const pnts = data.filter(v => v.sex === 'Prefer not to say').length;
 
     const sector: Record<string, number> = {};
+    const orgType: Record<string, number> = {};
     data.forEach((v) => {
       if (v.sectorClassification) sector[v.sectorClassification] = (sector[v.sectorClassification] || 0) + 1;
+      if (v.organizationType) orgType[v.organizationType] = (orgType[v.organizationType] || 0) + 1;
     });
 
     return {
@@ -214,6 +223,7 @@ const ReportsPage = () => {
         { name: 'Prefer not to say', value: pnts },
       ].filter(d => d.value > 0),
       sectorData: Object.entries(sector).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value),
+      orgTypeData: Object.entries(orgType).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value),
     };
   };
 
@@ -228,6 +238,7 @@ const ReportsPage = () => {
     if (appliedFilters.service !== 'all') parts.push(appliedFilters.service);
     if (appliedFilters.sector !== 'all') parts.push(appliedFilters.sector);
     if (appliedFilters.sex !== 'all') parts.push(appliedFilters.sex);
+    if (appliedFilters.orgType !== 'all') parts.push(`Org: ${appliedFilters.orgType}`);
     return parts.length ? parts.join(', ') : 'All Data';
   };
 
@@ -254,16 +265,16 @@ const ReportsPage = () => {
       if (hasPhotos) {
         curY = drawTableWithPhotos({
           doc, startY: curY,
-          head: [['#', 'Photo', 'Name', 'Sex', 'Sector', 'Service', 'Purpose', 'Contact', 'Date']],
-          body: filteredVisitors.map((v, i) => [i + 1, '', v.name, v.sex, v.sectorClassification, v.service, v.purpose, v.contactNumber, v.date]),
+          head: [['#', 'Photo', 'Name', 'Sex', 'Sector', 'Org Type', 'Service', 'Purpose', 'Contact', 'Date']],
+          body: filteredVisitors.map((v, i) => [i + 1, '', v.name, v.sex, v.sectorClassification, v.organizationType || '—', v.serviceOtherSpecify ? `${v.service} (${v.serviceOtherSpecify})` : v.service, v.purpose, v.contactNumber, v.date]),
           photoColumnIndex: 1,
           photos: filteredVisitors.map(v => v.photo),
         });
       } else {
         curY = drawTable({
           doc, startY: curY,
-          head: [['#', 'Name', 'Sex', 'Sector', 'Service', 'Purpose', 'Contact', 'Date']],
-          body: filteredVisitors.map((v, i) => [i + 1, v.name, v.sex, v.sectorClassification, v.service, v.purpose, v.contactNumber, v.date]),
+          head: [['#', 'Name', 'Sex', 'Sector', 'Org Type', 'Service', 'Purpose', 'Contact', 'Date']],
+          body: filteredVisitors.map((v, i) => [i + 1, v.name, v.sex, v.sectorClassification, v.organizationType || '—', v.serviceOtherSpecify ? `${v.service} (${v.serviceOtherSpecify})` : v.service, v.purpose, v.contactNumber, v.date]),
         });
       }
     } else if (type === 'letters') {
@@ -383,6 +394,10 @@ const ReportsPage = () => {
     const sectors: Record<string, number> = {};
     dataForSummary.forEach(v => { if (v?.sectorClassification) sectors[v.sectorClassification] = (sectors[v.sectorClassification] || 0) + 1; });
 
+    // Org Type
+    const orgTypes: Record<string, number> = {};
+    dataForSummary.forEach(v => { if (v?.organizationType) orgTypes[v.organizationType] = (orgTypes[v.organizationType] || 0) + 1; });
+
     const addDemographicsSheet = () => {
       const demoData: any[] = [
         { Metric: 'Total Overall Number of Visitors/Respondents', Count: totalCount, Percentage: '100%' },
@@ -394,6 +409,9 @@ const ReportsPage = () => {
         { Metric: '', Count: '', Percentage: '' },
         { Metric: '--- SECTOR CLASSIFICATION ---', Count: '', Percentage: '' },
         ...Object.entries(sectors).sort((a, b) => b[1] - a[1]).map(([k, v]) => ({ Metric: k, Count: v, Percentage: `${pct(v, totalCount)}%` })),
+        { Metric: '', Count: '', Percentage: '' },
+        { Metric: '--- ORGANIZATION TYPE ---', Count: '', Percentage: '' },
+        ...Object.entries(orgTypes).sort((a, b) => b[1] - a[1]).map(([k, v]) => ({ Metric: k, Count: v, Percentage: `${pct(v, totalCount)}%` })),
       ];
       XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(demoData), 'Demographics Summary');
     };
@@ -401,7 +419,9 @@ const ReportsPage = () => {
     if (type === 'visitors' || type === 'summary') {
       const visitorRows = filteredVisitors.map((v, i) => ({
         '#': i + 1, Name: v.name, Sex: v.sex, Sector: v.sectorClassification,
-        Service: v.service, Purpose: v.purpose, Contact: v.contactNumber, Email: v.email,
+        'Organization Type': v.organizationType || '',
+        Service: v.service, 'Service (Other Specify)': v.serviceOtherSpecify || '',
+        Purpose: v.purpose, Contact: v.contactNumber, Email: v.email,
         'Has Photo': v.photo ? 'Yes' : 'No', Date: v.date, Time: v.time,
       }));
       XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(visitorRows), 'Visitors');
@@ -544,6 +564,30 @@ const ReportsPage = () => {
             </CardContent>
           </Card>
         </div>
+
+        {/* Organization Type Distribution */}
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-semibold flex items-center gap-2">
+              <Users className="w-4 h-4 text-primary" /> Organization Type Distribution
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {data.orgTypeData.length > 0 ? (
+              <div className="space-y-2 mt-1">
+                {data.orgTypeData.map((item, i) => (
+                  <div key={item.name} className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: CHART_COLORS[i % CHART_COLORS.length] }} />
+                    <span className="text-xs text-muted-foreground flex-1 truncate">{item.name}</span>
+                    <Progress value={pct(item.value, data.total)} className="w-32 h-1.5" />
+                    <span className="text-xs font-semibold w-6 text-right">{item.value}</span>
+                    <span className="text-xs text-muted-foreground w-8 text-right">{pct(item.value, data.total)}%</span>
+                  </div>
+                ))}
+              </div>
+            ) : <EmptyState message="No organization type data" />}
+          </CardContent>
+        </Card>
       </div>
     );
   };
@@ -657,6 +701,16 @@ const ReportsPage = () => {
                         <SelectItem value="Male">Male</SelectItem>
                         <SelectItem value="Female">Female</SelectItem>
                         <SelectItem value="Prefer not to say">Prefer not to say</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs text-muted-foreground">Organization Type</Label>
+                    <Select value={filterOrgType} onValueChange={setFilterOrgType}>
+                      <SelectTrigger className="w-40 h-8 text-xs"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Org Types</SelectItem>
+                        {ORG_TYPE_OPTIONS.map((o) => <SelectItem key={o} value={o}>{o}</SelectItem>)}
                       </SelectContent>
                     </Select>
                   </div>
@@ -862,6 +916,7 @@ const ReportsPage = () => {
                         <TableHead>Name</TableHead>
                         <TableHead>Sex</TableHead>
                         <TableHead>Sector</TableHead>
+                        <TableHead>Org Type</TableHead>
                         <TableHead>Service</TableHead>
                         <TableHead>Purpose</TableHead>
                         <TableHead>Contact</TableHead>
@@ -875,7 +930,11 @@ const ReportsPage = () => {
                           <TableCell className="font-medium">{v.name}</TableCell>
                           <TableCell>{v.sex}</TableCell>
                           <TableCell>{v.sectorClassification}</TableCell>
-                          <TableCell>{v.service}</TableCell>
+                          <TableCell>{v.organizationType || '—'}</TableCell>
+                          <TableCell>
+                            {v.service}
+                            {v.serviceOtherSpecify && <div className="text-xs text-muted-foreground italic">↳ {v.serviceOtherSpecify}</div>}
+                          </TableCell>
                           <TableCell>{v.purpose}</TableCell>
                           <TableCell className="text-sm">{v.contactNumber}</TableCell>
                           <TableCell>{v.date}</TableCell>

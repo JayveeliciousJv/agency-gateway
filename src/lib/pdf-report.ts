@@ -48,6 +48,7 @@ interface ExtendedDemographicsData {
   total: number;
   sex: { male: number; female: number; preferNotToSay: number };
   sectors: Record<string, number>;
+  orgTypes: Record<string, number>;
 }
 
 interface ChartBarData {
@@ -292,17 +293,19 @@ export function calculateExtendedDemographics(visitors: VisitorLog[]): ExtendedD
     total: visitors.length,
     sex: { male: 0, female: 0, preferNotToSay: 0 },
     sectors: {},
+    orgTypes: {},
   };
 
   visitors.forEach((v) => {
-    // Sex
     if (v.sex === 'Male') data.sex.male++;
     else if (v.sex === 'Female') data.sex.female++;
     else data.sex.preferNotToSay++;
 
-    // Sectors
     if (v.sectorClassification) {
       data.sectors[v.sectorClassification] = (data.sectors[v.sectorClassification] || 0) + 1;
+    }
+    if (v.organizationType) {
+      data.orgTypes[v.organizationType] = (data.orgTypes[v.organizationType] || 0) + 1;
     }
   });
 
@@ -357,6 +360,18 @@ export function drawExtendedDemographicsPage(doc: any, startY: number, data: Ext
     .slice(0, 10); // Top 10
   if (sectorData.length > 0) {
     curY = drawDemographicTableWithBar(doc, curY, 'Sector Classification Distribution', sectorData, data.total);
+  }
+
+  // 3. Organization Type Distribution
+  if (curY > doc.internal.pageSize.getHeight() - 80) {
+    doc.addPage();
+    curY = 20;
+  }
+  const orgTypeData = Object.entries(data.orgTypes)
+    .map(([label, count]) => ({ label, count, color: ACCENT_BLUE as [number, number, number] }))
+    .sort((a, b) => b.count - a.count);
+  if (orgTypeData.length > 0) {
+    curY = drawDemographicTableWithBar(doc, curY, 'Organization Type Distribution', orgTypeData, data.total);
   }
 
   return curY;

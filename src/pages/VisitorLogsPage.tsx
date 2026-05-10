@@ -135,13 +135,14 @@ const VisitorLogsPage = () => {
         {/* Regular Visitors Tab */}
         <TabsContent value="visitors">
           <Card className="overflow-x-auto">
-            <Table className="min-w-[700px]">
+            <Table className="min-w-[800px]">
               <TableHeader>
                 <TableRow>
                   <TableHead>Photo</TableHead>
                   <TableHead>Name</TableHead>
                   <TableHead>Sex</TableHead>
                   <TableHead>Sector</TableHead>
+                  <TableHead>Org Type</TableHead>
                   <TableHead>Service</TableHead>
                   <TableHead>Purpose</TableHead>
                   <TableHead>Contact</TableHead>
@@ -167,7 +168,11 @@ const VisitorLogsPage = () => {
                     <TableCell className="font-medium">{v.name}</TableCell>
                     <TableCell>{v.sex}</TableCell>
                     <TableCell>{v.sectorClassification}</TableCell>
-                    <TableCell>{v.service}</TableCell>
+                    <TableCell>{v.organizationType || '—'}</TableCell>
+                    <TableCell>
+                      {v.service}
+                      {v.serviceOtherSpecify && <span className="block text-xs text-muted-foreground italic">↳ {v.serviceOtherSpecify}</span>}
+                    </TableCell>
                     <TableCell>{v.purpose}</TableCell>
                     <TableCell className="text-sm">{v.contactNumber}</TableCell>
                     <TableCell>{v.date}</TableCell>
