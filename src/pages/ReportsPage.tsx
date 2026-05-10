@@ -235,6 +235,7 @@ const ReportsPage = () => {
     if (appliedFilters.service !== 'all') parts.push(appliedFilters.service);
     if (appliedFilters.sector !== 'all') parts.push(appliedFilters.sector);
     if (appliedFilters.sex !== 'all') parts.push(appliedFilters.sex);
+    if (appliedFilters.orgType !== 'all') parts.push(`Org: ${appliedFilters.orgType}`);
     return parts.length ? parts.join(', ') : 'All Data';
   };
 
@@ -664,6 +665,16 @@ const ReportsPage = () => {
                         <SelectItem value="Male">Male</SelectItem>
                         <SelectItem value="Female">Female</SelectItem>
                         <SelectItem value="Prefer not to say">Prefer not to say</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs text-muted-foreground">Organization Type</Label>
+                    <Select value={filterOrgType} onValueChange={setFilterOrgType}>
+                      <SelectTrigger className="w-40 h-8 text-xs"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Org Types</SelectItem>
+                        {ORG_TYPE_OPTIONS.map((o) => <SelectItem key={o} value={o}>{o}</SelectItem>)}
                       </SelectContent>
                     </Select>
                   </div>
