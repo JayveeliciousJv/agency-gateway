@@ -135,7 +135,7 @@ const VisitorLogsPage = () => {
         {/* Regular Visitors Tab */}
         <TabsContent value="visitors">
           <Card className="overflow-x-auto">
-            <Table className="min-w-[700px]">
+            <Table className="min-w-[800px]">
               <TableHeader>
                 <TableRow>
                   <TableHead>Photo</TableHead>
