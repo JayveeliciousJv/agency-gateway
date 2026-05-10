@@ -38,6 +38,8 @@ const SECTOR_OPTIONS = [
   'Indigenous Peoples (IP)', 'Solo Parent', 'Others',
 ];
 
+const ORG_TYPE_OPTIONS = ['LGU', 'NGA', 'SUC', 'Other'];
+
 type DatePreset = 'today' | 'this_week' | 'this_month' | 'last_month' | 'custom' | 'all';
 
 const ReportsPage = () => {
@@ -54,13 +56,14 @@ const ReportsPage = () => {
   const [filterService, setFilterService] = useState('all');
   const [filterSector, setFilterSector] = useState('all');
   const [filterSex, setFilterSex] = useState('all');
+  const [filterOrgType, setFilterOrgType] = useState('all');
   const [advancedOpen, setAdvancedOpen] = useState(false);
 
   const [appliedFilters, setAppliedFilters] = useState({
     datePreset: 'this_month' as DatePreset,
     dateFrom: startOfMonth(new Date()) as Date | undefined,
     dateTo: endOfMonth(new Date()) as Date | undefined,
-    service: 'all', sector: 'all', sex: 'all',
+    service: 'all', sector: 'all', sex: 'all', orgType: 'all',
   });
 
   const applyDatePreset = useCallback((preset: DatePreset) => {
@@ -77,7 +80,7 @@ const ReportsPage = () => {
   }, []);
 
   const applyFilters = () => {
-    setAppliedFilters({ datePreset, dateFrom, dateTo, service: filterService, sector: filterSector, sex: filterSex });
+    setAppliedFilters({ datePreset, dateFrom, dateTo, service: filterService, sector: filterSector, sex: filterSex, orgType: filterOrgType });
   };
 
   const resetFilters = () => {
@@ -88,8 +91,9 @@ const ReportsPage = () => {
     setFilterService('all');
     setFilterSector('all');
     setFilterSex('all');
+    setFilterOrgType('all');
     setAdvancedOpen(false);
-    setAppliedFilters({ datePreset: 'this_month', dateFrom: startOfMonth(now), dateTo: endOfMonth(now), service: 'all', sector: 'all', sex: 'all' });
+    setAppliedFilters({ datePreset: 'this_month', dateFrom: startOfMonth(now), dateTo: endOfMonth(now), service: 'all', sector: 'all', sex: 'all', orgType: 'all' });
   };
 
   const removeFilter = (key: string) => {
@@ -97,6 +101,7 @@ const ReportsPage = () => {
     if (key === 'service') { updated.service = 'all'; setFilterService('all'); }
     if (key === 'sector') { updated.sector = 'all'; setFilterSector('all'); }
     if (key === 'sex') { updated.sex = 'all'; setFilterSex('all'); }
+    if (key === 'orgType') { updated.orgType = 'all'; setFilterOrgType('all'); }
     if (key === 'date') {
       updated.datePreset = 'all'; updated.dateFrom = undefined; updated.dateTo = undefined;
       setDatePreset('all'); setDateFrom(undefined); setDateTo(undefined);
@@ -116,6 +121,7 @@ const ReportsPage = () => {
     if (appliedFilters.service !== 'all') chips.push({ key: 'service', label: appliedFilters.service });
     if (appliedFilters.sector !== 'all') chips.push({ key: 'sector', label: appliedFilters.sector });
     if (appliedFilters.sex !== 'all') chips.push({ key: 'sex', label: appliedFilters.sex });
+    if (appliedFilters.orgType !== 'all') chips.push({ key: 'orgType', label: `Org: ${appliedFilters.orgType}` });
     return chips;
   }, [appliedFilters]);
 
@@ -134,6 +140,7 @@ const ReportsPage = () => {
       if (appliedFilters.service !== 'all' && v.service !== appliedFilters.service) return false;
       if (appliedFilters.sector !== 'all' && v.sectorClassification !== appliedFilters.sector) return false;
       if (appliedFilters.sex !== 'all' && v.sex !== appliedFilters.sex) return false;
+      if (appliedFilters.orgType !== 'all' && v.organizationType !== appliedFilters.orgType) return false;
       return true;
     });
   }, [visitors, appliedFilters]);
