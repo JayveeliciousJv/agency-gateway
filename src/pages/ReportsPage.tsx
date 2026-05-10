@@ -564,6 +564,30 @@ const ReportsPage = () => {
             </CardContent>
           </Card>
         </div>
+
+        {/* Organization Type Distribution */}
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-semibold flex items-center gap-2">
+              <Users className="w-4 h-4 text-primary" /> Organization Type Distribution
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {data.orgTypeData.length > 0 ? (
+              <div className="space-y-2 mt-1">
+                {data.orgTypeData.map((item, i) => (
+                  <div key={item.name} className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: CHART_COLORS[i % CHART_COLORS.length] }} />
+                    <span className="text-xs text-muted-foreground flex-1 truncate">{item.name}</span>
+                    <Progress value={pct(item.value, data.total)} className="w-32 h-1.5" />
+                    <span className="text-xs font-semibold w-6 text-right">{item.value}</span>
+                    <span className="text-xs text-muted-foreground w-8 text-right">{pct(item.value, data.total)}%</span>
+                  </div>
+                ))}
+              </div>
+            ) : <EmptyState message="No organization type data" />}
+          </CardContent>
+        </Card>
       </div>
     );
   };
