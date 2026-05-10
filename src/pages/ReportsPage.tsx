@@ -262,16 +262,16 @@ const ReportsPage = () => {
       if (hasPhotos) {
         curY = drawTableWithPhotos({
           doc, startY: curY,
-          head: [['#', 'Photo', 'Name', 'Sex', 'Sector', 'Service', 'Purpose', 'Contact', 'Date']],
-          body: filteredVisitors.map((v, i) => [i + 1, '', v.name, v.sex, v.sectorClassification, v.service, v.purpose, v.contactNumber, v.date]),
+          head: [['#', 'Photo', 'Name', 'Sex', 'Sector', 'Org Type', 'Service', 'Purpose', 'Contact', 'Date']],
+          body: filteredVisitors.map((v, i) => [i + 1, '', v.name, v.sex, v.sectorClassification, v.organizationType || '—', v.serviceOtherSpecify ? `${v.service} (${v.serviceOtherSpecify})` : v.service, v.purpose, v.contactNumber, v.date]),
           photoColumnIndex: 1,
           photos: filteredVisitors.map(v => v.photo),
         });
       } else {
         curY = drawTable({
           doc, startY: curY,
-          head: [['#', 'Name', 'Sex', 'Sector', 'Service', 'Purpose', 'Contact', 'Date']],
-          body: filteredVisitors.map((v, i) => [i + 1, v.name, v.sex, v.sectorClassification, v.service, v.purpose, v.contactNumber, v.date]),
+          head: [['#', 'Name', 'Sex', 'Sector', 'Org Type', 'Service', 'Purpose', 'Contact', 'Date']],
+          body: filteredVisitors.map((v, i) => [i + 1, v.name, v.sex, v.sectorClassification, v.organizationType || '—', v.serviceOtherSpecify ? `${v.service} (${v.serviceOtherSpecify})` : v.service, v.purpose, v.contactNumber, v.date]),
         });
       }
     } else if (type === 'letters') {
@@ -409,7 +409,9 @@ const ReportsPage = () => {
     if (type === 'visitors' || type === 'summary') {
       const visitorRows = filteredVisitors.map((v, i) => ({
         '#': i + 1, Name: v.name, Sex: v.sex, Sector: v.sectorClassification,
-        Service: v.service, Purpose: v.purpose, Contact: v.contactNumber, Email: v.email,
+        'Organization Type': v.organizationType || '',
+        Service: v.service, 'Service (Other Specify)': v.serviceOtherSpecify || '',
+        Purpose: v.purpose, Contact: v.contactNumber, Email: v.email,
         'Has Photo': v.photo ? 'Yes' : 'No', Date: v.date, Time: v.time,
       }));
       XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(visitorRows), 'Visitors');
@@ -880,6 +882,7 @@ const ReportsPage = () => {
                         <TableHead>Name</TableHead>
                         <TableHead>Sex</TableHead>
                         <TableHead>Sector</TableHead>
+                        <TableHead>Org Type</TableHead>
                         <TableHead>Service</TableHead>
                         <TableHead>Purpose</TableHead>
                         <TableHead>Contact</TableHead>
@@ -893,7 +896,11 @@ const ReportsPage = () => {
                           <TableCell className="font-medium">{v.name}</TableCell>
                           <TableCell>{v.sex}</TableCell>
                           <TableCell>{v.sectorClassification}</TableCell>
-                          <TableCell>{v.service}</TableCell>
+                          <TableCell>{v.organizationType || '—'}</TableCell>
+                          <TableCell>
+                            {v.service}
+                            {v.serviceOtherSpecify && <div className="text-xs text-muted-foreground italic">↳ {v.serviceOtherSpecify}</div>}
+                          </TableCell>
                           <TableCell>{v.purpose}</TableCell>
                           <TableCell className="text-sm">{v.contactNumber}</TableCell>
                           <TableCell>{v.date}</TableCell>
