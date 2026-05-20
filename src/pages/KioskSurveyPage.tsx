@@ -65,6 +65,7 @@ const KioskSurveyPage = () => {
   const profile = useAppStore((s) => s.profile);
   const addSurvey = useAppStore((s) => s.addSurvey);
   const surveyParameters = useAppStore((s) => s.surveyParameters);
+  const assistancePersonnel = useAppStore((s) => s.assistancePersonnel);
   const navigate = useNavigate();
   const location = useLocation();
   const { visitorId = '', service = '' } = (location.state as any) || {};
@@ -73,6 +74,8 @@ const KioskSurveyPage = () => {
     .filter((s) => s.isActive !== false)
     .map((s) => ({ ...s, subServices: s.subServices?.filter((sub) => sub.isActive !== false) }));
   const [selectedService, setSelectedService] = useState(service);
+  const [personnel, setPersonnel] = useState('');
+  const [personnelOther, setPersonnelOther] = useState('');
 
   const criteria = surveyParameters.map((label) => ({
     key: label.toLowerCase().replace(/[^a-z0-9]/g, ''),
