@@ -465,7 +465,7 @@ export const useAppStore = create<AppState>()(persist((set, get) => {
   };
 }, {
   name: 'app-store',
-  version: 5,
+  version: 6,
   migrate: (persistedState: any, version: number) => {
     if (persistedState) {
       if (version < 4) {
@@ -482,6 +482,15 @@ export const useAppStore = create<AppState>()(persist((set, get) => {
           ...s,
           subServices: s.subServices?.map((sub) => ({ isActive: true, ...sub })),
         }));
+      }
+      if (version < 6) {
+        persistedState.assistancePersonnel = persistedState.assistancePersonnel || [
+          'JOHN VINCENT B. MACHA',
+          'KEN MATTHEW L. DE LEON',
+          'MARIA PENAFRANCIA L. NEPOMUCENO',
+          'MERLIN N. FABRICANTE',
+        ];
+        persistedState.archivedAssistancePersonnel = persistedState.archivedAssistancePersonnel || [];
       }
     }
     return persistedState;
