@@ -51,6 +51,7 @@ interface StepFormProps {
 const StepForm = ({ form, setForm, onNext, onBack }: StepFormProps) => {
   const allServices = useAppStore((s) => s.services);
   const purposes = useAppStore((s) => s.purposes);
+  const assistancePersonnel = useAppStore((s) => s.assistancePersonnel);
   const services = allServices
     .filter((s) => s.isActive !== false)
     .map((s) => ({ ...s, subServices: s.subServices?.filter((sub) => sub.isActive !== false) }));
@@ -64,6 +65,8 @@ const StepForm = ({ form, setForm, onNext, onBack }: StepFormProps) => {
     (form.sectorClassification !== 'Others' || form.sectorOtherSpecify.trim()) &&
     !!form.organizationType &&
     (form.organizationType !== 'Other' || form.organizationOtherSpecify.trim()) &&
+    !!form.clientAssistancePersonnel &&
+    (form.clientAssistancePersonnel !== 'Others' || form.clientAssistanceOtherSpecify.trim()) &&
     (isIncomingLetter
       ? (form.letterSubject.trim() && form.letterFrom.trim() && form.letterProject && (form.letterProject !== 'Other' || form.letterProjectOther.trim()))
       : (!!form.service && (isOtherService ? !!form.serviceOtherSpecify.trim() : (!hasSubServices || !!form.subService))));
