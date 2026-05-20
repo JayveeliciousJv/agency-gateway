@@ -601,6 +601,18 @@ const PurposesSettingsPage = () => {
             'New survey parameter...', 'parameter',
           )}
         </TabsContent>
+
+        <TabsContent value="personnel" className="mt-4">
+          <p className="text-sm text-muted-foreground mb-3">Personnel listed here appear in the Client Assistance Personnel dropdown across the kiosk and survey forms. Archived personnel are hidden from new entries but remain in historical visitor and survey records.</p>
+          {renderStringList(
+            assistancePersonnel, archivedAssistancePersonnel, personnelFilter, setPersonnelFilter,
+            editingPersonnel, setEditingPersonnel, handleUpdatePersonnel,
+            handleArchivePersonnel, handleRestorePersonnel, handleHardDeletePersonnel,
+            isPersonnelReferenced,
+            newPersonnel, setNewPersonnel, handleAddPersonnel,
+            'New personnel full name...', 'personnel',
+          )}
+        </TabsContent>
       </Tabs>
     </div>
   );
