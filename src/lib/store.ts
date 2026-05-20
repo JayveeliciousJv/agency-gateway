@@ -425,6 +425,22 @@ export const useAppStore = create<AppState>()(persist((set, get) => {
       archivedSurveyParameters: s.archivedSurveyParameters.filter((x) => x !== p),
       surveyParameters: s.surveyParameters.includes(p) ? s.surveyParameters : [...s.surveyParameters, p],
     })),
+    addAssistancePersonnel: (p) => set((s) => ({ assistancePersonnel: [...s.assistancePersonnel, p] })),
+    updateAssistancePersonnel: (oldP, newP) => set((s) => ({
+      assistancePersonnel: s.assistancePersonnel.map((x) => (x === oldP ? newP : x)),
+    })),
+    deleteAssistancePersonnel: (p) => set((s) => ({
+      assistancePersonnel: s.assistancePersonnel.filter((x) => x !== p),
+      archivedAssistancePersonnel: s.archivedAssistancePersonnel.filter((x) => x !== p),
+    })),
+    archiveAssistancePersonnel: (p) => set((s) => ({
+      assistancePersonnel: s.assistancePersonnel.filter((x) => x !== p),
+      archivedAssistancePersonnel: s.archivedAssistancePersonnel.includes(p) ? s.archivedAssistancePersonnel : [...s.archivedAssistancePersonnel, p],
+    })),
+    restoreAssistancePersonnel: (p) => set((s) => ({
+      archivedAssistancePersonnel: s.archivedAssistancePersonnel.filter((x) => x !== p),
+      assistancePersonnel: s.assistancePersonnel.includes(p) ? s.assistancePersonnel : [...s.assistancePersonnel, p],
+    })),
     addUser: (u) => set((s) => ({
       users: [...s.users, u],
       userPasswords: { ...s.userPasswords, [u.username]: `${u.username}123` },
