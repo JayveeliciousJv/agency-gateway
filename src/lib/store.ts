@@ -100,6 +100,8 @@ export interface SurveyResponse {
   id: string;
   visitorId: string;
   service: string;
+  clientAssistancePersonnel?: string;
+  clientAssistanceOtherSpecify?: string;
   responsiveness: number;
   reliability: number;
   accessFacilities: number;
