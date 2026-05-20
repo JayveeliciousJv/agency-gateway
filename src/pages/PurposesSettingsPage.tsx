@@ -43,6 +43,14 @@ const PurposesSettingsPage = () => {
   const archiveSurveyParameter = useAppStore((s) => s.archiveSurveyParameter);
   const restoreSurveyParameter = useAppStore((s) => s.restoreSurveyParameter);
 
+  const assistancePersonnel = useAppStore((s) => s.assistancePersonnel);
+  const archivedAssistancePersonnel = useAppStore((s) => s.archivedAssistancePersonnel);
+  const addAssistancePersonnel = useAppStore((s) => s.addAssistancePersonnel);
+  const updateAssistancePersonnelFn = useAppStore((s) => s.updateAssistancePersonnel);
+  const deleteAssistancePersonnel = useAppStore((s) => s.deleteAssistancePersonnel);
+  const archiveAssistancePersonnel = useAppStore((s) => s.archiveAssistancePersonnel);
+  const restoreAssistancePersonnel = useAppStore((s) => s.restoreAssistancePersonnel);
+
   const visitors = useAppStore((s) => s.visitors);
   const surveys = useAppStore((s) => s.surveys);
 
@@ -53,10 +61,13 @@ const PurposesSettingsPage = () => {
   const [editingPurpose, setEditingPurpose] = useState<{ old: string; val: string } | null>(null);
   const [newParam, setNewParam] = useState('');
   const [editingParam, setEditingParam] = useState<{ old: string; val: string } | null>(null);
+  const [newPersonnel, setNewPersonnel] = useState('');
+  const [editingPersonnel, setEditingPersonnel] = useState<{ old: string; val: string } | null>(null);
 
   const [purposeFilter, setPurposeFilter] = useState<StatusFilter>('active');
   const [serviceFilter, setServiceFilter] = useState<StatusFilter>('active');
   const [paramFilter, setParamFilter] = useState<StatusFilter>('active');
+  const [personnelFilter, setPersonnelFilter] = useState<StatusFilter>('active');
 
   // Service dialog state
   const [svcDialogOpen, setSvcDialogOpen] = useState(false);
@@ -74,6 +85,9 @@ const PurposesSettingsPage = () => {
   const isServiceReferenced = (name: string) =>
     visitors.some((v) => v.service === name) || surveys.some((s) => s.service === name);
   const isParamReferenced = (_p: string) => surveys.length > 0; // params are columns in every survey
+  const isPersonnelReferenced = (name: string) =>
+    visitors.some((v) => v.clientAssistancePersonnel === name) ||
+    surveys.some((s) => s.clientAssistancePersonnel === name);
 
   // ---- Purpose handlers ----
   const handleAddPurpose = () => {
@@ -123,6 +137,31 @@ const PurposesSettingsPage = () => {
   };
   const handleHardDeleteParam = (p: string) => {
     deleteSurveyParameter(p); audit('Survey Parameter Permanently Deleted', `Deleted: ${p}`); toast.success('Parameter deleted.');
+  };
+
+  // ---- Assistance Personnel handlers ----
+  const handleAddPersonnel = () => {
+    const t = newPersonnel.trim();
+    if (!t) return;
+    if (assistancePersonnel.includes(t) || archivedAssistancePersonnel.includes(t)) { toast.error('Personnel already exists.'); return; }
+    addAssistancePersonnel(t); audit('Assistance Personnel Added', `Added: ${t}`); setNewPersonnel(''); toast.success('Personnel added.');
+  };
+  const handleUpdatePersonnel = () => {
+    if (!editingPersonnel) return;
+    const t = editingPersonnel.val.trim();
+    if (!t || (t !== editingPersonnel.old && (assistancePersonnel.includes(t) || archivedAssistancePersonnel.includes(t)))) {
+      toast.error('Invalid or duplicate.'); return;
+    }
+    updateAssistancePersonnelFn(editingPersonnel.old, t); audit('Assistance Personnel Updated', `Renamed "${editingPersonnel.old}" to "${t}"`); setEditingPersonnel(null); toast.success('Personnel updated.');
+  };
+  const handleArchivePersonnel = (p: string) => {
+    archiveAssistancePersonnel(p); audit('Assistance Personnel Archived', `Marked inactive: ${p}`); toast.success('Personnel archived.');
+  };
+  const handleRestorePersonnel = (p: string) => {
+    restoreAssistancePersonnel(p); audit('Assistance Personnel Restored', `Reactivated: ${p}`); toast.success('Personnel reactivated.');
+  };
+  const handleHardDeletePersonnel = (p: string) => {
+    deleteAssistancePersonnel(p); audit('Assistance Personnel Permanently Deleted', `Deleted: ${p}`); toast.success('Personnel deleted.');
   };
 
   // ---- Service handlers ----
@@ -362,6 +401,7 @@ const PurposesSettingsPage = () => {
           <TabsTrigger value="purposes">Purposes of Visit</TabsTrigger>
           <TabsTrigger value="services">Services</TabsTrigger>
           <TabsTrigger value="survey">Survey Parameters</TabsTrigger>
+          <TabsTrigger value="personnel">Assistance Personnel</TabsTrigger>
         </TabsList>
 
         <TabsContent value="purposes" className="mt-4">
@@ -559,6 +599,18 @@ const PurposesSettingsPage = () => {
             isParamReferenced,
             newParam, setNewParam, handleAddParam,
             'New survey parameter...', 'parameter',
+          )}
+        </TabsContent>
+
+        <TabsContent value="personnel" className="mt-4">
+          <p className="text-sm text-muted-foreground mb-3">Personnel listed here appear in the Client Assistance Personnel dropdown across the kiosk and survey forms. Archived personnel are hidden from new entries but remain in historical visitor and survey records.</p>
+          {renderStringList(
+            assistancePersonnel, archivedAssistancePersonnel, personnelFilter, setPersonnelFilter,
+            editingPersonnel, setEditingPersonnel, handleUpdatePersonnel,
+            handleArchivePersonnel, handleRestorePersonnel, handleHardDeletePersonnel,
+            isPersonnelReferenced,
+            newPersonnel, setNewPersonnel, handleAddPersonnel,
+            'New personnel full name...', 'personnel',
           )}
         </TabsContent>
       </Tabs>

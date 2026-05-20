@@ -65,6 +65,7 @@ const KioskSurveyPage = () => {
   const profile = useAppStore((s) => s.profile);
   const addSurvey = useAppStore((s) => s.addSurvey);
   const surveyParameters = useAppStore((s) => s.surveyParameters);
+  const assistancePersonnel = useAppStore((s) => s.assistancePersonnel);
   const navigate = useNavigate();
   const location = useLocation();
   const { visitorId = '', service = '' } = (location.state as any) || {};
@@ -73,6 +74,8 @@ const KioskSurveyPage = () => {
     .filter((s) => s.isActive !== false)
     .map((s) => ({ ...s, subServices: s.subServices?.filter((sub) => sub.isActive !== false) }));
   const [selectedService, setSelectedService] = useState(service);
+  const [personnel, setPersonnel] = useState('');
+  const [personnelOther, setPersonnelOther] = useState('');
 
   const criteria = surveyParameters.map((label) => ({
     key: label.toLowerCase().replace(/[^a-z0-9]/g, ''),
@@ -91,7 +94,8 @@ const KioskSurveyPage = () => {
   const [overall, setOverall] = useState(0);
   const [comment, setComment] = useState('');
 
-  const allRated = Object.values(ratings).every((v) => v > 0) && overall > 0 && !!selectedService;
+  const personnelValid = !!personnel && (personnel !== 'Others' || !!personnelOther.trim());
+  const allRated = Object.values(ratings).every((v) => v > 0) && overall > 0 && !!selectedService && personnelValid;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -101,6 +105,8 @@ const KioskSurveyPage = () => {
       id: `s${Date.now()}`,
       visitorId,
       service: selectedService,
+      clientAssistancePersonnel: personnel === 'Others' ? `Others - ${personnelOther.trim()}` : personnel,
+      clientAssistanceOtherSpecify: personnel === 'Others' ? personnelOther.trim() : undefined,
       ...ratings as any,
       overallSatisfaction: overall,
       comment,
@@ -137,6 +143,27 @@ const KioskSurveyPage = () => {
                 </SelectContent>
               </Select>
             </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="personnel">Client Assistance Personnel *</Label>
+              <Select value={personnel} onValueChange={(v) => { setPersonnel(v); if (v !== 'Others') setPersonnelOther(''); }}>
+                <SelectTrigger id="personnel"><SelectValue placeholder="Select assisting personnel" /></SelectTrigger>
+                <SelectContent>
+                  {assistancePersonnel.map((p) => (<SelectItem key={p} value={p}>{p}</SelectItem>))}
+                  <SelectItem value="Others">Others</SelectItem>
+                </SelectContent>
+              </Select>
+              {personnel === 'Others' && (
+                <Textarea
+                  placeholder="Specify Assistance Personnel"
+                  value={personnelOther}
+                  onChange={(e) => setPersonnelOther(e.target.value)}
+                  rows={1}
+                  className="mt-2"
+                />
+              )}
+            </div>
+
 
             <p className="text-sm text-muted-foreground mb-2">
               Please rate your experience (1 = Poor, 5 = Excellent)

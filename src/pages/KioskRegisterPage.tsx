@@ -28,6 +28,8 @@ const KioskRegisterPage = () => {
     sectorOtherSpecify: '',
     organizationType: '',
     organizationOtherSpecify: '',
+    clientAssistancePersonnel: '',
+    clientAssistanceOtherSpecify: '',
     purpose: 'Transaction',
     service: '',
     serviceOtherSpecify: '',
@@ -70,6 +72,12 @@ const KioskRegisterPage = () => {
           : form.sectorClassification,
         organizationType: (form.organizationType || undefined) as 'LGU' | 'NGA' | 'SUC' | 'Other' | undefined,
         organizationOtherSpecify: form.organizationType === 'Other' ? form.organizationOtherSpecify.trim() : undefined,
+        clientAssistancePersonnel: form.clientAssistancePersonnel
+          ? (form.clientAssistancePersonnel === 'Others'
+              ? `Others - ${form.clientAssistanceOtherSpecify.trim()}`
+              : form.clientAssistancePersonnel)
+          : undefined,
+        clientAssistanceOtherSpecify: form.clientAssistancePersonnel === 'Others' ? form.clientAssistanceOtherSpecify.trim() : undefined,
         purpose: form.purpose,
         service: finalServiceName,
         serviceOtherSpecify: isOtherService ? form.serviceOtherSpecify.trim() : undefined,

@@ -19,6 +19,8 @@ export interface VisitorFormData {
   sectorOtherSpecify: string;
   organizationType: OrganizationType;
   organizationOtherSpecify: string;
+  clientAssistancePersonnel: string;
+  clientAssistanceOtherSpecify: string;
   purpose: string;
   service: string;
   serviceOtherSpecify: string;
@@ -49,6 +51,7 @@ interface StepFormProps {
 const StepForm = ({ form, setForm, onNext, onBack }: StepFormProps) => {
   const allServices = useAppStore((s) => s.services);
   const purposes = useAppStore((s) => s.purposes);
+  const assistancePersonnel = useAppStore((s) => s.assistancePersonnel);
   const services = allServices
     .filter((s) => s.isActive !== false)
     .map((s) => ({ ...s, subServices: s.subServices?.filter((sub) => sub.isActive !== false) }));
@@ -62,6 +65,8 @@ const StepForm = ({ form, setForm, onNext, onBack }: StepFormProps) => {
     (form.sectorClassification !== 'Others' || form.sectorOtherSpecify.trim()) &&
     !!form.organizationType &&
     (form.organizationType !== 'Other' || form.organizationOtherSpecify.trim()) &&
+    !!form.clientAssistancePersonnel &&
+    (form.clientAssistancePersonnel !== 'Others' || form.clientAssistanceOtherSpecify.trim()) &&
     (isIncomingLetter
       ? (form.letterSubject.trim() && form.letterFrom.trim() && form.letterProject && (form.letterProject !== 'Other' || form.letterProjectOther.trim()))
       : (!!form.service && (isOtherService ? !!form.serviceOtherSpecify.trim() : (!hasSubServices || !!form.subService))));
@@ -119,6 +124,24 @@ const StepForm = ({ form, setForm, onNext, onBack }: StepFormProps) => {
             </Select>
             {form.organizationType === 'Other' && (
               <Input placeholder="Please specify..." value={form.organizationOtherSpecify} onChange={(e) => setForm({ ...form, organizationOtherSpecify: e.target.value })} className="mt-2" />
+            )}
+          </div>
+
+          {/* Client Assistance Personnel */}
+          <div className="space-y-2">
+            <Label htmlFor="cap">Client Assistance Personnel *</Label>
+            <Select
+              value={form.clientAssistancePersonnel}
+              onValueChange={(v) => setForm({ ...form, clientAssistancePersonnel: v, clientAssistanceOtherSpecify: v !== 'Others' ? '' : form.clientAssistanceOtherSpecify })}
+            >
+              <SelectTrigger id="cap"><SelectValue placeholder="Select assisting personnel" /></SelectTrigger>
+              <SelectContent>
+                {assistancePersonnel.map((p) => (<SelectItem key={p} value={p}>{p}</SelectItem>))}
+                <SelectItem value="Others">Others</SelectItem>
+              </SelectContent>
+            </Select>
+            {form.clientAssistancePersonnel === 'Others' && (
+              <Input placeholder="Specify Assistance Personnel" value={form.clientAssistanceOtherSpecify} onChange={(e) => setForm({ ...form, clientAssistanceOtherSpecify: e.target.value })} className="mt-2" />
             )}
           </div>
 

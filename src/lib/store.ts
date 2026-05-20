@@ -75,6 +75,8 @@ export interface VisitorLog {
   sectorOtherSpecify?: string;
   organizationType?: 'LGU' | 'NGA' | 'SUC' | 'Other';
   organizationOtherSpecify?: string;
+  clientAssistancePersonnel?: string;
+  clientAssistanceOtherSpecify?: string;
   purpose: string;
   service: string;
   serviceOtherSpecify?: string;
@@ -98,6 +100,8 @@ export interface SurveyResponse {
   id: string;
   visitorId: string;
   service: string;
+  clientAssistancePersonnel?: string;
+  clientAssistanceOtherSpecify?: string;
   responsiveness: number;
   reliability: number;
   accessFacilities: number;
@@ -266,6 +270,8 @@ interface AppState {
   archivedPurposes: string[];
   surveyParameters: string[];
   archivedSurveyParameters: string[];
+  assistancePersonnel: string[];
+  archivedAssistancePersonnel: string[];
   visitors: VisitorLog[];
   surveys: SurveyResponse[];
   auditLogs: AuditEntry[];
@@ -294,6 +300,11 @@ interface AppState {
   deleteSurveyParameter: (p: string) => void;
   archiveSurveyParameter: (p: string) => void;
   restoreSurveyParameter: (p: string) => void;
+  addAssistancePersonnel: (p: string) => void;
+  updateAssistancePersonnel: (oldP: string, newP: string) => void;
+  deleteAssistancePersonnel: (p: string) => void;
+  archiveAssistancePersonnel: (p: string) => void;
+  restoreAssistancePersonnel: (p: string) => void;
   users: User[];
   addUser: (u: User) => void;
   updateUser: (id: string, updates: Partial<Pick<User, 'fullName'>>) => void;
@@ -318,6 +329,13 @@ export const useAppStore = create<AppState>()(persist((set, get) => {
     'Outcome',
   ];
 
+  const defaultAssistancePersonnel = [
+    'JOHN VINCENT B. MACHA',
+    'KEN MATTHEW L. DE LEON',
+    'MARIA PENAFRANCIA L. NEPOMUCENO',
+    'MERLIN N. FABRICANTE',
+  ];
+
   const defaultUsers: User[] = [
     { id: 'u1', username: 'admin', role: 'super_admin', fullName: 'System Administrator' },
     { id: 'u2', username: 'staff', role: 'semi_admin', fullName: 'Staff User' },
@@ -335,6 +353,8 @@ export const useAppStore = create<AppState>()(persist((set, get) => {
     archivedPurposes: [],
     surveyParameters: defaultSurveyParameters,
     archivedSurveyParameters: [],
+    assistancePersonnel: defaultAssistancePersonnel,
+    archivedAssistancePersonnel: [],
     users: defaultUsers,
     userPasswords: defaultPasswords,
     visitors,
@@ -405,6 +425,22 @@ export const useAppStore = create<AppState>()(persist((set, get) => {
       archivedSurveyParameters: s.archivedSurveyParameters.filter((x) => x !== p),
       surveyParameters: s.surveyParameters.includes(p) ? s.surveyParameters : [...s.surveyParameters, p],
     })),
+    addAssistancePersonnel: (p) => set((s) => ({ assistancePersonnel: [...s.assistancePersonnel, p] })),
+    updateAssistancePersonnel: (oldP, newP) => set((s) => ({
+      assistancePersonnel: s.assistancePersonnel.map((x) => (x === oldP ? newP : x)),
+    })),
+    deleteAssistancePersonnel: (p) => set((s) => ({
+      assistancePersonnel: s.assistancePersonnel.filter((x) => x !== p),
+      archivedAssistancePersonnel: s.archivedAssistancePersonnel.filter((x) => x !== p),
+    })),
+    archiveAssistancePersonnel: (p) => set((s) => ({
+      assistancePersonnel: s.assistancePersonnel.filter((x) => x !== p),
+      archivedAssistancePersonnel: s.archivedAssistancePersonnel.includes(p) ? s.archivedAssistancePersonnel : [...s.archivedAssistancePersonnel, p],
+    })),
+    restoreAssistancePersonnel: (p) => set((s) => ({
+      archivedAssistancePersonnel: s.archivedAssistancePersonnel.filter((x) => x !== p),
+      assistancePersonnel: s.assistancePersonnel.includes(p) ? s.assistancePersonnel : [...s.assistancePersonnel, p],
+    })),
     addUser: (u) => set((s) => ({
       users: [...s.users, u],
       userPasswords: { ...s.userPasswords, [u.username]: `${u.username}123` },
@@ -429,7 +465,7 @@ export const useAppStore = create<AppState>()(persist((set, get) => {
   };
 }, {
   name: 'app-store',
-  version: 5,
+  version: 6,
   migrate: (persistedState: any, version: number) => {
     if (persistedState) {
       if (version < 4) {
@@ -446,6 +482,15 @@ export const useAppStore = create<AppState>()(persist((set, get) => {
           ...s,
           subServices: s.subServices?.map((sub) => ({ isActive: true, ...sub })),
         }));
+      }
+      if (version < 6) {
+        persistedState.assistancePersonnel = persistedState.assistancePersonnel || [
+          'JOHN VINCENT B. MACHA',
+          'KEN MATTHEW L. DE LEON',
+          'MARIA PENAFRANCIA L. NEPOMUCENO',
+          'MERLIN N. FABRICANTE',
+        ];
+        persistedState.archivedAssistancePersonnel = persistedState.archivedAssistancePersonnel || [];
       }
     }
     return persistedState;
