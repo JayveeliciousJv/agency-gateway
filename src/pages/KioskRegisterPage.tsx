@@ -28,6 +28,8 @@ const KioskRegisterPage = () => {
     sectorOtherSpecify: '',
     organizationType: '',
     organizationOtherSpecify: '',
+    clientAssistancePersonnel: '',
+    clientAssistanceOtherSpecify: '',
     purpose: 'Transaction',
     service: '',
     serviceOtherSpecify: '',
