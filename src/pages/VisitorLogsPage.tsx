@@ -170,6 +170,7 @@ const VisitorLogsPage = () => {
                     <TableCell>{v.sex}</TableCell>
                     <TableCell>{v.sectorClassification}</TableCell>
                     <TableCell>{v.organizationType || '—'}</TableCell>
+                    <TableCell className="text-sm">{v.clientAssistancePersonnel || '—'}</TableCell>
                     <TableCell>
                       {v.service}
                       {v.serviceOtherSpecify && <span className="block text-xs text-muted-foreground italic">↳ {v.serviceOtherSpecify}</span>}
