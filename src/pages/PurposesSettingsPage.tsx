@@ -401,6 +401,7 @@ const PurposesSettingsPage = () => {
           <TabsTrigger value="purposes">Purposes of Visit</TabsTrigger>
           <TabsTrigger value="services">Services</TabsTrigger>
           <TabsTrigger value="survey">Survey Parameters</TabsTrigger>
+          <TabsTrigger value="personnel">Assistance Personnel</TabsTrigger>
         </TabsList>
 
         <TabsContent value="purposes" className="mt-4">
