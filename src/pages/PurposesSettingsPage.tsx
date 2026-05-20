@@ -139,6 +139,31 @@ const PurposesSettingsPage = () => {
     deleteSurveyParameter(p); audit('Survey Parameter Permanently Deleted', `Deleted: ${p}`); toast.success('Parameter deleted.');
   };
 
+  // ---- Assistance Personnel handlers ----
+  const handleAddPersonnel = () => {
+    const t = newPersonnel.trim();
+    if (!t) return;
+    if (assistancePersonnel.includes(t) || archivedAssistancePersonnel.includes(t)) { toast.error('Personnel already exists.'); return; }
+    addAssistancePersonnel(t); audit('Assistance Personnel Added', `Added: ${t}`); setNewPersonnel(''); toast.success('Personnel added.');
+  };
+  const handleUpdatePersonnel = () => {
+    if (!editingPersonnel) return;
+    const t = editingPersonnel.val.trim();
+    if (!t || (t !== editingPersonnel.old && (assistancePersonnel.includes(t) || archivedAssistancePersonnel.includes(t)))) {
+      toast.error('Invalid or duplicate.'); return;
+    }
+    updateAssistancePersonnelFn(editingPersonnel.old, t); audit('Assistance Personnel Updated', `Renamed "${editingPersonnel.old}" to "${t}"`); setEditingPersonnel(null); toast.success('Personnel updated.');
+  };
+  const handleArchivePersonnel = (p: string) => {
+    archiveAssistancePersonnel(p); audit('Assistance Personnel Archived', `Marked inactive: ${p}`); toast.success('Personnel archived.');
+  };
+  const handleRestorePersonnel = (p: string) => {
+    restoreAssistancePersonnel(p); audit('Assistance Personnel Restored', `Reactivated: ${p}`); toast.success('Personnel reactivated.');
+  };
+  const handleHardDeletePersonnel = (p: string) => {
+    deleteAssistancePersonnel(p); audit('Assistance Personnel Permanently Deleted', `Deleted: ${p}`); toast.success('Personnel deleted.');
+  };
+
   // ---- Service handlers ----
   const openAddServiceDialog = (parent: ServiceItem | null = null) => {
     setEditingSvc(null); setParentSvc(parent);
