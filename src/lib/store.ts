@@ -270,6 +270,8 @@ interface AppState {
   archivedPurposes: string[];
   surveyParameters: string[];
   archivedSurveyParameters: string[];
+  assistancePersonnel: string[];
+  archivedAssistancePersonnel: string[];
   visitors: VisitorLog[];
   surveys: SurveyResponse[];
   auditLogs: AuditEntry[];
@@ -298,6 +300,11 @@ interface AppState {
   deleteSurveyParameter: (p: string) => void;
   archiveSurveyParameter: (p: string) => void;
   restoreSurveyParameter: (p: string) => void;
+  addAssistancePersonnel: (p: string) => void;
+  updateAssistancePersonnel: (oldP: string, newP: string) => void;
+  deleteAssistancePersonnel: (p: string) => void;
+  archiveAssistancePersonnel: (p: string) => void;
+  restoreAssistancePersonnel: (p: string) => void;
   users: User[];
   addUser: (u: User) => void;
   updateUser: (id: string, updates: Partial<Pick<User, 'fullName'>>) => void;
