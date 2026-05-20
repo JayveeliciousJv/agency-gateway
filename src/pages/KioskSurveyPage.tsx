@@ -94,7 +94,8 @@ const KioskSurveyPage = () => {
   const [overall, setOverall] = useState(0);
   const [comment, setComment] = useState('');
 
-  const allRated = Object.values(ratings).every((v) => v > 0) && overall > 0 && !!selectedService;
+  const personnelValid = !!personnel && (personnel !== 'Others' || !!personnelOther.trim());
+  const allRated = Object.values(ratings).every((v) => v > 0) && overall > 0 && !!selectedService && personnelValid;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -104,6 +105,8 @@ const KioskSurveyPage = () => {
       id: `s${Date.now()}`,
       visitorId,
       service: selectedService,
+      clientAssistancePersonnel: personnel === 'Others' ? `Others - ${personnelOther.trim()}` : personnel,
+      clientAssistanceOtherSpecify: personnel === 'Others' ? personnelOther.trim() : undefined,
       ...ratings as any,
       overallSatisfaction: overall,
       comment,
@@ -140,6 +143,27 @@ const KioskSurveyPage = () => {
                 </SelectContent>
               </Select>
             </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="personnel">Client Assistance Personnel *</Label>
+              <Select value={personnel} onValueChange={(v) => { setPersonnel(v); if (v !== 'Others') setPersonnelOther(''); }}>
+                <SelectTrigger id="personnel"><SelectValue placeholder="Select assisting personnel" /></SelectTrigger>
+                <SelectContent>
+                  {assistancePersonnel.map((p) => (<SelectItem key={p} value={p}>{p}</SelectItem>))}
+                  <SelectItem value="Others">Others</SelectItem>
+                </SelectContent>
+              </Select>
+              {personnel === 'Others' && (
+                <Textarea
+                  placeholder="Specify Assistance Personnel"
+                  value={personnelOther}
+                  onChange={(e) => setPersonnelOther(e.target.value)}
+                  rows={1}
+                  className="mt-2"
+                />
+              )}
+            </div>
+
 
             <p className="text-sm text-muted-foreground mb-2">
               Please rate your experience (1 = Poor, 5 = Excellent)
