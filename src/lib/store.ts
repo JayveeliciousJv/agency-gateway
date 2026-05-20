@@ -75,6 +75,8 @@ export interface VisitorLog {
   sectorOtherSpecify?: string;
   organizationType?: 'LGU' | 'NGA' | 'SUC' | 'Other';
   organizationOtherSpecify?: string;
+  clientAssistancePersonnel?: string;
+  clientAssistanceOtherSpecify?: string;
   purpose: string;
   service: string;
   serviceOtherSpecify?: string;
