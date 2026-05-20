@@ -143,6 +143,7 @@ const VisitorLogsPage = () => {
                   <TableHead>Sex</TableHead>
                   <TableHead>Sector</TableHead>
                   <TableHead>Org Type</TableHead>
+                  <TableHead>Assisted By</TableHead>
                   <TableHead>Service</TableHead>
                   <TableHead>Purpose</TableHead>
                   <TableHead>Contact</TableHead>
