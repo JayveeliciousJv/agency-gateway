@@ -19,6 +19,8 @@ export interface VisitorFormData {
   sectorOtherSpecify: string;
   organizationType: OrganizationType;
   organizationOtherSpecify: string;
+  clientAssistancePersonnel: string;
+  clientAssistanceOtherSpecify: string;
   purpose: string;
   service: string;
   serviceOtherSpecify: string;
