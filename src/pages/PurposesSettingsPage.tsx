@@ -85,6 +85,9 @@ const PurposesSettingsPage = () => {
   const isServiceReferenced = (name: string) =>
     visitors.some((v) => v.service === name) || surveys.some((s) => s.service === name);
   const isParamReferenced = (_p: string) => surveys.length > 0; // params are columns in every survey
+  const isPersonnelReferenced = (name: string) =>
+    visitors.some((v) => v.clientAssistancePersonnel === name) ||
+    surveys.some((s) => s.clientAssistancePersonnel === name);
 
   // ---- Purpose handlers ----
   const handleAddPurpose = () => {
