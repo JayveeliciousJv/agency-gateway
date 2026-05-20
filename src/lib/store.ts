@@ -329,6 +329,13 @@ export const useAppStore = create<AppState>()(persist((set, get) => {
     'Outcome',
   ];
 
+  const defaultAssistancePersonnel = [
+    'JOHN VINCENT B. MACHA',
+    'KEN MATTHEW L. DE LEON',
+    'MARIA PENAFRANCIA L. NEPOMUCENO',
+    'MERLIN N. FABRICANTE',
+  ];
+
   const defaultUsers: User[] = [
     { id: 'u1', username: 'admin', role: 'super_admin', fullName: 'System Administrator' },
     { id: 'u2', username: 'staff', role: 'semi_admin', fullName: 'Staff User' },
@@ -346,6 +353,8 @@ export const useAppStore = create<AppState>()(persist((set, get) => {
     archivedPurposes: [],
     surveyParameters: defaultSurveyParameters,
     archivedSurveyParameters: [],
+    assistancePersonnel: defaultAssistancePersonnel,
+    archivedAssistancePersonnel: [],
     users: defaultUsers,
     userPasswords: defaultPasswords,
     visitors,
