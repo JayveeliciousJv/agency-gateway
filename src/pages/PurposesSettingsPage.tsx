@@ -43,6 +43,14 @@ const PurposesSettingsPage = () => {
   const archiveSurveyParameter = useAppStore((s) => s.archiveSurveyParameter);
   const restoreSurveyParameter = useAppStore((s) => s.restoreSurveyParameter);
 
+  const assistancePersonnel = useAppStore((s) => s.assistancePersonnel);
+  const archivedAssistancePersonnel = useAppStore((s) => s.archivedAssistancePersonnel);
+  const addAssistancePersonnel = useAppStore((s) => s.addAssistancePersonnel);
+  const updateAssistancePersonnelFn = useAppStore((s) => s.updateAssistancePersonnel);
+  const deleteAssistancePersonnel = useAppStore((s) => s.deleteAssistancePersonnel);
+  const archiveAssistancePersonnel = useAppStore((s) => s.archiveAssistancePersonnel);
+  const restoreAssistancePersonnel = useAppStore((s) => s.restoreAssistancePersonnel);
+
   const visitors = useAppStore((s) => s.visitors);
   const surveys = useAppStore((s) => s.surveys);
 
@@ -53,10 +61,13 @@ const PurposesSettingsPage = () => {
   const [editingPurpose, setEditingPurpose] = useState<{ old: string; val: string } | null>(null);
   const [newParam, setNewParam] = useState('');
   const [editingParam, setEditingParam] = useState<{ old: string; val: string } | null>(null);
+  const [newPersonnel, setNewPersonnel] = useState('');
+  const [editingPersonnel, setEditingPersonnel] = useState<{ old: string; val: string } | null>(null);
 
   const [purposeFilter, setPurposeFilter] = useState<StatusFilter>('active');
   const [serviceFilter, setServiceFilter] = useState<StatusFilter>('active');
   const [paramFilter, setParamFilter] = useState<StatusFilter>('active');
+  const [personnelFilter, setPersonnelFilter] = useState<StatusFilter>('active');
 
   // Service dialog state
   const [svcDialogOpen, setSvcDialogOpen] = useState(false);
