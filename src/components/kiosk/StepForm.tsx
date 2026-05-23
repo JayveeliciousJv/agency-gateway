@@ -127,23 +127,6 @@ const StepForm = ({ form, setForm, onNext, onBack }: StepFormProps) => {
             )}
           </div>
 
-          {/* Client Assistance Personnel */}
-          <div className="space-y-2">
-            <Label htmlFor="cap">Client Assistance Personnel *</Label>
-            <Select
-              value={form.clientAssistancePersonnel}
-              onValueChange={(v) => setForm({ ...form, clientAssistancePersonnel: v, clientAssistanceOtherSpecify: v !== 'Others' ? '' : form.clientAssistanceOtherSpecify })}
-            >
-              <SelectTrigger id="cap"><SelectValue placeholder="Select assisting personnel" /></SelectTrigger>
-              <SelectContent>
-                {assistancePersonnel.map((p) => (<SelectItem key={p} value={p}>{p}</SelectItem>))}
-                <SelectItem value="Others">Others</SelectItem>
-              </SelectContent>
-            </Select>
-            {form.clientAssistancePersonnel === 'Others' && (
-              <Input placeholder="Specify Assistance Personnel" value={form.clientAssistanceOtherSpecify} onChange={(e) => setForm({ ...form, clientAssistanceOtherSpecify: e.target.value })} className="mt-2" />
-            )}
-          </div>
 
           {/* Contact */}
           <div className="space-y-2">
