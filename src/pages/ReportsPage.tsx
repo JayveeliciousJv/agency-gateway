@@ -146,6 +146,10 @@ const ReportsPage = () => {
       if (appliedFilters.sector !== 'all' && v.sectorClassification !== appliedFilters.sector) return false;
       if (appliedFilters.sex !== 'all' && v.sex !== appliedFilters.sex) return false;
       if (appliedFilters.orgType !== 'all' && v.organizationType !== appliedFilters.orgType) return false;
+      if (appliedFilters.personnel !== 'all') {
+        const personnelName = v.clientAssistancePersonnel === 'Others' ? v.clientAssistanceOtherSpecify : v.clientAssistancePersonnel;
+        if (personnelName !== appliedFilters.personnel) return false;
+      }
       return true;
     });
   }, [visitors, appliedFilters]);
