@@ -207,7 +207,14 @@ const ReportsPage = () => {
 
     const satDist = [1, 2, 3, 4, 5].map((r) => ({ name: `${r} ★`, count: filteredSurveys.filter((s) => s.overallSatisfaction === r).length }));
 
-    return { serviceRows, totalVisitors, totalSurveys, overallAvg, overallSatisfied, sectorData, satDist };
+    const personnelCounts: Record<string, number> = {};
+    filteredVisitors.forEach((v) => {
+      const name = v.clientAssistancePersonnel === 'Others' ? v.clientAssistanceOtherSpecify : v.clientAssistancePersonnel;
+      if (name) personnelCounts[name] = (personnelCounts[name] || 0) + 1;
+    });
+    const personnelData = Object.entries(personnelCounts).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count);
+
+    return { serviceRows, totalVisitors, totalSurveys, overallAvg, overallSatisfied, sectorData, satDist, personnelData };
   }, [filteredVisitors, filteredSurveys]);
 
   // Demographics for a given dataset (sex and sector only)
