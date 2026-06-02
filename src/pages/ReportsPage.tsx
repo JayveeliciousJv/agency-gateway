@@ -82,7 +82,7 @@ const ReportsPage = () => {
   }, []);
 
   const applyFilters = () => {
-    setAppliedFilters({ datePreset, dateFrom, dateTo, service: filterService, sector: filterSector, sex: filterSex, orgType: filterOrgType });
+    setAppliedFilters({ datePreset, dateFrom, dateTo, service: filterService, sector: filterSector, sex: filterSex, orgType: filterOrgType, personnel: filterPersonnel });
   };
 
   const resetFilters = () => {
@@ -94,8 +94,9 @@ const ReportsPage = () => {
     setFilterSector('all');
     setFilterSex('all');
     setFilterOrgType('all');
+    setFilterPersonnel('all');
     setAdvancedOpen(false);
-    setAppliedFilters({ datePreset: 'this_month', dateFrom: startOfMonth(now), dateTo: endOfMonth(now), service: 'all', sector: 'all', sex: 'all', orgType: 'all' });
+    setAppliedFilters({ datePreset: 'this_month', dateFrom: startOfMonth(now), dateTo: endOfMonth(now), service: 'all', sector: 'all', sex: 'all', orgType: 'all', personnel: 'all' });
   };
 
   const removeFilter = (key: string) => {
@@ -104,6 +105,7 @@ const ReportsPage = () => {
     if (key === 'sector') { updated.sector = 'all'; setFilterSector('all'); }
     if (key === 'sex') { updated.sex = 'all'; setFilterSex('all'); }
     if (key === 'orgType') { updated.orgType = 'all'; setFilterOrgType('all'); }
+    if (key === 'personnel') { updated.personnel = 'all'; setFilterPersonnel('all'); }
     if (key === 'date') {
       updated.datePreset = 'all'; updated.dateFrom = undefined; updated.dateTo = undefined;
       setDatePreset('all'); setDateFrom(undefined); setDateTo(undefined);
