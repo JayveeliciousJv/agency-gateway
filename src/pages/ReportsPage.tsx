@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback } from 'react';
-import { useAppStore } from '@/lib/store';
+import { useAppStore, type VisitorLog } from '@/lib/store';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -47,6 +47,7 @@ const ReportsPage = () => {
   const surveys = useAppStore((s) => s.surveys);
   const services = useAppStore((s) => s.services);
   const profile = useAppStore((s) => s.profile);
+  const assistancePersonnel = useAppStore((s) => s.assistancePersonnel);
   const addAuditLog = useAppStore((s) => s.addAuditLog);
   const currentUser = useAppStore((s) => s.currentUser);
 
@@ -57,13 +58,14 @@ const ReportsPage = () => {
   const [filterSector, setFilterSector] = useState('all');
   const [filterSex, setFilterSex] = useState('all');
   const [filterOrgType, setFilterOrgType] = useState('all');
+  const [filterPersonnel, setFilterPersonnel] = useState('all');
   const [advancedOpen, setAdvancedOpen] = useState(false);
 
   const [appliedFilters, setAppliedFilters] = useState({
     datePreset: 'this_month' as DatePreset,
     dateFrom: startOfMonth(new Date()) as Date | undefined,
     dateTo: endOfMonth(new Date()) as Date | undefined,
-    service: 'all', sector: 'all', sex: 'all', orgType: 'all',
+    service: 'all', sector: 'all', sex: 'all', orgType: 'all', personnel: 'all',
   });
 
   const applyDatePreset = useCallback((preset: DatePreset) => {
@@ -80,7 +82,7 @@ const ReportsPage = () => {
   }, []);
 
   const applyFilters = () => {
-    setAppliedFilters({ datePreset, dateFrom, dateTo, service: filterService, sector: filterSector, sex: filterSex, orgType: filterOrgType });
+    setAppliedFilters({ datePreset, dateFrom, dateTo, service: filterService, sector: filterSector, sex: filterSex, orgType: filterOrgType, personnel: filterPersonnel });
   };
 
   const resetFilters = () => {
@@ -92,8 +94,9 @@ const ReportsPage = () => {
     setFilterSector('all');
     setFilterSex('all');
     setFilterOrgType('all');
+    setFilterPersonnel('all');
     setAdvancedOpen(false);
-    setAppliedFilters({ datePreset: 'this_month', dateFrom: startOfMonth(now), dateTo: endOfMonth(now), service: 'all', sector: 'all', sex: 'all', orgType: 'all' });
+    setAppliedFilters({ datePreset: 'this_month', dateFrom: startOfMonth(now), dateTo: endOfMonth(now), service: 'all', sector: 'all', sex: 'all', orgType: 'all', personnel: 'all' });
   };
 
   const removeFilter = (key: string) => {
@@ -102,6 +105,7 @@ const ReportsPage = () => {
     if (key === 'sector') { updated.sector = 'all'; setFilterSector('all'); }
     if (key === 'sex') { updated.sex = 'all'; setFilterSex('all'); }
     if (key === 'orgType') { updated.orgType = 'all'; setFilterOrgType('all'); }
+    if (key === 'personnel') { updated.personnel = 'all'; setFilterPersonnel('all'); }
     if (key === 'date') {
       updated.datePreset = 'all'; updated.dateFrom = undefined; updated.dateTo = undefined;
       setDatePreset('all'); setDateFrom(undefined); setDateTo(undefined);
@@ -122,6 +126,7 @@ const ReportsPage = () => {
     if (appliedFilters.sector !== 'all') chips.push({ key: 'sector', label: appliedFilters.sector });
     if (appliedFilters.sex !== 'all') chips.push({ key: 'sex', label: appliedFilters.sex });
     if (appliedFilters.orgType !== 'all') chips.push({ key: 'orgType', label: `Org: ${appliedFilters.orgType}` });
+    if (appliedFilters.personnel !== 'all') chips.push({ key: 'personnel', label: `Personnel: ${appliedFilters.personnel}` });
     return chips;
   }, [appliedFilters]);
 
@@ -141,6 +146,10 @@ const ReportsPage = () => {
       if (appliedFilters.sector !== 'all' && v.sectorClassification !== appliedFilters.sector) return false;
       if (appliedFilters.sex !== 'all' && v.sex !== appliedFilters.sex) return false;
       if (appliedFilters.orgType !== 'all' && v.organizationType !== appliedFilters.orgType) return false;
+      if (appliedFilters.personnel !== 'all') {
+        const personnelName = v.clientAssistancePersonnel === 'Others' ? v.clientAssistanceOtherSpecify : v.clientAssistancePersonnel;
+        if (personnelName !== appliedFilters.personnel) return false;
+      }
       return true;
     });
   }, [visitors, appliedFilters]);
@@ -198,7 +207,14 @@ const ReportsPage = () => {
 
     const satDist = [1, 2, 3, 4, 5].map((r) => ({ name: `${r} ★`, count: filteredSurveys.filter((s) => s.overallSatisfaction === r).length }));
 
-    return { serviceRows, totalVisitors, totalSurveys, overallAvg, overallSatisfied, sectorData, satDist };
+    const personnelCounts: Record<string, number> = {};
+    filteredVisitors.forEach((v) => {
+      const name = v.clientAssistancePersonnel === 'Others' ? v.clientAssistanceOtherSpecify : v.clientAssistancePersonnel;
+      if (name) personnelCounts[name] = (personnelCounts[name] || 0) + 1;
+    });
+    const personnelData = Object.entries(personnelCounts).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count);
+
+    return { serviceRows, totalVisitors, totalSurveys, overallAvg, overallSatisfied, sectorData, satDist, personnelData };
   }, [filteredVisitors, filteredSurveys]);
 
   // Demographics for a given dataset (sex and sector only)
@@ -239,6 +255,7 @@ const ReportsPage = () => {
     if (appliedFilters.sector !== 'all') parts.push(appliedFilters.sector);
     if (appliedFilters.sex !== 'all') parts.push(appliedFilters.sex);
     if (appliedFilters.orgType !== 'all') parts.push(`Org: ${appliedFilters.orgType}`);
+    if (appliedFilters.personnel !== 'all') parts.push(`Personnel: ${appliedFilters.personnel}`);
     return parts.length ? parts.join(', ') : 'All Data';
   };
 
@@ -261,20 +278,21 @@ const ReportsPage = () => {
     let curY = drawHeader({ doc, profile, title: titleMap[type], filterLabel: filterLabel() });
 
     if (type === 'visitors') {
+      const personnelOf = (v: VisitorLog) => v.clientAssistancePersonnel === 'Others' ? `Others - ${v.clientAssistanceOtherSpecify || ''}` : (v.clientAssistancePersonnel || '—');
       const hasPhotos = filteredVisitors.some(v => v.photo);
       if (hasPhotos) {
         curY = drawTableWithPhotos({
           doc, startY: curY,
-          head: [['#', 'Photo', 'Name', 'Sex', 'Sector', 'Org Type', 'Service', 'Purpose', 'Contact', 'Date']],
-          body: filteredVisitors.map((v, i) => [i + 1, '', v.name, v.sex, v.sectorClassification, v.organizationType || '—', v.serviceOtherSpecify ? `${v.service} (${v.serviceOtherSpecify})` : v.service, v.purpose, v.contactNumber, v.date]),
+          head: [['#', 'Photo', 'Name', 'Sex', 'Sector', 'Org Type', 'Service', 'Purpose', 'Assisted By', 'Contact', 'Date']],
+          body: filteredVisitors.map((v, i) => [i + 1, '', v.name, v.sex, v.sectorClassification, v.organizationType || '—', v.serviceOtherSpecify ? `${v.service} (${v.serviceOtherSpecify})` : v.service, v.purpose, personnelOf(v), v.contactNumber, v.date]),
           photoColumnIndex: 1,
           photos: filteredVisitors.map(v => v.photo),
         });
       } else {
         curY = drawTable({
           doc, startY: curY,
-          head: [['#', 'Name', 'Sex', 'Sector', 'Org Type', 'Service', 'Purpose', 'Contact', 'Date']],
-          body: filteredVisitors.map((v, i) => [i + 1, v.name, v.sex, v.sectorClassification, v.organizationType || '—', v.serviceOtherSpecify ? `${v.service} (${v.serviceOtherSpecify})` : v.service, v.purpose, v.contactNumber, v.date]),
+          head: [['#', 'Name', 'Sex', 'Sector', 'Org Type', 'Service', 'Purpose', 'Assisted By', 'Contact', 'Date']],
+          body: filteredVisitors.map((v, i) => [i + 1, v.name, v.sex, v.sectorClassification, v.organizationType || '—', v.serviceOtherSpecify ? `${v.service} (${v.serviceOtherSpecify})` : v.service, v.purpose, personnelOf(v), v.contactNumber, v.date]),
         });
       }
     } else if (type === 'letters') {
@@ -398,6 +416,13 @@ const ReportsPage = () => {
     const orgTypes: Record<string, number> = {};
     dataForSummary.forEach(v => { if (v?.organizationType) orgTypes[v.organizationType] = (orgTypes[v.organizationType] || 0) + 1; });
 
+    // Client Assistance Personnel
+    const personnel: Record<string, number> = {};
+    dataForSummary.forEach(v => {
+      const name = v?.clientAssistancePersonnel === 'Others' ? v?.clientAssistanceOtherSpecify : v?.clientAssistancePersonnel;
+      if (name) personnel[name] = (personnel[name] || 0) + 1;
+    });
+
     const addDemographicsSheet = () => {
       const demoData: any[] = [
         { Metric: 'Total Overall Number of Visitors/Respondents', Count: totalCount, Percentage: '100%' },
@@ -412,6 +437,9 @@ const ReportsPage = () => {
         { Metric: '', Count: '', Percentage: '' },
         { Metric: '--- ORGANIZATION TYPE ---', Count: '', Percentage: '' },
         ...Object.entries(orgTypes).sort((a, b) => b[1] - a[1]).map(([k, v]) => ({ Metric: k, Count: v, Percentage: `${pct(v, totalCount)}%` })),
+        { Metric: '', Count: '', Percentage: '' },
+        { Metric: '--- CLIENT ASSISTANCE PERSONNEL ---', Count: '', Percentage: '' },
+        ...Object.entries(personnel).sort((a, b) => b[1] - a[1]).map(([k, v]) => ({ Metric: k, Count: v, Percentage: `${pct(v, totalCount)}%` })),
       ];
       XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(demoData), 'Demographics Summary');
     };
@@ -421,7 +449,9 @@ const ReportsPage = () => {
         '#': i + 1, Name: v.name, Sex: v.sex, Sector: v.sectorClassification,
         'Organization Type': v.organizationType || '',
         Service: v.service, 'Service (Other Specify)': v.serviceOtherSpecify || '',
-        Purpose: v.purpose, Contact: v.contactNumber, Email: v.email,
+        Purpose: v.purpose,
+        'Client Assistance Personnel': v.clientAssistancePersonnel === 'Others' ? `Others - ${v.clientAssistanceOtherSpecify || ''}` : (v.clientAssistancePersonnel || ''),
+        Contact: v.contactNumber, Email: v.email,
         'Has Photo': v.photo ? 'Yes' : 'No', Date: v.date, Time: v.time,
       }));
       XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(visitorRows), 'Visitors');
@@ -714,6 +744,16 @@ const ReportsPage = () => {
                       </SelectContent>
                     </Select>
                   </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs text-muted-foreground">Client Assistance Personnel</Label>
+                    <Select value={filterPersonnel} onValueChange={setFilterPersonnel}>
+                      <SelectTrigger className="w-56 h-8 text-xs"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Personnel</SelectItem>
+                        {assistancePersonnel.map((p) => <SelectItem key={p} value={p}>{p}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
               </CollapsibleContent>
             </Collapsible>
@@ -889,6 +929,31 @@ const ReportsPage = () => {
             </CardContent>
           </Card>
 
+          {/* Client Assistance Personnel Breakdown */}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                <UserCheck className="w-4 h-4 text-primary" /> Client Assistance Personnel Breakdown
+              </CardTitle>
+              <p className="text-xs text-muted-foreground">Visitors assisted per personnel within the selected period</p>
+            </CardHeader>
+            <CardContent>
+              {summaryData.personnelData.length > 0 ? (
+                <div className="space-y-2">
+                  {summaryData.personnelData.map((p, i) => (
+                    <div key={p.name} className="flex items-center gap-3">
+                      <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: CHART_COLORS[i % CHART_COLORS.length] }} />
+                      <span className="text-xs font-medium flex-1 truncate">{p.name}</span>
+                      <Progress value={pct(p.count, summaryData.totalVisitors)} className="w-40 h-2" />
+                      <span className="text-sm font-bold w-8 text-right">{p.count}</span>
+                      <span className="text-xs text-muted-foreground w-10 text-right">{pct(p.count, summaryData.totalVisitors)}%</span>
+                    </div>
+                  ))}
+                </div>
+              ) : <EmptyState message="No assistance personnel data" />}
+            </CardContent>
+          </Card>
+
           <DemographicsPanel data={visitorDemographics} />
         </TabsContent>
 
@@ -919,6 +984,7 @@ const ReportsPage = () => {
                         <TableHead>Org Type</TableHead>
                         <TableHead>Service</TableHead>
                         <TableHead>Purpose</TableHead>
+                        <TableHead>Assisted By</TableHead>
                         <TableHead>Contact</TableHead>
                         <TableHead>Date</TableHead>
                       </TableRow>
@@ -936,6 +1002,11 @@ const ReportsPage = () => {
                             {v.serviceOtherSpecify && <div className="text-xs text-muted-foreground italic">↳ {v.serviceOtherSpecify}</div>}
                           </TableCell>
                           <TableCell>{v.purpose}</TableCell>
+                          <TableCell className="text-xs">
+                            {v.clientAssistancePersonnel === 'Others'
+                              ? `Others — ${v.clientAssistanceOtherSpecify || ''}`
+                              : (v.clientAssistancePersonnel || '—')}
+                          </TableCell>
                           <TableCell className="text-sm">{v.contactNumber}</TableCell>
                           <TableCell>{v.date}</TableCell>
                         </TableRow>
