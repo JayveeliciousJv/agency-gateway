@@ -47,6 +47,7 @@ const ReportsPage = () => {
   const surveys = useAppStore((s) => s.surveys);
   const services = useAppStore((s) => s.services);
   const profile = useAppStore((s) => s.profile);
+  const assistancePersonnel = useAppStore((s) => s.assistancePersonnel);
   const addAuditLog = useAppStore((s) => s.addAuditLog);
   const currentUser = useAppStore((s) => s.currentUser);
 
@@ -57,13 +58,14 @@ const ReportsPage = () => {
   const [filterSector, setFilterSector] = useState('all');
   const [filterSex, setFilterSex] = useState('all');
   const [filterOrgType, setFilterOrgType] = useState('all');
+  const [filterPersonnel, setFilterPersonnel] = useState('all');
   const [advancedOpen, setAdvancedOpen] = useState(false);
 
   const [appliedFilters, setAppliedFilters] = useState({
     datePreset: 'this_month' as DatePreset,
     dateFrom: startOfMonth(new Date()) as Date | undefined,
     dateTo: endOfMonth(new Date()) as Date | undefined,
-    service: 'all', sector: 'all', sex: 'all', orgType: 'all',
+    service: 'all', sector: 'all', sex: 'all', orgType: 'all', personnel: 'all',
   });
 
   const applyDatePreset = useCallback((preset: DatePreset) => {
