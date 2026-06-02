@@ -929,6 +929,31 @@ const ReportsPage = () => {
             </CardContent>
           </Card>
 
+          {/* Client Assistance Personnel Breakdown */}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                <UserCheck className="w-4 h-4 text-primary" /> Client Assistance Personnel Breakdown
+              </CardTitle>
+              <p className="text-xs text-muted-foreground">Visitors assisted per personnel within the selected period</p>
+            </CardHeader>
+            <CardContent>
+              {summaryData.personnelData.length > 0 ? (
+                <div className="space-y-2">
+                  {summaryData.personnelData.map((p, i) => (
+                    <div key={p.name} className="flex items-center gap-3">
+                      <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: CHART_COLORS[i % CHART_COLORS.length] }} />
+                      <span className="text-xs font-medium flex-1 truncate">{p.name}</span>
+                      <Progress value={pct(p.count, summaryData.totalVisitors)} className="w-40 h-2" />
+                      <span className="text-sm font-bold w-8 text-right">{p.count}</span>
+                      <span className="text-xs text-muted-foreground w-10 text-right">{pct(p.count, summaryData.totalVisitors)}%</span>
+                    </div>
+                  ))}
+                </div>
+              ) : <EmptyState message="No assistance personnel data" />}
+            </CardContent>
+          </Card>
+
           <DemographicsPanel data={visitorDemographics} />
         </TabsContent>
 
