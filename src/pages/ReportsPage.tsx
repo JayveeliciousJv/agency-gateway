@@ -984,6 +984,7 @@ const ReportsPage = () => {
                         <TableHead>Org Type</TableHead>
                         <TableHead>Service</TableHead>
                         <TableHead>Purpose</TableHead>
+                        <TableHead>Assisted By</TableHead>
                         <TableHead>Contact</TableHead>
                         <TableHead>Date</TableHead>
                       </TableRow>
