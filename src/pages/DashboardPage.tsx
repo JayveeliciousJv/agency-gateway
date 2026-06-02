@@ -165,6 +165,14 @@ const DashboardPage = () => {
   filteredVisitors.forEach((v) => { sectorCounts[v.sectorClassification] = (sectorCounts[v.sectorClassification] || 0) + 1; });
   const sectorData = Object.entries(sectorCounts).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count);
 
+  // Client Assistance Personnel distribution
+  const personnelCounts: Record<string, number> = {};
+  filteredVisitors.forEach((v) => {
+    const name = v.clientAssistancePersonnel === 'Others' ? v.clientAssistanceOtherSpecify : v.clientAssistancePersonnel;
+    if (name) personnelCounts[name] = (personnelCounts[name] || 0) + 1;
+  });
+  const personnelData = Object.entries(personnelCounts).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count);
+
   // Chart data
   const serviceData = Object.entries(serviceCountsMap).map(([name, count]) => ({ name: name.length > 20 ? name.slice(0, 20) + '…' : name, fullName: name, count })).sort((a, b) => b.count - a.count).slice(0, 8);
 
