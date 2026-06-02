@@ -744,6 +744,16 @@ const ReportsPage = () => {
                       </SelectContent>
                     </Select>
                   </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs text-muted-foreground">Client Assistance Personnel</Label>
+                    <Select value={filterPersonnel} onValueChange={setFilterPersonnel}>
+                      <SelectTrigger className="w-56 h-8 text-xs"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Personnel</SelectItem>
+                        {assistancePersonnel.map((p) => <SelectItem key={p} value={p}>{p}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
               </CollapsibleContent>
             </Collapsible>
