@@ -126,6 +126,7 @@ const ReportsPage = () => {
     if (appliedFilters.sector !== 'all') chips.push({ key: 'sector', label: appliedFilters.sector });
     if (appliedFilters.sex !== 'all') chips.push({ key: 'sex', label: appliedFilters.sex });
     if (appliedFilters.orgType !== 'all') chips.push({ key: 'orgType', label: `Org: ${appliedFilters.orgType}` });
+    if (appliedFilters.personnel !== 'all') chips.push({ key: 'personnel', label: `Personnel: ${appliedFilters.personnel}` });
     return chips;
   }, [appliedFilters]);
 
