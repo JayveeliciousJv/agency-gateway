@@ -439,7 +439,9 @@ const ReportsPage = () => {
         '#': i + 1, Name: v.name, Sex: v.sex, Sector: v.sectorClassification,
         'Organization Type': v.organizationType || '',
         Service: v.service, 'Service (Other Specify)': v.serviceOtherSpecify || '',
-        Purpose: v.purpose, Contact: v.contactNumber, Email: v.email,
+        Purpose: v.purpose,
+        'Client Assistance Personnel': v.clientAssistancePersonnel === 'Others' ? `Others - ${v.clientAssistanceOtherSpecify || ''}` : (v.clientAssistancePersonnel || ''),
+        Contact: v.contactNumber, Email: v.email,
         'Has Photo': v.photo ? 'Yes' : 'No', Date: v.date, Time: v.time,
       }));
       XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(visitorRows), 'Visitors');
