@@ -458,6 +458,29 @@ const DashboardPage = () => {
           </CardContent>
         </Card>
 
+        {/* Client Assistance Personnel Distribution */}
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-semibold">Client Assistance Personnel</CardTitle>
+            <p className="text-xs text-muted-foreground">Visitors assisted per personnel</p>
+          </CardHeader>
+          <CardContent>
+            {personnelData.length > 0 ? (
+              <ResponsiveContainer width="100%" height={280}>
+                <BarChart data={personnelData.map(p => ({ name: p.name.length > 22 ? p.name.slice(0, 22) + '…' : p.name, fullName: p.name, count: p.count }))} layout="vertical" margin={{ left: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                  <XAxis type="number" tick={{ fontSize: 12 }} />
+                  <YAxis type="category" dataKey="name" width={140} tick={{ fontSize: 11 }} />
+                  <Tooltip content={({ active, payload }) => active && payload?.[0] ? (
+                    <div className="bg-card border border-border rounded-lg p-2 shadow-lg text-sm"><p className="font-medium">{payload[0].payload.fullName}</p><p className="text-muted-foreground">{payload[0].value} assisted</p></div>
+                  ) : null} />
+                  <Bar dataKey="count" fill="hsl(270, 60%, 50%)" radius={[0, 4, 4, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : <EmptyState message="No assistance personnel data" />}
+          </CardContent>
+        </Card>
+
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-semibold">Satisfaction Distribution</CardTitle>
