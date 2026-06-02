@@ -255,6 +255,7 @@ const ReportsPage = () => {
     if (appliedFilters.sector !== 'all') parts.push(appliedFilters.sector);
     if (appliedFilters.sex !== 'all') parts.push(appliedFilters.sex);
     if (appliedFilters.orgType !== 'all') parts.push(`Org: ${appliedFilters.orgType}`);
+    if (appliedFilters.personnel !== 'all') parts.push(`Personnel: ${appliedFilters.personnel}`);
     return parts.length ? parts.join(', ') : 'All Data';
   };
 
