@@ -278,20 +278,21 @@ const ReportsPage = () => {
     let curY = drawHeader({ doc, profile, title: titleMap[type], filterLabel: filterLabel() });
 
     if (type === 'visitors') {
+      const personnelOf = (v: VisitorLog) => v.clientAssistancePersonnel === 'Others' ? `Others - ${v.clientAssistanceOtherSpecify || ''}` : (v.clientAssistancePersonnel || '—');
       const hasPhotos = filteredVisitors.some(v => v.photo);
       if (hasPhotos) {
         curY = drawTableWithPhotos({
           doc, startY: curY,
-          head: [['#', 'Photo', 'Name', 'Sex', 'Sector', 'Org Type', 'Service', 'Purpose', 'Contact', 'Date']],
-          body: filteredVisitors.map((v, i) => [i + 1, '', v.name, v.sex, v.sectorClassification, v.organizationType || '—', v.serviceOtherSpecify ? `${v.service} (${v.serviceOtherSpecify})` : v.service, v.purpose, v.contactNumber, v.date]),
+          head: [['#', 'Photo', 'Name', 'Sex', 'Sector', 'Org Type', 'Service', 'Purpose', 'Assisted By', 'Contact', 'Date']],
+          body: filteredVisitors.map((v, i) => [i + 1, '', v.name, v.sex, v.sectorClassification, v.organizationType || '—', v.serviceOtherSpecify ? `${v.service} (${v.serviceOtherSpecify})` : v.service, v.purpose, personnelOf(v), v.contactNumber, v.date]),
           photoColumnIndex: 1,
           photos: filteredVisitors.map(v => v.photo),
         });
       } else {
         curY = drawTable({
           doc, startY: curY,
-          head: [['#', 'Name', 'Sex', 'Sector', 'Org Type', 'Service', 'Purpose', 'Contact', 'Date']],
-          body: filteredVisitors.map((v, i) => [i + 1, v.name, v.sex, v.sectorClassification, v.organizationType || '—', v.serviceOtherSpecify ? `${v.service} (${v.serviceOtherSpecify})` : v.service, v.purpose, v.contactNumber, v.date]),
+          head: [['#', 'Name', 'Sex', 'Sector', 'Org Type', 'Service', 'Purpose', 'Assisted By', 'Contact', 'Date']],
+          body: filteredVisitors.map((v, i) => [i + 1, v.name, v.sex, v.sectorClassification, v.organizationType || '—', v.serviceOtherSpecify ? `${v.service} (${v.serviceOtherSpecify})` : v.service, v.purpose, personnelOf(v), v.contactNumber, v.date]),
         });
       }
     } else if (type === 'letters') {
