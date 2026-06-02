@@ -416,6 +416,13 @@ const ReportsPage = () => {
     const orgTypes: Record<string, number> = {};
     dataForSummary.forEach(v => { if (v?.organizationType) orgTypes[v.organizationType] = (orgTypes[v.organizationType] || 0) + 1; });
 
+    // Client Assistance Personnel
+    const personnel: Record<string, number> = {};
+    dataForSummary.forEach(v => {
+      const name = v?.clientAssistancePersonnel === 'Others' ? v?.clientAssistanceOtherSpecify : v?.clientAssistancePersonnel;
+      if (name) personnel[name] = (personnel[name] || 0) + 1;
+    });
+
     const addDemographicsSheet = () => {
       const demoData: any[] = [
         { Metric: 'Total Overall Number of Visitors/Respondents', Count: totalCount, Percentage: '100%' },
@@ -430,6 +437,9 @@ const ReportsPage = () => {
         { Metric: '', Count: '', Percentage: '' },
         { Metric: '--- ORGANIZATION TYPE ---', Count: '', Percentage: '' },
         ...Object.entries(orgTypes).sort((a, b) => b[1] - a[1]).map(([k, v]) => ({ Metric: k, Count: v, Percentage: `${pct(v, totalCount)}%` })),
+        { Metric: '', Count: '', Percentage: '' },
+        { Metric: '--- CLIENT ASSISTANCE PERSONNEL ---', Count: '', Percentage: '' },
+        ...Object.entries(personnel).sort((a, b) => b[1] - a[1]).map(([k, v]) => ({ Metric: k, Count: v, Percentage: `${pct(v, totalCount)}%` })),
       ];
       XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(demoData), 'Demographics Summary');
     };
