@@ -1002,6 +1002,11 @@ const ReportsPage = () => {
                             {v.serviceOtherSpecify && <div className="text-xs text-muted-foreground italic">↳ {v.serviceOtherSpecify}</div>}
                           </TableCell>
                           <TableCell>{v.purpose}</TableCell>
+                          <TableCell className="text-xs">
+                            {v.clientAssistancePersonnel === 'Others'
+                              ? `Others — ${v.clientAssistanceOtherSpecify || ''}`
+                              : (v.clientAssistancePersonnel || '—')}
+                          </TableCell>
                           <TableCell className="text-sm">{v.contactNumber}</TableCell>
                           <TableCell>{v.date}</TableCell>
                         </TableRow>
