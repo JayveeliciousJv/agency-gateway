@@ -45,7 +45,7 @@ const AdminLayout = () => {
         className={cn(
           isMobile
             ? 'fixed inset-y-0 left-0 z-50 transition-transform duration-300 ease-in-out'
-            : 'relative',
+            : 'sticky top-0 h-screen self-start',
           isMobile && !mobileOpen && '-translate-x-full',
           isMobile && mobileOpen && 'translate-x-0',
         )}

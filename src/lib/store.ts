@@ -196,6 +196,13 @@ const defaultServices: ServiceItem[] = [
   },
 ];
 
+const PERSONNEL_POOL = [
+  'JOHN VINCENT B. MACHA',
+  'KEN MATTHEW L. DE LEON',
+  'MARIA PENAFRANCIA L. NEPOMUCENO',
+  'MERLIN N. FABRICANTE',
+];
+
 function generateMockVisitors(): VisitorLog[] {
   const names = ['Ana Reyes', 'Jose Garcia', 'Maria Santos', 'Pedro Cruz', 'Rosa Mendoza', 'Carlos Rivera', 'Elena Torres', 'Miguel Bautista', 'Sofia Ramos', 'Luis Flores', 'Isabel Navarro', 'Roberto Aquino'];
   const logs: VisitorLog[] = [];
@@ -216,6 +223,7 @@ function generateMockVisitors(): VisitorLog[] {
     const sectorOptions = ['Student', 'Employed/Working', 'Government Employee', 'Private Sector', 'Senior Citizen', 'Youth', 'Women', 'PWD', 'Solo Parent'];
     const isIncomingLetter = i % 6 === 0;
     const project = letterProjects[Math.floor(Math.random() * letterProjects.length)];
+    const personnel = PERSONNEL_POOL[Math.floor(Math.random() * PERSONNEL_POOL.length)];
     logs.push({
       id: `v${i}`,
       name: names[i % names.length],
@@ -225,6 +233,7 @@ function generateMockVisitors(): VisitorLog[] {
       occupation: occupations[Math.floor(Math.random() * occupations.length)],
       region: regions[Math.floor(Math.random() * regions.length)],
       sectorClassification: sectorOptions[Math.floor(Math.random() * sectorOptions.length)],
+      clientAssistancePersonnel: personnel,
       purpose: isIncomingLetter ? 'Incoming Letter' : 'Transaction',
       service: isIncomingLetter ? 'Incoming Letter' : flattenServices(defaultServices)[Math.floor(Math.random() * flattenServices(defaultServices).length)].name,
       ...(isIncomingLetter ? {
@@ -249,6 +258,7 @@ function generateMockSurveys(visitors: VisitorLog[]): SurveyResponse[] {
     id: `s${i}`,
     visitorId: v.id,
     service: v.service,
+    clientAssistancePersonnel: v.clientAssistancePersonnel,
     responsiveness: 3 + Math.floor(Math.random() * 3),
     reliability: 3 + Math.floor(Math.random() * 3),
     accessFacilities: 3 + Math.floor(Math.random() * 3),
@@ -465,7 +475,7 @@ export const useAppStore = create<AppState>()(persist((set, get) => {
   };
 }, {
   name: 'app-store',
-  version: 6,
+  version: 7,
   migrate: (persistedState: any, version: number) => {
     if (persistedState) {
       if (version < 4) {
@@ -491,6 +501,12 @@ export const useAppStore = create<AppState>()(persist((set, get) => {
           'MERLIN N. FABRICANTE',
         ];
         persistedState.archivedAssistancePersonnel = persistedState.archivedAssistancePersonnel || [];
+      }
+      if (version < 7) {
+        // Regenerate mock data so visitors and surveys include clientAssistancePersonnel
+        const freshVisitors = generateMockVisitors();
+        persistedState.visitors = freshVisitors;
+        persistedState.surveys = generateMockSurveys(freshVisitors);
       }
     }
     return persistedState;
