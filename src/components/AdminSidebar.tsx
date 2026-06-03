@@ -45,7 +45,7 @@ const AdminSidebar = ({ collapsed, onToggle, onNavClick }: AdminSidebarProps) =>
   return (
     <aside
       className={cn(
-        'min-h-screen gov-header-gradient flex flex-col transition-all duration-300 ease-in-out',
+        'h-screen gov-header-gradient flex flex-col transition-all duration-300 ease-in-out',
         collapsed ? 'w-16' : 'w-64'
       )}
     >
