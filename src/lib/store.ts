@@ -221,9 +221,11 @@ function generateMockVisitors(): VisitorLog[] {
     d.setHours(8 + Math.floor(Math.random() * 8), Math.floor(Math.random() * 60));
     const sexOptions: Array<'Male' | 'Female' | 'Prefer not to say'> = ['Male', 'Female', 'Prefer not to say'];
     const sectorOptions = ['Student', 'Employed/Working', 'Government Employee', 'Private Sector', 'Senior Citizen', 'Youth', 'Women', 'PWD', 'Solo Parent'];
+    const orgTypes: Array<'LGU' | 'NGA' | 'SUC' | 'Other'> = ['LGU', 'NGA', 'SUC', 'Other'];
     const isIncomingLetter = i % 6 === 0;
     const project = letterProjects[Math.floor(Math.random() * letterProjects.length)];
     const personnel = PERSONNEL_POOL[Math.floor(Math.random() * PERSONNEL_POOL.length)];
+    const orgType = orgTypes[Math.floor(Math.random() * orgTypes.length)];
     logs.push({
       id: `v${i}`,
       name: names[i % names.length],
@@ -233,6 +235,8 @@ function generateMockVisitors(): VisitorLog[] {
       occupation: occupations[Math.floor(Math.random() * occupations.length)],
       region: regions[Math.floor(Math.random() * regions.length)],
       sectorClassification: sectorOptions[Math.floor(Math.random() * sectorOptions.length)],
+      organizationType: orgType,
+      organizationOtherSpecify: orgType === 'Other' ? 'Private Foundation' : undefined,
       clientAssistancePersonnel: personnel,
       purpose: isIncomingLetter ? 'Incoming Letter' : 'Transaction',
       service: isIncomingLetter ? 'Incoming Letter' : flattenServices(defaultServices)[Math.floor(Math.random() * flattenServices(defaultServices).length)].name,
