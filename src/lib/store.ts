@@ -475,7 +475,7 @@ export const useAppStore = create<AppState>()(persist((set, get) => {
   };
 }, {
   name: 'app-store',
-  version: 6,
+  version: 7,
   migrate: (persistedState: any, version: number) => {
     if (persistedState) {
       if (version < 4) {
@@ -501,6 +501,12 @@ export const useAppStore = create<AppState>()(persist((set, get) => {
           'MERLIN N. FABRICANTE',
         ];
         persistedState.archivedAssistancePersonnel = persistedState.archivedAssistancePersonnel || [];
+      }
+      if (version < 7) {
+        // Regenerate mock data so visitors and surveys include clientAssistancePersonnel
+        const freshVisitors = generateMockVisitors();
+        persistedState.visitors = freshVisitors;
+        persistedState.surveys = generateMockSurveys(freshVisitors);
       }
     }
     return persistedState;
