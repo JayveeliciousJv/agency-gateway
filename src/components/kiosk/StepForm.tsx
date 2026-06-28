@@ -130,6 +130,24 @@ const StepForm = ({ form, setForm, onNext, onBack }: StepFormProps) => {
             )}
           </div>
 
+          {/* Municipality (Camarines Norte) */}
+          <div className="space-y-2">
+            <Label htmlFor="municipality">Municipality *</Label>
+            <Select value={form.municipality} onValueChange={(v) => setForm({ ...form, municipality: v })}>
+              <SelectTrigger id="municipality"><SelectValue placeholder="Select municipality" /></SelectTrigger>
+              <SelectContent>
+                {(Object.entries(MUNICIPALITIES_BY_DISTRICT) as Array<[string, string[]]>).map(([district, munis]) => (
+                  <div key={district}>
+                    <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground bg-muted/40">{district}</div>
+                    {munis.map((m) => (<SelectItem key={m} value={m}>{m}</SelectItem>))}
+                  </div>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+
+
 
           {/* Contact */}
           <div className="space-y-2">
