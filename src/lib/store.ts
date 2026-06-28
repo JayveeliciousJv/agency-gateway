@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { ALL_MUNICIPALITIES, getDistrictForMunicipality } from './municipalities';
 
 export interface ServiceItem {
   name: string;
@@ -75,6 +76,8 @@ export interface VisitorLog {
   sectorOtherSpecify?: string;
   organizationType?: 'LGU' | 'NGA' | 'SUC' | 'Other';
   organizationOtherSpecify?: string;
+  municipality?: string;
+  district?: '1st District' | '2nd District';
   clientAssistancePersonnel?: string;
   clientAssistanceOtherSpecify?: string;
   purpose: string;
@@ -226,6 +229,7 @@ function generateMockVisitors(): VisitorLog[] {
     const project = letterProjects[Math.floor(Math.random() * letterProjects.length)];
     const personnel = PERSONNEL_POOL[Math.floor(Math.random() * PERSONNEL_POOL.length)];
     const orgType = orgTypes[Math.floor(Math.random() * orgTypes.length)];
+    const municipality = ALL_MUNICIPALITIES[Math.floor(Math.random() * ALL_MUNICIPALITIES.length)];
     logs.push({
       id: `v${i}`,
       name: names[i % names.length],
@@ -237,6 +241,8 @@ function generateMockVisitors(): VisitorLog[] {
       sectorClassification: sectorOptions[Math.floor(Math.random() * sectorOptions.length)],
       organizationType: orgType,
       organizationOtherSpecify: orgType === 'Other' ? 'Private Foundation' : undefined,
+      municipality,
+      district: getDistrictForMunicipality(municipality),
       clientAssistancePersonnel: personnel,
       purpose: isIncomingLetter ? 'Incoming Letter' : 'Transaction',
       service: isIncomingLetter ? 'Incoming Letter' : flattenServices(defaultServices)[Math.floor(Math.random() * flattenServices(defaultServices).length)].name,
@@ -479,7 +485,7 @@ export const useAppStore = create<AppState>()(persist((set, get) => {
   };
 }, {
   name: 'app-store',
-  version: 8,
+  version: 9,
   migrate: (persistedState: any, version: number) => {
     if (persistedState) {
       if (version < 4) {
@@ -506,8 +512,8 @@ export const useAppStore = create<AppState>()(persist((set, get) => {
         ];
         persistedState.archivedAssistancePersonnel = persistedState.archivedAssistancePersonnel || [];
       }
-      if (version < 8) {
-        // Regenerate mock data to include clientAssistancePersonnel & organizationType
+      if (version < 9) {
+        // Regenerate mock data to include municipality / district fields
         const freshVisitors = generateMockVisitors();
         persistedState.visitors = freshVisitors;
         persistedState.surveys = generateMockSurveys(freshVisitors);
