@@ -20,6 +20,7 @@ import {
 import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, subMonths, startOfDay, endOfDay } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
+import { MUNICIPALITIES_BY_DISTRICT, ALL_MUNICIPALITIES, DISTRICT_COLORS } from '@/lib/municipalities';
 
 const CHART_COLORS = [
   'hsl(200, 80%, 40%)', 'hsl(220, 60%, 22%)', 'hsl(142, 71%, 45%)',
@@ -50,6 +51,7 @@ const DashboardPage = () => {
   const [filterService, setFilterService] = useState('all');
   const [filterSector, setFilterSector] = useState('all');
   const [filterSex, setFilterSex] = useState('all');
+  const [filterDistrict, setFilterDistrict] = useState<'all' | '1st District' | '2nd District'>('all');
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const [drillService, setDrillService] = useState<string | null>(null);
 
@@ -57,7 +59,7 @@ const DashboardPage = () => {
     datePreset: 'this_month' as DatePreset,
     dateFrom: startOfMonth(new Date()) as Date | undefined,
     dateTo: endOfMonth(new Date()) as Date | undefined,
-    service: 'all', sector: 'all', sex: 'all',
+    service: 'all', sector: 'all', sex: 'all', district: 'all' as 'all' | '1st District' | '2nd District',
   });
 
   const applyDatePreset = useCallback((preset: DatePreset) => {
@@ -74,15 +76,15 @@ const DashboardPage = () => {
   }, []);
 
   const applyFilters = () => {
-    setAppliedFilters({ datePreset, dateFrom, dateTo, service: filterService, sector: filterSector, sex: filterSex });
+    setAppliedFilters({ datePreset, dateFrom, dateTo, service: filterService, sector: filterSector, sex: filterSex, district: filterDistrict });
   };
 
   const resetFilters = () => {
     const now = new Date();
     setDatePreset('this_month'); setDateFrom(startOfMonth(now)); setDateTo(endOfMonth(now));
-    setFilterService('all'); setFilterSector('all'); setFilterSex('all');
+    setFilterService('all'); setFilterSector('all'); setFilterSex('all'); setFilterDistrict('all');
     setAdvancedOpen(false); setDrillService(null);
-    setAppliedFilters({ datePreset: 'this_month', dateFrom: startOfMonth(now), dateTo: endOfMonth(now), service: 'all', sector: 'all', sex: 'all' });
+    setAppliedFilters({ datePreset: 'this_month', dateFrom: startOfMonth(now), dateTo: endOfMonth(now), service: 'all', sector: 'all', sex: 'all', district: 'all' });
   };
 
   const removeFilter = (key: string) => {
@@ -90,6 +92,7 @@ const DashboardPage = () => {
     if (key === 'service') { updated.service = 'all'; setFilterService('all'); }
     if (key === 'sector') { updated.sector = 'all'; setFilterSector('all'); }
     if (key === 'sex') { updated.sex = 'all'; setFilterSex('all'); }
+    if (key === 'district') { updated.district = 'all'; setFilterDistrict('all'); }
     if (key === 'date') { updated.datePreset = 'all'; updated.dateFrom = undefined; updated.dateTo = undefined; setDatePreset('all'); setDateFrom(undefined); setDateTo(undefined); }
     setAppliedFilters(updated);
   };
@@ -106,6 +109,7 @@ const DashboardPage = () => {
     if (appliedFilters.service !== 'all') chips.push({ key: 'service', label: appliedFilters.service });
     if (appliedFilters.sector !== 'all') chips.push({ key: 'sector', label: appliedFilters.sector });
     if (appliedFilters.sex !== 'all') chips.push({ key: 'sex', label: appliedFilters.sex });
+    if (appliedFilters.district !== 'all') chips.push({ key: 'district', label: appliedFilters.district });
     if (drillService) chips.push({ key: 'drill', label: `Drill: ${drillService}` });
     return chips;
   }, [appliedFilters, drillService]);
@@ -119,6 +123,7 @@ const DashboardPage = () => {
       if (appliedFilters.service !== 'all' && v.service !== appliedFilters.service) return false;
       if (appliedFilters.sector !== 'all' && v.sectorClassification !== appliedFilters.sector) return false;
       if (appliedFilters.sex !== 'all' && v.sex !== appliedFilters.sex) return false;
+      if (appliedFilters.district !== 'all' && v.district !== appliedFilters.district) return false;
       if (drillService && v.service !== drillService) return false;
       return true;
     });
