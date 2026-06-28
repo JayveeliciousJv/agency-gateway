@@ -2,7 +2,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Mail, ArrowRight, ArrowLeft, ExternalLink } from 'lucide-react';
 import { useAppStore, findService } from '@/lib/store';
@@ -137,10 +137,10 @@ const StepForm = ({ form, setForm, onNext, onBack }: StepFormProps) => {
               <SelectTrigger id="municipality"><SelectValue placeholder="Select municipality" /></SelectTrigger>
               <SelectContent>
                 {(Object.entries(MUNICIPALITIES_BY_DISTRICT) as Array<[string, string[]]>).map(([district, munis]) => (
-                  <div key={district}>
-                    <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground bg-muted/40">{district}</div>
+                  <SelectGroup key={district}>
+                    <SelectLabel className="text-xs">{district}</SelectLabel>
                     {munis.map((m) => (<SelectItem key={m} value={m}>{m}</SelectItem>))}
-                  </div>
+                  </SelectGroup>
                 ))}
               </SelectContent>
             </Select>
