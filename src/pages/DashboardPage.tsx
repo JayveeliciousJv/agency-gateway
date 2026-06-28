@@ -358,10 +358,22 @@ const DashboardPage = () => {
                       </SelectContent>
                     </Select>
                   </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs text-muted-foreground">District</Label>
+                    <Select value={filterDistrict} onValueChange={(v) => setFilterDistrict(v as typeof filterDistrict)}>
+                      <SelectTrigger className="w-full h-9 sm:h-8 text-xs"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Districts</SelectItem>
+                        <SelectItem value="1st District">1st District</SelectItem>
+                        <SelectItem value="2nd District">2nd District</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
               </CollapsibleContent>
             </Collapsible>
           </div>
+
 
           {activeChips.length > 0 && (
             <div className="flex flex-wrap gap-1.5 px-4 pb-3 border-t pt-3">
