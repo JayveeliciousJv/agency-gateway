@@ -178,6 +178,19 @@ const DashboardPage = () => {
   });
   const personnelData = Object.entries(personnelCounts).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count);
 
+  // Geographic distribution — visits per municipality grouped by district
+  const municipalityData = ALL_MUNICIPALITIES.map((name) => {
+    const count = filteredVisitors.filter((v) => v.municipality === name).length;
+    const district = MUNICIPALITIES_BY_DISTRICT['1st District'].includes(name) ? '1st District' : '2nd District';
+    return { name, count, district };
+  }).sort((a, b) => b.count - a.count);
+  const districtTotals = {
+    '1st District': filteredVisitors.filter((v) => v.district === '1st District').length,
+    '2nd District': filteredVisitors.filter((v) => v.district === '2nd District').length,
+    Unspecified: filteredVisitors.filter((v) => !v.district).length,
+  };
+
+
   // Chart data
   const serviceData = Object.entries(serviceCountsMap).map(([name, count]) => ({ name: name.length > 20 ? name.slice(0, 20) + '…' : name, fullName: name, count })).sort((a, b) => b.count - a.count).slice(0, 8);
 
