@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Mail, ArrowRight, ArrowLeft, ExternalLink } from 'lucide-react';
 import { useAppStore, findService } from '@/lib/store';
+import { MUNICIPALITIES_BY_DISTRICT } from '@/lib/municipalities';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 export type OrganizationType = 'LGU' | 'NGA' | 'SUC' | 'Other' | '';
@@ -19,6 +20,7 @@ export interface VisitorFormData {
   sectorOtherSpecify: string;
   organizationType: OrganizationType;
   organizationOtherSpecify: string;
+  municipality: string;
   clientAssistancePersonnel: string;
   clientAssistanceOtherSpecify: string;
   purpose: string;
@@ -65,6 +67,7 @@ const StepForm = ({ form, setForm, onNext, onBack }: StepFormProps) => {
     (form.sectorClassification !== 'Others' || form.sectorOtherSpecify.trim()) &&
     !!form.organizationType &&
     (form.organizationType !== 'Other' || form.organizationOtherSpecify.trim()) &&
+    !!form.municipality &&
     !!form.clientAssistancePersonnel &&
     (form.clientAssistancePersonnel !== 'Others' || form.clientAssistanceOtherSpecify.trim()) &&
     (isIncomingLetter
