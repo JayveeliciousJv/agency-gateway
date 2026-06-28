@@ -2,10 +2,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Mail, ArrowRight, ArrowLeft, ExternalLink } from 'lucide-react';
 import { useAppStore, findService } from '@/lib/store';
+import { MUNICIPALITIES_BY_DISTRICT } from '@/lib/municipalities';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 export type OrganizationType = 'LGU' | 'NGA' | 'SUC' | 'Other' | '';
@@ -19,6 +20,7 @@ export interface VisitorFormData {
   sectorOtherSpecify: string;
   organizationType: OrganizationType;
   organizationOtherSpecify: string;
+  municipality: string;
   clientAssistancePersonnel: string;
   clientAssistanceOtherSpecify: string;
   purpose: string;
@@ -65,6 +67,7 @@ const StepForm = ({ form, setForm, onNext, onBack }: StepFormProps) => {
     (form.sectorClassification !== 'Others' || form.sectorOtherSpecify.trim()) &&
     !!form.organizationType &&
     (form.organizationType !== 'Other' || form.organizationOtherSpecify.trim()) &&
+    !!form.municipality &&
     !!form.clientAssistancePersonnel &&
     (form.clientAssistancePersonnel !== 'Others' || form.clientAssistanceOtherSpecify.trim()) &&
     (isIncomingLetter
@@ -126,6 +129,24 @@ const StepForm = ({ form, setForm, onNext, onBack }: StepFormProps) => {
               <Input placeholder="Please specify..." value={form.organizationOtherSpecify} onChange={(e) => setForm({ ...form, organizationOtherSpecify: e.target.value })} className="mt-2" />
             )}
           </div>
+
+          {/* Municipality (Camarines Norte) */}
+          <div className="space-y-2">
+            <Label htmlFor="municipality">Municipality *</Label>
+            <Select value={form.municipality} onValueChange={(v) => setForm({ ...form, municipality: v })}>
+              <SelectTrigger id="municipality"><SelectValue placeholder="Select municipality" /></SelectTrigger>
+              <SelectContent>
+                {(Object.entries(MUNICIPALITIES_BY_DISTRICT) as Array<[string, string[]]>).map(([district, munis]) => (
+                  <SelectGroup key={district}>
+                    <SelectLabel className="text-xs">{district}</SelectLabel>
+                    {munis.map((m) => (<SelectItem key={m} value={m}>{m}</SelectItem>))}
+                  </SelectGroup>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+
 
 
           {/* Contact */}

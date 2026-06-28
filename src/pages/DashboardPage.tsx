@@ -20,6 +20,7 @@ import {
 import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, subMonths, startOfDay, endOfDay } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
+import { MUNICIPALITIES_BY_DISTRICT, ALL_MUNICIPALITIES, DISTRICT_COLORS } from '@/lib/municipalities';
 
 const CHART_COLORS = [
   'hsl(200, 80%, 40%)', 'hsl(220, 60%, 22%)', 'hsl(142, 71%, 45%)',
@@ -50,6 +51,7 @@ const DashboardPage = () => {
   const [filterService, setFilterService] = useState('all');
   const [filterSector, setFilterSector] = useState('all');
   const [filterSex, setFilterSex] = useState('all');
+  const [filterDistrict, setFilterDistrict] = useState<'all' | '1st District' | '2nd District'>('all');
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const [drillService, setDrillService] = useState<string | null>(null);
 
@@ -57,7 +59,7 @@ const DashboardPage = () => {
     datePreset: 'this_month' as DatePreset,
     dateFrom: startOfMonth(new Date()) as Date | undefined,
     dateTo: endOfMonth(new Date()) as Date | undefined,
-    service: 'all', sector: 'all', sex: 'all',
+    service: 'all', sector: 'all', sex: 'all', district: 'all' as 'all' | '1st District' | '2nd District',
   });
 
   const applyDatePreset = useCallback((preset: DatePreset) => {
@@ -74,15 +76,15 @@ const DashboardPage = () => {
   }, []);
 
   const applyFilters = () => {
-    setAppliedFilters({ datePreset, dateFrom, dateTo, service: filterService, sector: filterSector, sex: filterSex });
+    setAppliedFilters({ datePreset, dateFrom, dateTo, service: filterService, sector: filterSector, sex: filterSex, district: filterDistrict });
   };
 
   const resetFilters = () => {
     const now = new Date();
     setDatePreset('this_month'); setDateFrom(startOfMonth(now)); setDateTo(endOfMonth(now));
-    setFilterService('all'); setFilterSector('all'); setFilterSex('all');
+    setFilterService('all'); setFilterSector('all'); setFilterSex('all'); setFilterDistrict('all');
     setAdvancedOpen(false); setDrillService(null);
-    setAppliedFilters({ datePreset: 'this_month', dateFrom: startOfMonth(now), dateTo: endOfMonth(now), service: 'all', sector: 'all', sex: 'all' });
+    setAppliedFilters({ datePreset: 'this_month', dateFrom: startOfMonth(now), dateTo: endOfMonth(now), service: 'all', sector: 'all', sex: 'all', district: 'all' });
   };
 
   const removeFilter = (key: string) => {
@@ -90,6 +92,7 @@ const DashboardPage = () => {
     if (key === 'service') { updated.service = 'all'; setFilterService('all'); }
     if (key === 'sector') { updated.sector = 'all'; setFilterSector('all'); }
     if (key === 'sex') { updated.sex = 'all'; setFilterSex('all'); }
+    if (key === 'district') { updated.district = 'all'; setFilterDistrict('all'); }
     if (key === 'date') { updated.datePreset = 'all'; updated.dateFrom = undefined; updated.dateTo = undefined; setDatePreset('all'); setDateFrom(undefined); setDateTo(undefined); }
     setAppliedFilters(updated);
   };
@@ -106,6 +109,7 @@ const DashboardPage = () => {
     if (appliedFilters.service !== 'all') chips.push({ key: 'service', label: appliedFilters.service });
     if (appliedFilters.sector !== 'all') chips.push({ key: 'sector', label: appliedFilters.sector });
     if (appliedFilters.sex !== 'all') chips.push({ key: 'sex', label: appliedFilters.sex });
+    if (appliedFilters.district !== 'all') chips.push({ key: 'district', label: appliedFilters.district });
     if (drillService) chips.push({ key: 'drill', label: `Drill: ${drillService}` });
     return chips;
   }, [appliedFilters, drillService]);
@@ -119,6 +123,7 @@ const DashboardPage = () => {
       if (appliedFilters.service !== 'all' && v.service !== appliedFilters.service) return false;
       if (appliedFilters.sector !== 'all' && v.sectorClassification !== appliedFilters.sector) return false;
       if (appliedFilters.sex !== 'all' && v.sex !== appliedFilters.sex) return false;
+      if (appliedFilters.district !== 'all' && v.district !== appliedFilters.district) return false;
       if (drillService && v.service !== drillService) return false;
       return true;
     });
@@ -172,6 +177,19 @@ const DashboardPage = () => {
     if (name) personnelCounts[name] = (personnelCounts[name] || 0) + 1;
   });
   const personnelData = Object.entries(personnelCounts).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count);
+
+  // Geographic distribution — visits per municipality grouped by district
+  const municipalityData = ALL_MUNICIPALITIES.map((name) => {
+    const count = filteredVisitors.filter((v) => v.municipality === name).length;
+    const district = MUNICIPALITIES_BY_DISTRICT['1st District'].includes(name) ? '1st District' : '2nd District';
+    return { name, count, district };
+  }).sort((a, b) => b.count - a.count);
+  const districtTotals = {
+    '1st District': filteredVisitors.filter((v) => v.district === '1st District').length,
+    '2nd District': filteredVisitors.filter((v) => v.district === '2nd District').length,
+    Unspecified: filteredVisitors.filter((v) => !v.district).length,
+  };
+
 
   // Chart data
   const serviceData = Object.entries(serviceCountsMap).map(([name, count]) => ({ name: name.length > 20 ? name.slice(0, 20) + '…' : name, fullName: name, count })).sort((a, b) => b.count - a.count).slice(0, 8);
@@ -340,10 +358,22 @@ const DashboardPage = () => {
                       </SelectContent>
                     </Select>
                   </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs text-muted-foreground">District</Label>
+                    <Select value={filterDistrict} onValueChange={(v) => setFilterDistrict(v as typeof filterDistrict)}>
+                      <SelectTrigger className="w-full h-9 sm:h-8 text-xs"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Districts</SelectItem>
+                        <SelectItem value="1st District">1st District</SelectItem>
+                        <SelectItem value="2nd District">2nd District</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
               </CollapsibleContent>
             </Collapsible>
           </div>
+
 
           {activeChips.length > 0 && (
             <div className="flex flex-wrap gap-1.5 px-4 pb-3 border-t pt-3">
@@ -564,6 +594,52 @@ const DashboardPage = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* ── Geographic Distribution (Camarines Norte Municipalities) ── */}
+      <Card className="mb-4 sm:mb-6">
+        <CardHeader className="pb-2 flex-row items-start justify-between space-y-0">
+          <div>
+            <CardTitle className="text-sm font-semibold">Geographic Distribution — Camarines Norte</CardTitle>
+            <p className="text-xs text-muted-foreground">Visits per municipality, colored by congressional district</p>
+          </div>
+          <div className="flex gap-2 text-xs">
+            <Badge variant="secondary" style={{ backgroundColor: DISTRICT_COLORS['1st District'] + '22', color: DISTRICT_COLORS['1st District'] }}>
+              1st: {districtTotals['1st District']}
+            </Badge>
+            <Badge variant="secondary" style={{ backgroundColor: DISTRICT_COLORS['2nd District'] + '22', color: DISTRICT_COLORS['2nd District'] }}>
+              2nd: {districtTotals['2nd District']}
+            </Badge>
+            {districtTotals.Unspecified > 0 && (
+              <Badge variant="outline">Unspecified: {districtTotals.Unspecified}</Badge>
+            )}
+          </div>
+        </CardHeader>
+        <CardContent>
+          {municipalityData.some((m) => m.count > 0) ? (
+            <ResponsiveContainer width="100%" height={340}>
+              <BarChart data={municipalityData} layout="vertical" margin={{ left: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <XAxis type="number" tick={{ fontSize: 12 }} allowDecimals={false} />
+                <YAxis type="category" dataKey="name" width={120} tick={{ fontSize: 11 }} />
+                <Tooltip content={({ active, payload }) => active && payload?.[0] ? (
+                  <div className="bg-card border border-border rounded-lg p-2 shadow-lg text-sm">
+                    <p className="font-medium">{payload[0].payload.name}</p>
+                    <p className="text-muted-foreground">{payload[0].payload.district}</p>
+                    <p className="text-muted-foreground">{payload[0].value} visitors</p>
+                  </div>
+                ) : null} />
+                <Bar dataKey="count" radius={[0, 4, 4, 0]}>
+                  {municipalityData.map((entry, i) => (
+                    <Cell key={i} fill={DISTRICT_COLORS[entry.district as '1st District' | '2nd District']} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          ) : <EmptyState message="No geographic data" />}
+        </CardContent>
+      </Card>
+
+
 
       {/* ── Incoming Letters Widget ── */}
       {(() => {

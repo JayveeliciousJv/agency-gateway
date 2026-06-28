@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppStore, findService } from '@/lib/store';
+import { getDistrictForMunicipality } from '@/lib/municipalities';
 import KioskProgress from '@/components/kiosk/KioskProgress';
 import StepWelcome from '@/components/kiosk/StepWelcome';
 import StepForm, { type VisitorFormData } from '@/components/kiosk/StepForm';
@@ -28,6 +29,7 @@ const KioskRegisterPage = () => {
     sectorOtherSpecify: '',
     organizationType: '',
     organizationOtherSpecify: '',
+    municipality: '',
     clientAssistancePersonnel: '',
     clientAssistanceOtherSpecify: '',
     purpose: 'Transaction',
@@ -72,6 +74,8 @@ const KioskRegisterPage = () => {
           : form.sectorClassification,
         organizationType: (form.organizationType || undefined) as 'LGU' | 'NGA' | 'SUC' | 'Other' | undefined,
         organizationOtherSpecify: form.organizationType === 'Other' ? form.organizationOtherSpecify.trim() : undefined,
+        municipality: form.municipality || undefined,
+        district: getDistrictForMunicipality(form.municipality),
         clientAssistancePersonnel: form.clientAssistancePersonnel
           ? (form.clientAssistancePersonnel === 'Others'
               ? `Others - ${form.clientAssistanceOtherSpecify.trim()}`
