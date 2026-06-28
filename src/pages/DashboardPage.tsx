@@ -595,6 +595,52 @@ const DashboardPage = () => {
         </Card>
       </div>
 
+      {/* ── Geographic Distribution (Camarines Norte Municipalities) ── */}
+      <Card className="mb-4 sm:mb-6">
+        <CardHeader className="pb-2 flex-row items-start justify-between space-y-0">
+          <div>
+            <CardTitle className="text-sm font-semibold">Geographic Distribution — Camarines Norte</CardTitle>
+            <p className="text-xs text-muted-foreground">Visits per municipality, colored by congressional district</p>
+          </div>
+          <div className="flex gap-2 text-xs">
+            <Badge variant="secondary" style={{ backgroundColor: DISTRICT_COLORS['1st District'] + '22', color: DISTRICT_COLORS['1st District'] }}>
+              1st: {districtTotals['1st District']}
+            </Badge>
+            <Badge variant="secondary" style={{ backgroundColor: DISTRICT_COLORS['2nd District'] + '22', color: DISTRICT_COLORS['2nd District'] }}>
+              2nd: {districtTotals['2nd District']}
+            </Badge>
+            {districtTotals.Unspecified > 0 && (
+              <Badge variant="outline">Unspecified: {districtTotals.Unspecified}</Badge>
+            )}
+          </div>
+        </CardHeader>
+        <CardContent>
+          {municipalityData.some((m) => m.count > 0) ? (
+            <ResponsiveContainer width="100%" height={340}>
+              <BarChart data={municipalityData} layout="vertical" margin={{ left: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <XAxis type="number" tick={{ fontSize: 12 }} allowDecimals={false} />
+                <YAxis type="category" dataKey="name" width={120} tick={{ fontSize: 11 }} />
+                <Tooltip content={({ active, payload }) => active && payload?.[0] ? (
+                  <div className="bg-card border border-border rounded-lg p-2 shadow-lg text-sm">
+                    <p className="font-medium">{payload[0].payload.name}</p>
+                    <p className="text-muted-foreground">{payload[0].payload.district}</p>
+                    <p className="text-muted-foreground">{payload[0].value} visitors</p>
+                  </div>
+                ) : null} />
+                <Bar dataKey="count" radius={[0, 4, 4, 0]}>
+                  {municipalityData.map((entry, i) => (
+                    <Cell key={i} fill={DISTRICT_COLORS[entry.district as '1st District' | '2nd District']} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          ) : <EmptyState message="No geographic data" />}
+        </CardContent>
+      </Card>
+
+
+
       {/* ── Incoming Letters Widget ── */}
       {(() => {
         const letters = filteredVisitors.filter(v => v.purpose === 'Incoming Letter');
